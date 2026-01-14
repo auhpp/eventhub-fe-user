@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -9,7 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { HttpStatusCode } from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { routes } from "@/config/routes";
-import { authenticate } from "@/services/authenticationService";
+import { authenticate, getCurrentUserInfo } from "@/services/authenticationService";
+import { AuthContext } from "@/context/AuthContex";
 
 const signinFormSchema = z
     .object({
@@ -26,7 +27,7 @@ export default function SigninForm() {
     const [showPassword, setShowPassword] = useState(false);
     const togglePassword = () => setShowPassword(!showPassword);
     const navigate = useNavigate()
-
+    const { setUser } = useContext(AuthContext)
     const form = useForm({
         resolver: zodResolver(signinFormSchema),
         defaultValues: {
@@ -43,6 +44,10 @@ export default function SigninForm() {
             console.log("login response", data)
             if (data.code == HttpStatusCode.Ok) {
                 localStorage.setItem('access_token', data.result.accessToken);
+                const userInfoResponse = await getCurrentUserInfo();
+                if (userInfoResponse.code == HttpStatusCode.Ok) {
+                    setUser(userInfoResponse.result)
+                }
                 navigate(routes.home, { replace: true })
             }
         } catch (error) {

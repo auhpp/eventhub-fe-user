@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function Header() {
+export default function AuthHeader() {
     return (
         <header className="h-16 w-full bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-800 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-50">
             {/* Logo Section */}
