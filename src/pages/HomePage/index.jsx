@@ -1,8 +1,8 @@
 import React from 'react';
 
 import '../../assets/css/hero.css';
-import CategorySection from '@/features/event/CategorySection';
-import FeaturedEvents from '@/features/event/FeaturedEvents';
+import CategorySection from '@/pages/HomePage/CategorySection';
+import FeaturedEvents from '@/pages/HomePage/FeaturedEvents';
 import UpcomingEvents from '@/features/event/UpcomingEvents';
 import CTASection from '@/features/event/CTASection';
 import bannerImage from '../../assets/images/banner.jpg';

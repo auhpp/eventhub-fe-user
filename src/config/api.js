@@ -1,7 +1,10 @@
 import axios from 'axios';
+import { routes } from './routes';
+
+const baseURL = import.meta.env.VITE_BASE_URL
 
 const API = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: baseURL,
     withCredentials: true,
 });
 
@@ -16,7 +19,6 @@ const processQueue = (error, token = null) => {
             prom.resolve(token);
         }
     });
-
     failedQueue = [];
 };
 
@@ -43,8 +45,6 @@ API.interceptors.response.use(
             !originalRequest._retry &&
             !originalRequest.url.includes('/auth/token')
         ) {
-            originalRequest._retry = true;
-
             if (isRefreshing) {
                 return new Promise(function (resolve, reject) {
                     failedQueue.push({ resolve, reject });
@@ -58,34 +58,45 @@ API.interceptors.response.use(
                     });
             }
 
+            originalRequest._retry = true;
             isRefreshing = true;
 
             try {
                 const res = await axios.post(
-                    'http://localhost:8080/auth/refresh',
+                    `${baseURL}/api/v1/auth/refresh`,
                     {},
                     { withCredentials: true }
                 );
 
                 const newToken = res.data.result.accessToken;
                 localStorage.setItem('access_token', newToken);
-                API.defaults.headers.Authorization = 'Bearer ' + newToken;
+
+                API.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
 
                 processQueue(null, newToken);
 
+                originalRequest.headers.Authorization = 'Bearer ' + newToken;
                 return API(originalRequest);
+
             } catch (err) {
                 processQueue(err, null);
                 localStorage.removeItem('access_token');
-                window.location.href = '/signin';
-                // return Promise.reject(err);
+
+                const isAuthRequest = originalRequest.url.includes('/auth/login') || originalRequest.url.includes('/auth/register');
+
+                const isOnHomePage = window.location.pathname === routes.home;
+
+                if (!isAuthRequest && !isOnHomePage) {
+                    window.location.href = routes.signin;
+                }
+
+                return Promise.reject(err);
             } finally {
                 isRefreshing = false;
             }
         }
-        // return Promise.reject(error);
-
+        return Promise.reject(error);
     }
 );
 
-export default API; 
+export default API;

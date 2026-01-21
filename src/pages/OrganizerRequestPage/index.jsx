@@ -9,33 +9,42 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { routes } from "@/config/routes";
 import { getOrganizerRegistrations } from "@/services/organizerRegistrationService";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AuthContext } from "@/context/AuthContex";
 import { Role } from "@/utils/constant";
+import { HttpStatusCode } from "axios";
+import DefaultPagination from "@/components/DefaultPagination";
 
 
 export default function OrganizerRequestPage() {
-    const [organizerRegistrations, setOrganizerRegistration] = useState(null)
+    const [organizerRegistrations, setOrganizerRegistrations] = useState(null)
     const navigate = useNavigate()
     const { user } = useContext(AuthContext)
-
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalElements, setTotalElements] = useState(0);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const pageSize = 2;
     useEffect(
         () => {
             const fetchorganizerRegistrations = async () => {
                 try {
-                    const response = await getOrganizerRegistrations()
-                    setOrganizerRegistration(response.result.data)
+                    const response = await getOrganizerRegistrations({ page: currentPage, size: pageSize })
+                    if (response.code == HttpStatusCode.Ok) {
+                        setOrganizerRegistrations(response.result.data)
+                        setTotalPages(response.result.totalPage);
+                        setTotalElements(response.result.totalElements);
+                    }
                 } catch (error) {
                     console.log(error)
                 }
             }
             fetchorganizerRegistrations()
-        }, []
+        }, [currentPage]
     )
 
     if (!organizerRegistrations) {
@@ -141,30 +150,14 @@ export default function OrganizerRequestPage() {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between border-t pt-4">
-                <p className="text-sm text-muted-foreground">
-                    Hiển thị <span className="font-medium text-foreground">1</span> đến <span className="font-medium text-foreground">5</span> trong số <span className="font-medium text-foreground">15</span> kết quả
-                </p>
-                <Pagination className="w-auto m-0">
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious href="#" />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#" isActive>1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">2</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink href="#">3</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext href="#" />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            </div>
+            <DefaultPagination
+                currentPage={currentPage}
+                setSearchParams={setSearchParams}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                pageSize={pageSize}
+            />
+
 
 
 

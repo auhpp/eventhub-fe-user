@@ -27,3 +27,10 @@ export const getCurrentUserInfo = async () => {
     });
     return response.data;
 };
+
+export const logout = async () => {
+    const response = await API.post('/api/v1/auth/logout', {
+        requiresAuth: false
+    });
+    return response.data;
+};

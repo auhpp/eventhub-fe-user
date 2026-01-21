@@ -124,7 +124,10 @@ const CreateOrganizerRequestPage = () => {
                                         // eslint-disable-next-line no-unused-vars
                                         render={({ field: { value, onChange, ...fieldProps } }) => (
                                             <FormItem>
-                                                <div className="relative group w-32 h-32 rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 bg-muted/30 flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden">
+                                                <div className="relative group w-32 h-32
+                                                 rounded-lg border-2 border-dashed border-muted-foreground/25
+                                                  hover:border-primary/50 bg-muted/30 flex flex-col items-center 
+                                                  justify-center cursor-pointer transition-colors overflow-hidden">
                                                     {previewUrl ? (
                                                         <>
                                                             <img
@@ -281,7 +284,7 @@ const CreateOrganizerRequestPage = () => {
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => navigate(-1)} 
+                                onClick={() => navigate(-1)}
                             >
                                 Hủy bỏ
                             </Button>

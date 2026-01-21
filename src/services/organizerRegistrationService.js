@@ -28,8 +28,8 @@ export const createOrganizerRegistrationRequest = async ({
 };
 
 
-export const getOrganizerRegistrations = async () => {
-    const response = await API.get('/api/v1/organizer-registration/current-user', {
+export const getOrganizerRegistrations = async ({ page, size }) => {
+    const response = await API.get(`/api/v1/organizer-registration/current-user?page=${page}&size=${size}`, {
         requiresAuth: true
     });
     return response.data;

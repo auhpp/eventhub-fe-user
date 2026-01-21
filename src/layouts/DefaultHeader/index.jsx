@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
-import { Search, Calendar, Menu, Bell } from 'lucide-react';
+import { Search, Calendar, Menu, Bell, LayoutDashboard, PlusCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContex';
 import { routes } from '@/config/routes';
+import { Role } from '@/utils/constant';
 
 const DefaultHeader = () => {
     const { user, isLoading } = useContext(AuthContext);
     const navigate = useNavigate();
-
+    const isOrganizer = user?.role.name === Role.ORGANIZER;
     const getInitials = (name) => {
         if (!name) return "U";
         return name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
@@ -65,8 +66,30 @@ const DefaultHeader = () => {
                                         Đăng ký
                                     </button>
                                 </>) : (
-                                    <div className="flex items-center gap-5">
-                                        {/* notification icon */}
+                                    <div className="flex items-center gap-4">
+                                        {/* 3. BUTTON ĐIỀU HƯỚNG QUẢN LÝ (MỚI) */}
+                                        {isOrganizer ? (
+                                            <button
+                                                // Thay thế đường dẫn này bằng route dashboard của bạn
+                                                onClick={() => navigate(routes.eventManagement)}
+                                                className="hidden sm:flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-brand hover:text-brand transition-all shadow-sm"
+                                            >
+                                                <LayoutDashboard className="h-4 w-4" />
+                                                <span>Ban Tổ Chức</span>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => navigate(routes.organizerRegistration)}
+                                                className="hidden sm:flex items-center gap-2 rounded-full bg-black px-4
+                                                 py-1.5 text-sm font-medium text-white hover:bg-gray-800 transition-all
+                                                  shadow-sm"
+                                            >
+                                                <PlusCircle className="h-4 w-4" />
+                                                <span>Tạo sự kiện</span>
+                                            </button>
+                                        )}
+
+                                        {/* Notification Icon */}
                                         <button className="relative p-1 text-gray-600 hover:text-brand transition-colors group">
                                             <Bell className="h-5 w-5" />
                                             <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
@@ -76,7 +99,8 @@ const DefaultHeader = () => {
                                         <div
                                             className="relative flex items-center gap-2 cursor-pointer"
                                             onClick={() => {
-                                                navigate(routes.organizerRegistration)
+                                                // 4. Nên điều hướng về trang Profile cá nhân thay vì trang đăng ký
+                                                navigate(routes.organizerRegistration);
                                             }}
                                         >
                                             <div className="h-9 w-9 rounded-full border border-gray-200 bg-gray-100 overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-brand hover:ring-offset-1 transition-all">
@@ -94,8 +118,7 @@ const DefaultHeader = () => {
                                             </div>
                                         </div>
                                     </div>
-                                )
-                        }
+                                )}
                     </div>
                 </div>
 
