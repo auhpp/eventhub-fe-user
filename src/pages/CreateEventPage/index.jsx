@@ -12,6 +12,8 @@ import { EventType } from '@/utils/constant';
 import { createEventApi } from '@/services/eventService';
 import { HttpStatusCode } from 'axios';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@/config/routes';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -70,7 +72,7 @@ const createEventSchema = z.object({
     });
 
 const CreateEventPage = () => {
-
+    const navigate = useNavigate()
     const [sessions, setSessions] = useState([
         {
             id: `session-1`,
@@ -109,6 +111,8 @@ const CreateEventPage = () => {
             const response = await createEventApi({ eventData: data, sessions: sessions })
             if (response.code == HttpStatusCode.Ok) {
                 toast.info("Tạo sự kiện thành công")
+                navigate(routes.eventManagement)
+
             }
         } catch (error) {
             console.log(error)
@@ -150,8 +154,19 @@ const CreateEventPage = () => {
                         <Button
                             type="submit"
                             className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 transition-all ml-auto"
+                            disabled={form.formState.isSubmitting}
                         >
-                            <Save className="size-5 mr-2" /> Tạo sự kiện
+                            {form.formState.isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Đang xử lý...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="size-5 mr-2" />
+                                    Tạo sự kiện
+                                </>
+                            )}
                         </Button>
                     </div>
                 </form>

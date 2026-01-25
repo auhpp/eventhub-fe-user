@@ -1,4 +1,4 @@
-import { getCurrentUserInfo } from '@/services/authenticationService';
+import { getCurrentUserInfo, logout } from '@/services/authenticationService';
 import { HttpStatusCode } from 'axios';
 import { createContext, useEffect, useState } from 'react';
 
@@ -30,12 +30,24 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const logoutAuth = async () => {
+        try {
+            const response = await logout();
+            if (response.code == HttpStatusCode.Ok) {
+                localStorage.removeItem("access_token")
+                window.location.reload()
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         getCurrentUserInfoAuth();
     }, []);
 
     return (
-        <AuthContext.Provider value={{ token, user, getCurrentUserInfoAuth, isLoading, setUser }}>
+        <AuthContext.Provider value={{ token, user, getCurrentUserInfoAuth, isLoading, setUser, logoutAuth }}>
             {children}
         </AuthContext.Provider>
     );

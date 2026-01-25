@@ -38,3 +38,12 @@ export function getDayInWeek(dateString) {
 
     return daysOfWeek[date.getDay()];
 }
+
+export function displaySessionDate({ startDateTime, endDateTime }) {
+    if (formatDate(startDateTime) == formatDate(endDateTime)) {
+        return formatDate(startDateTime)
+    }
+    else {
+        return formatDate(startDateTime) - formatDate(endDateTime)
+    }
+}

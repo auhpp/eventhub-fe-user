@@ -1,8 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { CalendarDays, Clock, MapPin, Trash2 } from 'lucide-react';
+import { Clock, MapPin } from 'lucide-react';
 import EventStatusBadge from './EventStatusBadge';
 import { formatDateTime } from '@/utils/format';
 
@@ -31,7 +30,9 @@ const EventCard = ({ event, showActionManage, onClick }) => {
                 <div>
                     <h3 className="text-lg font-bold line-clamp-1">{event.name}</h3>
                     <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="size-4" />
+                        <div>
+                            <MapPin className="size-4" />
+                        </div>
                         <span>{event.location}</span>
                     </div>
                     <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">

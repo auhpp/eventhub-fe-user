@@ -1,20 +1,29 @@
-import React from 'react';
-import { Calendar, MapPin, Clock, ArrowRight, Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Calendar, MapPin } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatTime, formatCurrency } from '@/utils/format';
+import { formatTime, formatCurrency, displaySessionDate } from '@/utils/format';
 
 const EventHero = ({ event }) => {
     const firstSession = event.eventSessions?.[0];
+    const [displayPrice, setDisplayPrice] = useState();
 
     // find the lowest price to display "Giá từ..."
-    const minPrice = event.eventSessions?.reduce((min, session) => {
-        const sessionMin = session.tickets?.reduce((sMin, ticket) =>
-            ticket.price < sMin ? ticket.price : sMin, Infinity) || Infinity;
-        return sessionMin < min ? sessionMin : min;
-    }, Infinity);
+    useEffect(
+        () => {
+            var minPrice = Number.MAX_SAFE_INTEGER;
+            event.eventSessions.forEach(eventSession => {
+                eventSession.tickets.forEach(ticket => {
+                    if (ticket.price < minPrice) {
+                        minPrice = ticket.price
+                    }
+                });
+            });
+            setDisplayPrice(formatCurrency(minPrice))
+        }, [event]
+    )
 
-    const displayPrice = minPrice !== Infinity ? formatCurrency(minPrice) : "Đang cập nhật";
+
     const openSellTicket = (tickets) => {
         for (const element of tickets) {
             const openAt = new Date(element.openAt)
@@ -24,15 +33,18 @@ const EventHero = ({ event }) => {
                 return true
             }
         };
+        return false
     }
     const notToTimeSellTicket = (tickets) => {
+        var isNotTimeSell = true
         for (const element of tickets) {
             const openAt = new Date(element.openAt)
             const currentDate = new Date()
-            if (openAt > currentDate) {
-                return false
+            if (openAt < currentDate) {
+                isNotTimeSell = false
             }
         }
+        return isNotTimeSell
     }
     const isSellTicketTilte = () => {
         for (const session of event.eventSessions) {
@@ -70,9 +82,10 @@ const EventHero = ({ event }) => {
                                 <p className="font-bold text- text-white text-sm">
                                     {`${formatTime(firstSession.startDateTime)} -
                                      ${formatTime(firstSession.endDateTime)}`}
-                                    , {formatDate(firstSession.startDateTime) == formatDate(firstSession.endDateTime) ?
-                                        formatDate(firstSession.startDateTime) :
-                                        formatDate(firstSession.startDateTime) - formatDate(firstSession.endDateTime)}
+                                    , {displaySessionDate({
+                                        startDateTime: firstSession.startDateTime,
+                                        endDateTime: firstSession.endDateTime
+                                    })}
                                 </p>
                                 {
                                     event.eventSessions.length > 1 &&
@@ -125,13 +138,13 @@ const EventHero = ({ event }) => {
 
                     {/* Decorative Circles (Ticket Stub Effect) - Top & Bottom */}
                     <div className="absolute -top-3 -right-3 w-6 h-6 bg-gray-50 dark:bg-black 
-                    rounded-full z-20 hidden lg:block"></div>
+                    rounded-full z-20 hidden lg:block border"></div>
                     <div className="absolute -bottom-3 -right-3 w-6 h-6 bg-gray-50 dark:bg-black
-                     rounded-full z-20 hidden lg:block"></div>
+                     rounded-full z-20 hidden lg:block border"></div>
                 </div>
 
                 {/* Right Side: Image  */}
-                <div className="lg:w-[65%] relative h-64 lg:h-auto bg-gray-800">
+                <div className="lg:w-[65%] relative h-64 lg:h-auto bg-gray-800 ">
                     <img
                         src={event.thumbnail}
                         alt={event.name}

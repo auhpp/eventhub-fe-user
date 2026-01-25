@@ -1,22 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
     Calendar as CalendarIcon,
     List,
     ChevronRight,
+    ChevronDown,
     Ticket,
     Clock,
+    CheckCircle2
 } from 'lucide-react';
-import { formatCurrency, formatDate, formatTime } from '@/utils/format';
+import { displaySessionDate, formatCurrency, formatTime } from '@/utils/format';
+import { routes } from '@/config/routes';
+import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const TicketSelection = ({ sessions, onSelectTicket }) => {
-    if (!sessions || sessions.length === 0) return null;
+const TicketSelection = ({ sessions, event }) => {
+    const navigate = useNavigate()
 
     const defaultVal = sessions[0]?.id.toString();
     const openSellTicket = (tickets) => {
@@ -28,21 +33,24 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
                 return true
             }
         };
+        return false
     }
+
     const notToTimeSellTicket = (tickets) => {
+        var isNotTimeSell = true
         for (const element of tickets) {
             const openAt = new Date(element.openAt)
             const currentDate = new Date()
-            if (openAt > currentDate) {
-                return false
+            if (openAt < currentDate) {
+                isNotTimeSell = false
             }
         }
+        return isNotTimeSell
     }
     return (
         <div className="flex flex-col gap-3" id="ticket-section">
             {/* Header Section */}
-            <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-3 px-6
-             rounded-t-xl rounded-b-md  shadow-sm border border-gray-200 ">
+            <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-3 px-6 rounded-t-xl rounded-b-md shadow-sm border border-gray-200 ">
                 <div className="flex flex-col gap-4">
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                         <Ticket className="text-blue-600" /> Đặt vé
@@ -64,11 +72,9 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
                     <AccordionItem
                         key={session.id}
                         value={session.id.toString()}
-                        className="border border-gray-200 rounded-lg bg-white dark:bg-gray-800 overflow-hidden
-                        shadow-sm  px-0"
+                        className="border border-gray-200 rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm px-0"
                     >
-                        <AccordionTrigger className="px-6 py-4 hover:no-underline
-                         hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [&[data-state=open]>div>div>span]:text-primary">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [&[data-state=open]>div>div>span]:text-primary">
                             <div className="flex items-center justify-between w-full pr-2 text-left">
                                 {/* Left: Date & Time Info */}
                                 <div className="flex flex-col gap-1">
@@ -79,8 +85,10 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
                                                 {formatTime(session.startDateTime)} - {formatTime(session.endDateTime)}
                                             </span>
                                             <p>
-                                                {formatDate(session.startDateTime) == formatDate(session.endDateTime) ? formatDate(session.startDateTime) :
-                                                    formatDate(session.startDateTime) - formatDate(session.endDateTime)}
+                                                {displaySessionDate({
+                                                    startDateTime: session.startDateTime,
+                                                    endDateTime: session.endDateTime
+                                                })}
                                             </p>
                                         </div>
                                     </div>
@@ -88,13 +96,22 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
 
                                 {/* Right: Pseudo Button "Mua vé ngay" */}
                                 <div className="hidden sm:block">
-                                    <div className="px-4 py-2 bg-primary/10 
-                                    text-primary hover:bg-primary hover:text-white
-                                     rounded font-bold text-sm transition-all duration-200">
+                                    <div
+                                        role="button"
+                                        className={cn(
+                                            buttonVariants({ variant: "default" }),
+                                            "px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded font-bold text-sm transition-all duration-200 cursor-pointer"
+                                        )}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            navigate(routes.selectTicket.replace(":eventId", event.id).replace(":eventSessionId", session.id));
+                                        }}
+                                    >
                                         {
                                             openSellTicket(session.tickets) ? 'Mua vé ngay' :
                                                 (notToTimeSellTicket(session.tickets) ? 'Chưa mở bán' :
-                                                    'Đã nghĩ bán'
+                                                    'Đã ngừng bán'
                                                 )
                                         }
                                     </div>
@@ -102,8 +119,7 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
                             </div>
                         </AccordionTrigger>
 
-                        <AccordionContent className="px-4 pb-4 pt-2 bg-gray-50/50
-                         dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-700">
+                        <AccordionContent className="px-4 pb-4 pt-2 bg-gray-50/50 dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-700">
                             <div className="mb-3 mt-2 text-sm font-bold text-gray-500 uppercase tracking-wider">
                                 Thông tin vé
                             </div>
@@ -114,7 +130,6 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
                                         <TicketRow
                                             key={ticket.id}
                                             ticket={ticket}
-                                            onClick={() => onSelectTicket(session, ticket)}
                                         />
                                     ))
                                 ) : (
@@ -131,50 +146,93 @@ const TicketSelection = ({ sessions, onSelectTicket }) => {
     );
 };
 
-// child component
-const TicketRow = ({ ticket, onClick }) => {
+const TicketRow = ({ ticket }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
     const isSoldOut = ticket.quantity <= 0;
 
+    // Toggle description function
+    const handleToggle = () => {
+        setIsExpanded(!isExpanded);
+    };
+
     return (
-        <button
-            onClick={isSoldOut ? undefined : onClick}
-            disabled={isSoldOut}
+        <div
             className={`
-                group w-full flex items-center justify-between p-4 rounded-lg border text-left transition-all duration-200
+                group w-full flex flex-col rounded-lg border transition-all duration-200 overflow-hidden
                 ${isSoldOut
-                    ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed'
-                    : 'bg-white border-gray-200 hover:border-primary hover:shadow-md hover:bg-blue-50/30 cursor-pointer'
+                    ? 'bg-gray-100 border-gray-200 opacity-70'
+                    : `bg-white border-gray-200 hover:border-blue-300 hover:shadow-md ${isExpanded ? 'border-blue-400 ring-1 ring-blue-100' : ''}`
                 }
             `}
         >
-            <div className="flex items-center gap-3">
-                <div className={`p-1.5 rounded-full ${isSoldOut ? 'bg-gray-200' : 'bg-gray-100 group-hover:bg-primary/20 group-hover:text-primary'}`}>
-                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </div>
-                <div className="flex flex-col">
-                    <span className="font-bold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">
-                        {ticket.name}
-                    </span>
-                    {ticket.name.toLowerCase().includes('vip') && (
-                        <span className="text-[10px] font-bold text-yellow-600 bg-yellow-100 w-fit px-1.5 py-0.5 rounded mt-0.5">
-                            VIP
+            {/* Main Row Content - Click to Toggle */}
+            <div
+                onClick={handleToggle}
+                className={`
+                    flex items-center justify-between p-4 cursor-pointer
+                    ${isSoldOut ? 'cursor-not-allowed' : ''}
+                `}
+            >
+                {/* Left Side: Icon & Name */}
+                <div className="flex items-center gap-3">
+                    <div className={`
+                        p-1.5 rounded-full transition-colors duration-200
+                        ${isSoldOut ? 'bg-gray-200' : 'bg-gray-100 group-hover:bg-blue-50 text-gray-500 group-hover:text-blue-600'}
+                    `}>
+                        {isExpanded ? (
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                        ) : (
+                            <ChevronRight className="w-4 h-4 transition-transform duration-200" />
+                        )}
+                    </div>
+
+                    <div className="flex flex-col">
+                        <span className="font-bold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">
+                            {ticket.name}
                         </span>
+                    </div>
+                </div>
+
+                {/* Right Side: Price & Quantity */}
+                <div className="flex flex-col items-end gap-0.5">
+                    <span className={`font-bold text-base ${isSoldOut ? 'text-gray-500' : 'text-primary'}`}>
+                        {formatCurrency(ticket.price)}
+                    </span>
+                    {!isSoldOut && ticket.quantity < 10 && (
+                        <span className="text-[10px] text-red-500 font-medium bg-red-50 px-1 rounded">
+                            Còn {ticket.quantity} vé
+                        </span>
+                    )}
+                    {isSoldOut && (
+                        <span className="text-[10px] text-gray-500 font-medium">Hết vé</span>
                     )}
                 </div>
             </div>
 
-            <div className="flex flex-col items-end gap-0.5">
-                <span className={`font-bold text-base ${isSoldOut ? 'text-gray-500' : 'text-primary'}`}>
-                    {formatCurrency(ticket.price)}
-                </span>
-                {!isSoldOut && ticket.quantity < 10 && (
-                    <span className="text-[10px] text-red-500 font-medium">
-                        Chỉ còn {ticket.quantity} vé
-                    </span>
-                )}
-            </div>
-        </button>
-    )
-}
+            {/* Expanded Description Area */}
+            {isExpanded && (
+                <div className="bg-gray-50/80 dark:bg-gray-900/40 border-t border-dashed border-gray-200 p-4 animate-in slide-in-from-top-1 duration-200">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                        {/* Description Content */}
+                        <div className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-200 mb-1 flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Mô tả vé:
+                            </h4>
+                            {ticket.description ? (
+                                <div
+                                    className="prose prose-sm max-w-none text-gray-600"
+                                    dangerouslySetInnerHTML={{ __html: ticket.description }}
+                                />
+                            ) : (
+                                <p className="italic text-gray-400">Không có mô tả chi tiết cho loại vé này.</p>
+                            )}
+                        </div>
+
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default TicketSelection;

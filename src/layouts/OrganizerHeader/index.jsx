@@ -31,16 +31,16 @@ const OrganizerHeader = () => {
                             <>
                                 <div className="flex flex-col items-end hidden sm:flex">
                                     <p className="text-sm font-bold text-foreground leading-none">
-                                        {user.email}
+                                        {user.fullName}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        {user.role.name}
+                                        {user.email}
                                     </p>
                                 </div>
                                 <div className="h-9 w-9 rounded-full border border-gray-200 bg-gray-100 overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-brand hover:ring-offset-1 transition-all">
                                     {user.avatar ? (
                                         <img
-                                            src={user.avatarUrl}
+                                            src={user.avatar}
                                             alt={user.fullName}
                                             className="h-full w-full object-cover"
                                         />

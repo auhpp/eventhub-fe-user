@@ -18,7 +18,6 @@ const EventOrganizer = ({ organizer }) => {
                 </div>
                 <div>
                     <h3 className="font-bold text-gray-900 text-lg">{organizer.fullName}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-1">{organizer.biography || "Nhà tổ chức sự kiện uy tín"}</p>
                 </div>
             </div>
             <Button variant="outline" size="sm" className="gap-2 rounded-lg">

@@ -3,7 +3,7 @@ import { Calendar } from 'lucide-react';
 
 const DefaultFooter = () => {
     return (
-        <footer className="border-t bg-card py-12">
+        <footer className="border-t bg-card py-6">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-2">

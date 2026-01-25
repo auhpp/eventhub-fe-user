@@ -12,12 +12,7 @@ const EventDetailPage = () => {
     const [event, setEvent] = useState(null);
     const location = useLocation();
     const eventId = location.pathname.substring(location.pathname.lastIndexOf("/") + 1)
-    // const [selectedTicket, setSelectedTicket] = useState(null);
-
-    // const handleSelectTicket = (session, ticket) => {
-    //     setSelectedTicket({ session, ticket });
-    // };
-
+  
     useEffect(() => {
         const fetchEventById = async () => {
             try {
@@ -68,7 +63,7 @@ const EventDetailPage = () => {
                     {/* Ticket Section */}
                     <TicketSelection
                         sessions={event.eventSessions}
-                    // onSelectTicket={handleSelectTicket}
+                        event={event}
                     />
 
                     {/* Map Section */}

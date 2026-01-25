@@ -1,3 +1,4 @@
+import DefaultFooter from "../DefaultFooter";
 import DefaultHeader from "../DefaultHeader";
 import ProfileSidebar from "../ProfileSidebar";
 
@@ -15,6 +16,7 @@ export default function ProfileLayout({ children }) {
                 </main>
 
             </div>
+            <DefaultFooter />
         </div>
     );
 }

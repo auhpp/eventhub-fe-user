@@ -10,4 +10,11 @@ export const routes = {
     eventManagement: "/organizer/event",
     createEvent: "/organizer/event/create",
     eventDetail: "/event/:id",
+    selectTicket: "/event/:eventId/select-ticket/:eventSessionId",
+    payment: "/event/:eventId/select-ticket/:eventSessionId/payment/:bookingId",
+    paymentCallback: '/payments/payment-callback',
+    myTicket: '/my-tickets',
+    order: "/orders",
+    orderDetail: "/orders/:id",
+    ticketDetail: '/my-tickets/:id',
 }

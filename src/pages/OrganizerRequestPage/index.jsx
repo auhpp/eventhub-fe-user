@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import {
     PlusCircle,
     Loader2,
-    MoreVertical
+    MoreVertical,
+    IdCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,8 +17,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { StatusBadge } from "@/components/StatusBadge";
 import { AuthContext } from "@/context/AuthContex";
 import { Role } from "@/utils/constant";
-import { HttpStatusCode } from "axios";
 import DefaultPagination from "@/components/DefaultPagination";
+import { HttpStatusCode } from "axios";
 
 
 export default function OrganizerRequestPage() {
@@ -61,9 +62,12 @@ export default function OrganizerRequestPage() {
 
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-black tracking-tight">Yêu cầu Đăng ký Ban Tổ chức</h1>
-                    <p className="text-muted-foreground text-base">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <IdCard className="w-7 h-7 text-primary" />
+                        Yêu cầu Đăng ký Ban Tổ chức
+                    </h1>
+                    <p className="text-muted-foreground mt-1">
                         Theo dõi trạng thái hồ sơ đối tác của doanh nghiệp bạn.
                     </p>
                 </div>
