@@ -3,10 +3,11 @@ import { Loader2, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EventCard from '@/features/event/EventCard';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getEventsCurrentUser } from '@/services/eventService';
 import { HttpStatusCode } from 'axios';
 import DefaultPagination from '@/components/DefaultPagination';
+import { routes } from '@/config/routes';
 
 const EvenManagementPage = () => {
     const [events, setEvents] = useState(null)
@@ -15,6 +16,8 @@ const EvenManagementPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = parseInt(searchParams.get("page") || "1");
     const pageSize = 2;
+
+    const navigate = useNavigate()
 
     useEffect(
         () => {
@@ -86,7 +89,9 @@ const EvenManagementPage = () => {
             {/* Events Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.map((event) => (
-                    <EventCard key={event.id} event={event} showActionManage={true} />
+                    <EventCard key={event.id} event={event} showActionManage={true}
+                        onClick={() => navigate(routes.eventOverview.replace(":id", event.id))}
+                    />
                 ))}
             </div>
 

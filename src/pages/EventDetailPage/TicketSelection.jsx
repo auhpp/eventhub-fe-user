@@ -22,31 +22,36 @@ import { cn } from '@/lib/utils';
 
 const TicketSelection = ({ sessions, event }) => {
     const navigate = useNavigate()
-
     const defaultVal = sessions[0]?.id.toString();
-    const openSellTicket = (tickets) => {
-        for (const element of tickets) {
-            const openAt = new Date(element.openAt)
-            const endAt = new Date(element.endAt)
-            const currentDate = new Date()
-            if (openAt < currentDate && endAt > currentDate) {
-                return true
-            }
-        };
-        return false
-    }
 
-    const notToTimeSellTicket = (tickets) => {
-        var isNotTimeSell = true
-        for (const element of tickets) {
-            const openAt = new Date(element.openAt)
-            const currentDate = new Date()
-            if (openAt < currentDate) {
-                isNotTimeSell = false
-            }
+    const getSessionStatus = (session) => {
+        const now = new Date();
+        const sessionEnd = new Date(session.endDateTime);
+        const tickets = session.tickets || [];
+
+        if (now > sessionEnd) {
+            return { label: 'Đã diễn ra', disabled: true, variant: 'secondary' };
         }
-        return isNotTimeSell
-    }
+
+        const isSelling = tickets.some(t => {
+            const openAt = new Date(t.openAt);
+            const endAt = new Date(t.endAt);
+            return now >= openAt && now <= endAt && t.quantity > 0;
+        });
+
+        if (isSelling) {
+            return { label: 'Mua vé ngay', disabled: false, variant: 'default' };
+        }
+
+        const allUpcoming = tickets.every(t => new Date(t.openAt) > now);
+        if (allUpcoming) return { label: 'Sắp mở bán', disabled: true, variant: 'outline' };
+
+        const allSoldOut = tickets.every(t => t.quantity <= 0);
+        if (allSoldOut) return { label: 'Hết vé', disabled: true, variant: 'secondary' };
+
+        return { label: 'Ngừng bán', disabled: true, variant: 'secondary' };
+    };
+
     return (
         <div className="flex flex-col gap-3" id="ticket-section">
             {/* Header Section */}
@@ -68,79 +73,80 @@ const TicketSelection = ({ sessions, event }) => {
 
             {/* Accordion List Sessions */}
             <Accordion type="single" collapsible defaultValue={defaultVal} className="w-full space-y-2">
-                {sessions.map((session) => (
-                    <AccordionItem
-                        key={session.id}
-                        value={session.id.toString()}
-                        className="border border-gray-200 rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm px-0"
-                    >
-                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [&[data-state=open]>div>div>span]:text-primary">
-                            <div className="flex items-center justify-between w-full pr-2 text-left">
-                                {/* Left: Date & Time Info */}
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-                                        <Clock className="w-4 h-4 text-gray-500" />
-                                        <div>
-                                            <span className="text-sm font-bold text-primary">
-                                                {formatTime(session.startDateTime)} - {formatTime(session.endDateTime)}
-                                            </span>
-                                            <p>
-                                                {displaySessionDate({
-                                                    startDateTime: session.startDateTime,
-                                                    endDateTime: session.endDateTime
-                                                })}
-                                            </p>
+                {sessions.map((session) => {
+                    const status = getSessionStatus(session);
+
+                    return (
+                        <AccordionItem
+                            key={session.id}
+                            value={session.id.toString()}
+                            className="border border-gray-200 rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm px-0"
+                        >
+                            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [&[data-state=open]>div>div>span]:text-primary">
+                                <div className="flex items-center justify-between w-full pr-2 text-left">
+                                    {/* Left: Date & Time Info */}
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+                                            <Clock className="w-4 h-4 text-gray-500" />
+                                            <div>
+                                                <span className="text-sm font-bold text-primary">
+                                                    {formatTime(session.startDateTime)} - {formatTime(session.endDateTime)}
+                                                </span>
+                                                <p>
+                                                    {displaySessionDate({
+                                                        startDateTime: session.startDateTime,
+                                                        endDateTime: session.endDateTime
+                                                    })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right: Action Button */}
+                                    <div className="hidden sm:block">
+                                        <div
+                                            role="button"
+                                            className={cn(
+                                                buttonVariants({ variant: status.variant }),
+                                                "px-4 py-2 rounded font-bold text-sm transition-all duration-200",
+                                                status.disabled ? "opacity-70 cursor-not-allowed bg-gray-200 text-gray-500 hover:bg-gray-200" : "bg-primary/10 text-primary hover:bg-primary hover:text-white cursor-pointer"
+                                            )}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (!status.disabled) {
+                                                    navigate(routes.selectTicket.replace(":eventId", event.id).replace(":eventSessionId", session.id));
+                                                }
+                                            }}
+                                        >
+                                            {status.label}
                                         </div>
                                     </div>
                                 </div>
+                            </AccordionTrigger>
 
-                                {/* Right: Pseudo Button "Mua vé ngay" */}
-                                <div className="hidden sm:block">
-                                    <div
-                                        role="button"
-                                        className={cn(
-                                            buttonVariants({ variant: "default" }),
-                                            "px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded font-bold text-sm transition-all duration-200 cursor-pointer"
-                                        )}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            navigate(routes.selectTicket.replace(":eventId", event.id).replace(":eventSessionId", session.id));
-                                        }}
-                                    >
-                                        {
-                                            openSellTicket(session.tickets) ? 'Mua vé ngay' :
-                                                (notToTimeSellTicket(session.tickets) ? 'Chưa mở bán' :
-                                                    'Đã ngừng bán'
-                                                )
-                                        }
-                                    </div>
+                            <AccordionContent className="px-4 pb-4 pt-2 bg-gray-50/50 dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-700">
+                                <div className="mb-3 mt-2 text-sm font-bold text-gray-500 uppercase tracking-wider">
+                                    Thông tin vé
                                 </div>
-                            </div>
-                        </AccordionTrigger>
 
-                        <AccordionContent className="px-4 pb-4 pt-2 bg-gray-50/50 dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-700">
-                            <div className="mb-3 mt-2 text-sm font-bold text-gray-500 uppercase tracking-wider">
-                                Thông tin vé
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                {session.tickets && session.tickets.length > 0 ? (
-                                    session.tickets.map((ticket) => (
-                                        <TicketRow
-                                            key={ticket.id}
-                                            ticket={ticket}
-                                        />
-                                    ))
-                                ) : (
-                                    <div className="text-center py-6 text-gray-500 italic">
-                                        Chưa có vé mở bán cho suất này
-                                    </div>
-                                )}
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
+                                <div className="flex flex-col gap-3">
+                                    {session.tickets && session.tickets.length > 0 ? (
+                                        session.tickets.map((ticket) => (
+                                            <TicketRow
+                                                key={ticket.id}
+                                                ticket={ticket}
+                                            />
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-6 text-gray-500 italic">
+                                            Chưa có vé mở bán cho suất này
+                                        </div>
+                                    )}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    )
+                })}
             </Accordion>
         </div>
     );

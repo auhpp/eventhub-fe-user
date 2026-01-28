@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrency, formatDateTime } from '@/utils/format';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
+import BookingStatusBadge from '@/components/BookingStatusBadge';
 
 
 const OrderCard = ({ booking }) => {
@@ -19,7 +20,6 @@ const OrderCard = ({ booking }) => {
         event
     } = booking;
 
-    const statusInfo = getStatusConfig(status);
     const ticketCount = attendees ? attendees.length : 0;
     const navigate = useNavigate()
 
@@ -27,16 +27,6 @@ const OrderCard = ({ booking }) => {
     const eventName = event?.name || "Sự kiện không xác định";
     const eventLocation = event?.location || "Online / Chưa cập nhật";
 
-    const getStatusConfig = (status) => {
-        switch (status) {
-            case 'PAID':
-                return { label: 'Đã thanh toán', variant: 'default', className: 'bg-green-600 hover:bg-green-700' };
-            case 'CANCELLED':
-                return { label: 'Đã hủy', variant: 'destructive', className: 'bg-red-600 hover:bg-red-700' };
-            default:
-                return { label: status, variant: 'outline', className: '' };
-        }
-    };
 
     return (
         <Card className="overflow-hidden border-l-4 hover:shadow-md transition-all duration-200 mb-4 group border-l-primary/80">
@@ -49,9 +39,6 @@ const OrderCard = ({ booking }) => {
                         alt={eventName}
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 left-2 md:hidden">
-                        <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
-                    </div>
                 </div>
 
                 {/* main content */}
@@ -67,9 +54,8 @@ const OrderCard = ({ booking }) => {
                                 </h3>
                             </div>
                             {/* Badge status */}
-                            <Badge className={`hidden md:inline-flex ${statusInfo.className}`}>
-                                {statusInfo.label}
-                            </Badge>
+                            <BookingStatusBadge status={status} />
+
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-y-2 gap-x-6 text-sm text-gray-600 mt-1">

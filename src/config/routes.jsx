@@ -17,4 +17,7 @@ export const routes = {
     order: "/orders",
     orderDetail: "/orders/:id",
     ticketDetail: '/my-tickets/:id',
+    eventOverview: "/organizer/event/:id/overview",
+    eventAttendee: "/organizer/event/:id/attendee",
+    invitationResponse: '/invitation/response'
 }

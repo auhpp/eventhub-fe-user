@@ -64,3 +64,12 @@ export const TicketStatus = {
     SOLD_OUT: 'SOLD_OUT',
     EXPIRED: 'EXPIRED'
 }
+
+export const AttendeeType = {
+    BUY: 'BUY',
+    INVITE: 'INVITE'
+}
+
+export const InvitationStatus = {
+    PENDING: 'PENDING', ACCEPTED: 'ACCEPTED', REJECTED: 'REJECTED', REVOKED: 'REVOKED', EXPIRED: 'EXPIRED'
+}

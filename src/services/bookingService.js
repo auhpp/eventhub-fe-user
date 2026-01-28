@@ -4,8 +4,8 @@ import API from "@/config/api";
 // quantity
 // ticketId 
 //}
-export const createPendingBooking = async ({ bookingTicketRequests }) => {
-    const response = await API.post('/api/v1/booking/pending', { bookingTicketRequests }, {
+export const createPendingBooking = async ({ bookingTicketRequests, type }) => {
+    const response = await API.post('/api/v1/booking/pending', { bookingTicketRequests, type }, {
         requiresAuth: false
     });
     return response.data;
@@ -35,6 +35,22 @@ export const getExistsPendingBooking = async ({ eventSessionId }) => {
 
 export const getBookingsByCurrentUser = async ({ status, page, size }) => {
     const response = await API.post(`/api/v1/booking/current-user?page=${page}&size=${size}`, { status }, {
+        requiresAuth: true
+    });
+    return response.data;
+}
+
+export const getUserSummaryBookings = async ({ eventSessionId, status, page, size }) => {
+    const reqStatus = status === "ALL" ? null : status;
+    const response = await API.post(`/api/v1/booking/event-session/${eventSessionId}/filter?page=${page}&size=${size}`,
+        { status: reqStatus }, {
+        requiresAuth: true
+    });
+    return response.data;
+}
+
+export const getUserSummaryBooking = async ({ eventSessionId, userId }) => {
+    const response = await API.get(`/api/v1/booking/event-session/${eventSessionId}/user/${userId}`, {
         requiresAuth: true
     });
     return response.data;

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { createPendingBooking, deleteBookingById, getExistsPendingBooking } from '@/services/bookingService';
 import { routes } from '@/config/routes';
 import PendingBookingModal from './PendingBookingModal';
+import { AttendeeType } from '@/utils/constant';
 
 const TicketSelectionPage = () => {
     const [quantities, setQuantities] = useState({});
@@ -92,7 +93,7 @@ const TicketSelectionPage = () => {
     }, 0);
 
     const selectedTickets = eventSession.tickets
-        .filter(t => (quantities[t.id] || 0) > 0) 
+        .filter(t => (quantities[t.id] || 0) > 0)
         .map(t => ({
             ...t,
             quantity: quantities[t.id]
@@ -101,7 +102,7 @@ const TicketSelectionPage = () => {
     const handleQuantityChange = (ticketId, delta) => {
         setQuantities(prev => {
             const currentQty = prev[ticketId] || 0;
-            const newQty = Math.max(0, currentQty + delta); 
+            const newQty = Math.max(0, currentQty + delta);
 
             // Logic check max quantity 
             const ticket = eventSession.tickets.find(t => t.id === ticketId);
@@ -127,7 +128,11 @@ const TicketSelectionPage = () => {
                 toast.error("Phải chọn vé để có thể thanh toán")
                 return;
             }
-            const response = await createPendingBooking({ bookingTicketRequests: bookingTicketRequests })
+
+            const response = await createPendingBooking({
+                bookingTicketRequests: bookingTicketRequests,
+                type: AttendeeType.BUY
+            })
             if (response.code == HttpStatusCode.Ok) {
                 navigate(routes.payment.replace(":eventId", event.id).replace(":eventSessionId", eventSession.id)
                     .replace(":bookingId", response.result.id));
@@ -148,7 +153,7 @@ const TicketSelectionPage = () => {
             console.error("Lỗi khi hủy đơn", error);
         }
     };
-    
+
     const handleContinuePaymentBooking = async () => {
         navigate(routes.payment.replace(":eventId", event.id).replace(":eventSessionId", eventSession.id)
             .replace(":bookingId", booking.id))

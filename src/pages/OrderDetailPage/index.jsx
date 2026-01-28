@@ -10,13 +10,9 @@ import {
     Ticket,
     User,
     Wallet,
-    CheckCircle2,
-    Clock,
-    XCircle,
     Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -31,30 +27,8 @@ import { getBookingById } from '@/services/bookingService';
 import { useNavigate, useParams } from 'react-router-dom';
 import { HttpStatusCode } from 'axios';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
+import BookingStatusBadge from '@/components/BookingStatusBadge';
 
-
-const StatusBadge = ({ status }) => {
-    const styles = {
-        PAID: "bg-green-100 text-green-700 border-green-200 hover:bg-green-100",
-        PENDING: "bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-100",
-        CANCELLED: "bg-red-100 text-red-700 border-red-200 hover:bg-red-100",
-    };
-
-    const labels = {
-        PAID: "Thành công",
-        PENDING: "Chờ thanh toán",
-        CANCELLED: "Đã hủy",
-    };
-
-    return (
-        <Badge className={`${styles[status] || styles.PENDING} border px-3 py-1`}>
-            {status === 'SUCCESS' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-            {status === 'PENDING' && <Clock className="w-3 h-3 mr-1" />}
-            {status === 'CANCELLED' && <XCircle className="w-3 h-3 mr-1" />}
-            {labels[status] || status}
-        </Badge>
-    );
-};
 
 const WalletInfo = ({ type }) => {
     if (type === 'MOMO') return <div className="flex items-center gap-2 font-medium text-pink-600"><Wallet className="w-4 h-4" /> Ví MoMo</div>;
@@ -116,7 +90,7 @@ const OrderDetailPage = () => {
                             <h1 className="text-2xl font-bold text-slate-900">
                                 Đơn hàng #{booking.id}
                             </h1>
-                            <StatusBadge status={booking.status} />
+                            <BookingStatusBadge status={booking.status} />
                         </div>
                         <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
                             <Calendar className="w-4 h-4" />

@@ -2,13 +2,17 @@ import { routes } from "@/config/routes"
 import AuthLayout from "@/layouts/AuthLayout"
 import DefaultLayout from "@/layouts/DefaultLayout"
 import DefaultNoneFooterLayout from "@/layouts/DefaultNoneFooterLayout"
+import EventManagementLayout from "@/layouts/EventManagementLayout"
 import OrganizerLayout from "@/layouts/OrganizerLayout"
 import ProfileLayout from "@/layouts/ProfileLayout"
+import AttendeeManagementPage from "@/pages/AttendeeManagementPage"
 import CreateEventPage from "@/pages/CreateEventPage"
 import CreateOrganizerRequestPage from "@/pages/CreateOrganizerRequestPage"
 import EventDetailPage from "@/pages/EventDetailPage"
 import EventManagementPage from "@/pages/EventManagementPage"
+import EventOverviewPage from "@/pages/EventOverviewPage"
 import HomePage from "@/pages/HomePage"
+import InvitationResponsePage from "@/pages/InvitationResponsePage"
 import MyTicketPage from "@/pages/MyTicketPage"
 import OrderDetailPage from "@/pages/OrderDetailPage"
 import OrderHistoryPage from "@/pages/OrderHistoryPage"
@@ -26,6 +30,8 @@ export const publicRoutes = [
     { path: routes.signup, page: SignupPage, layout: AuthLayout },
     { path: routes.home, page: HomePage, layout: DefaultLayout },
     { path: routes.eventDetail, page: EventDetailPage, layout: DefaultLayout },
+    { path: routes.invitationResponse, page: InvitationResponsePage, layout: DefaultLayout },
+
 
 ]
 export const privateRoutes = [
@@ -46,4 +52,8 @@ export const privateRoutes = [
 export const organizerRoutes = [
     { path: routes.eventManagement, page: EventManagementPage, layout: OrganizerLayout },
     { path: routes.createEvent, page: CreateEventPage, layout: OrganizerLayout },
+    { path: routes.eventOverview, page: EventOverviewPage, layout: EventManagementLayout },
+    { path: routes.eventAttendee, page: AttendeeManagementPage, layout: EventManagementLayout },
+
+
 ]
