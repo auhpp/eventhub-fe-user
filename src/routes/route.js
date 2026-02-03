@@ -6,8 +6,11 @@ import EventManagementLayout from "@/layouts/EventManagementLayout"
 import OrganizerLayout from "@/layouts/OrganizerLayout"
 import ProfileLayout from "@/layouts/ProfileLayout"
 import AttendeeManagementPage from "@/pages/AttendeeManagementPage"
+import ChangePasswordPage from "@/pages/ChangePasswordPage"
 import CreateEventPage from "@/pages/CreateEventPage"
 import CreateOrganizerRequestPage from "@/pages/CreateOrganizerRequestPage"
+import EditEventPage from "@/pages/EditEventPage"
+import EditProfilePage from "@/pages/EditProfilePage"
 import EventDetailPage from "@/pages/EventDetailPage"
 import EventManagementPage from "@/pages/EventManagementPage"
 import EventOverviewPage from "@/pages/EventOverviewPage"
@@ -46,6 +49,9 @@ export const privateRoutes = [
     { path: routes.order, page: OrderHistoryPage, layout: ProfileLayout },
     { path: routes.orderDetail, page: OrderDetailPage, layout: ProfileLayout },
     { path: routes.ticketDetail, page: TicketDetailPage, layout: ProfileLayout },
+    { path: routes.profile, page: EditProfilePage, layout: ProfileLayout },
+    { path: routes.changePassword, page: ChangePasswordPage, layout: ProfileLayout },
+    { path: routes.updateOrganizerRegistration, page: CreateOrganizerRequestPage, layout: ProfileLayout },
 
 
 ]
@@ -54,6 +60,7 @@ export const organizerRoutes = [
     { path: routes.createEvent, page: CreateEventPage, layout: OrganizerLayout },
     { path: routes.eventOverview, page: EventOverviewPage, layout: EventManagementLayout },
     { path: routes.eventAttendee, page: AttendeeManagementPage, layout: EventManagementLayout },
+    { path: routes.editEvent, page: EditEventPage, layout: EventManagementLayout },
 
 
 ]

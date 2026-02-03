@@ -48,11 +48,10 @@ const OrderHistoryPage = () => {
     }, [activeTab, currentPage]);
 
     return (
-        <div className="container max-w-4xl">
+        <div className="w-full">
             {/* title */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <ShoppingBag className="w-7 h-7 text-primary" />
                     Lịch sử Đơn hàng
                 </h1>
                 <p className="text-muted-foreground mt-1">

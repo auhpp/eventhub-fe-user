@@ -3,9 +3,9 @@ export const routes = {
     signup: "/signup",
     home: "/",
     profile: "/profile",
-    organizerRegistration: "/profile/organizer-registration",
-    createOrganizerRegistration: "/profile/organizer-registration/create",
-    organizerRegistrationDetail: "/profile/organizer-registration/:id",
+    organizerRegistration: "/organizer-registration",
+    createOrganizerRegistration: "/organizer-registration/create",
+    organizerRegistrationDetail: "/organizer-registration/:id",
     organizer: "/organizer",
     eventManagement: "/organizer/event",
     createEvent: "/organizer/event/create",
@@ -19,5 +19,8 @@ export const routes = {
     ticketDetail: '/my-tickets/:id',
     eventOverview: "/organizer/event/:id/overview",
     eventAttendee: "/organizer/event/:id/attendee",
-    invitationResponse: '/invitation/response'
+    invitationResponse: '/invitation/response',
+    editEvent: "/organizer/event/:id/edit",
+    changePassword: "/change-password",
+    updateOrganizerRegistration: "/organizer-registration/edit/:id",
 }

@@ -49,12 +49,11 @@ const MyTicketPage = () => {
     }, [activeTab, currentPage]);
 
     return (
-        <div className="min-h-screen dark:bg-slate-950 font-sans rounded-md">
+        <div className="w-full dark:bg-slate-950 font-sans rounded-md">
             {/* Header Page */}
             <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Ticket className="w-7 h-7 text-primary" />
                         Vé điện tử của tôi
                     </h1>
                     <p className="text-muted-foreground mt-1">

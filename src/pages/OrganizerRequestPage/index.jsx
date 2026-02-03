@@ -58,13 +58,12 @@ export default function OrganizerRequestPage() {
 
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 w-full">
 
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <IdCard className="w-7 h-7 text-primary" />
                         Yêu cầu Đăng ký Ban Tổ chức
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -141,6 +140,11 @@ export default function OrganizerRequestPage() {
                                                         navigate(routes.organizerRegistrationDetail.replace(":id", item.id))
                                                     }}
                                                 >Xem chi tiết</DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => {
+                                                        navigate(routes.updateOrganizerRegistration.replace(":id", item.id))
+                                                    }}
+                                                >Chỉnh sửa</DropdownMenuItem>
                                                 {/* <DropdownMenuItem>Gửi email</DropdownMenuItem>
                                                 <DropdownMenuItem className="text-destructive">Xóa yêu cầu</DropdownMenuItem> */}
                                             </DropdownMenuContent>

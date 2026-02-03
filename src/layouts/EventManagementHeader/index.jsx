@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Bell, Loader2 } from "lucide-react";
 import { AuthContext } from "@/context/AuthContex";
 import { EventContext } from "@/context/EventContext";
+import EventStatusBadge from "@/components/EventStatusBadge";
 
 
 const EventMangementHeader = () => {
@@ -22,9 +23,12 @@ const EventMangementHeader = () => {
     return (
         <header className="h-16 bg-card border-b border-border flex items-center justify-between
          px-6 shrink-0 transition-colors sticky top-0 z-20">
-            <h1 className="text-lg font-bold tracking-tight text-foreground">
-                {event.name}
-            </h1>
+            <div>
+                <h1 className="text-lg font-bold tracking-tight text-foreground">
+                    {event.name}
+                </h1>
+                <EventStatusBadge eventSessions={event.eventSessions} status={event.status} />
+            </div>
             <div className="flex items-center gap-4">
                 {/* Notifications */}
                 <button className="relative p-2 text-muted-foreground hover:bg-accent rounded-full transition-colors">

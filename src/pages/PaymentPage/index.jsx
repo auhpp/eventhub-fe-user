@@ -16,6 +16,7 @@ import { routes } from '@/config/routes';
 import { AuthContext } from '@/context/AuthContex';
 import { createPaymentUrl } from '@/services/paymentService';
 import { WalletType } from '@/utils/constant';
+import logoVnpay from "@/assets/images/vnpay_logo.png";
 
 const PaymentPage = () => {
     const [timeLeft, setTimeLeft] = useState(0);
@@ -460,19 +461,16 @@ const PaymentPage = () => {
                                                 <RadioGroupItem value={WalletType.VNPay}
                                                     id="vnpay" className="absolute right-4 top-4" />
                                                 <Label htmlFor="vnpay" className="cursor-pointer flex items-start gap-4">
-                                                    {/* Fake VNPAY Icon */}
-                                                    <div className="h-12 w-20 rounded border border-gray-100 bg-white
+                                                    {/*  VNPAY Icon */}
+                                                    <div className="h-20 w-20 rounded border border-gray-100 bg-white
                                              flex items-center justify-center shrink-0 overflow-hidden">
-                                                        <div className="flex flex-col items-center justify-center leading-none">
-                                                            <span className="text-blue-600 font-extrabold text-sm tracking-tighter">
-                                                                VNPAY</span>
-                                                            <span className="text-red-500 font-bold text-[10px]">QR</span>
-                                                        </div>
+                                                        <img src={logoVnpay} alt="" />
                                                     </div>
+                                                    
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <span className="font-bold text-gray-900 dark:text-white
-                                                     text-base">Ví VNPAY / Ứng dụng ngân hàng</span>
+                                                     text-base">Ví VNPAY</span>
                                                             {paymentMethod === WalletType.VNPay && (
                                                                 <span className="bg-primary text-white text-[10px] 
                                                         font-bold px-2 py-0.5 rounded-full">ĐANG CHỌN</span>

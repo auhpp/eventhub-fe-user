@@ -34,7 +34,8 @@ export const getExistsPendingBooking = async ({ eventSessionId }) => {
 };
 
 export const getBookingsByCurrentUser = async ({ status, page, size }) => {
-    const response = await API.post(`/api/v1/booking/current-user?page=${page}&size=${size}`, { status }, {
+    const reqStatus = status === "ALL" ? null : status;
+    const response = await API.post(`/api/v1/booking/current-user?page=${page}&size=${size}`, { status: reqStatus }, {
         requiresAuth: true
     });
     return response.data;

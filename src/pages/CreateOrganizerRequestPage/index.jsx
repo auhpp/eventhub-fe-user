@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     UploadCloud,
     Phone,
     Link as LinkIcon,
     CheckCircle2,
-    Loader2
+    Loader2,
+    Save,
 } from 'lucide-react';
 
 import { Button } from "@/components/ui/button";
@@ -19,55 +20,52 @@ import { Separator } from "@/components/ui/separator";
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from '@/components/ui/form';
-import { createOrganizerRegistrationRequest } from '@/services/organizerRegistrationService';
+import { createOrganizerRegistrationRequest, getOrganizerRegistrationById, updateOrganizerRegistrationRequest } from '@/services/organizerRegistrationService';
 import { HttpStatusCode } from 'axios';
 import { routes } from '@/config/routes';
+import { toast } from 'sonner';
+import ButtonBack from '@/components/ButtonBack';
 
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
-const createOrganizerRequestFormSchema = z
-    .object({
-        businessName: z
-            .string()
-            .min(1, { message: "Vui lòng nhập tên ban tổ chức" }),
-        representativeFullName: z
-            .string()
-            .min(1, { message: "Vui lòng nhập tên người đại diện" }),
-        email: z
-            .string()
-            .min(1, { message: "Vui lòng nhập email" })
-            .email({ message: "Email không hợp lệ" }),
-        phoneNumber: z
-            .string()
-            .min(1, { message: "Vui lòng nhập số điện thoại" })
+const getSchema = (isEditMode) => {
+    return z.object({
+        businessName: z.string().min(1, { message: "Vui lòng nhập tên ban tổ chức" }),
+        representativeFullName: z.string().min(1, { message: "Vui lòng nhập tên người đại diện" }),
+        email: z.string().min(1, { message: "Vui lòng nhập email" }).email({ message: "Email không hợp lệ" }),
+        phoneNumber: z.string().min(1, { message: "Vui lòng nhập số điện thoại" })
             .regex(/^(0)(3|5|7|8|9)[0-9]{8}$/, { message: "Số điện thoại không đúng định dạng (VN)" }),
-        biography: z
-            .string()
-            .min(1, { message: "Vui lòng nhập giới thiệu" }),
-        contactAddress: z
-            .string()
-            .min(1, { message: "Vui lòng nhập địa chỉ" }),
-
-        businessAvatar: z
-            .instanceof(File, { message: "Vui lòng chọn ảnh đại diện" })
-            .refine((file) => file.size <= MAX_FILE_SIZE, {
-                message: "Kích thước ảnh tối đa là 5MB",
-            })
-            .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-                message: "Chỉ hỗ trợ định dạng .jpg, .jpeg, .png và .webp",
-            }),
+        biography: z.string().min(1, { message: "Vui lòng nhập giới thiệu" }),
+        contactAddress: z.string().min(1, { message: "Vui lòng nhập địa chỉ" }),
+        businessAvatar: z.any()
+            .refine((file) => {
+                if (isEditMode && !file) return true; 
+                return file instanceof File;
+            }, { message: "Vui lòng chọn ảnh đại diện" })
+            .refine((file) => {
+                if (file instanceof File) return file.size <= MAX_FILE_SIZE;
+                return true;
+            }, { message: "Kích thước ảnh tối đa là 5MB" })
+            .refine((file) => {
+                if (file instanceof File) return ACCEPTED_IMAGE_TYPES.includes(file.type);
+                return true;
+            }, { message: "Chỉ hỗ trợ định dạng .jpg, .jpeg, .png và .webp" }),
     });
-
+};
 
 const CreateOrganizerRequestPage = () => {
     const navigate = useNavigate();
+    const { id } = useParams(); 
+    const isEditMode = !!id;
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [isLoadingData, setIsLoadingData] = useState(false);
+
     const form = useForm({
-        resolver: zodResolver(createOrganizerRequestFormSchema),
+        resolver: zodResolver(getSchema(isEditMode)),
         defaultValues: {
             businessName: "",
             representativeFullName: "",
@@ -82,32 +80,85 @@ const CreateOrganizerRequestPage = () => {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        console.log(file)
         if (file) {
-            form.setValue("businessAvatar", file)
+            form.setValue("businessAvatar", file, { shouldValidate: true });
             setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
+
+    useEffect(() => {
+        if (isEditMode) {
+            const fetchData = async () => {
+                setIsLoadingData(true);
+                try {
+                    const response = await getOrganizerRegistrationById({ id: id });
+                    if (response.code === HttpStatusCode.Ok) {
+                        const data = response.result;
+                        // Fill data to form
+                        form.reset({
+                            businessName: data.businessName,
+                            representativeFullName: data.representativeFullName,
+                            email: data.email,
+                            phoneNumber: data.phoneNumber,
+                            biography: data.biography,
+                            contactAddress: data.contactAddress,
+                        });
+                        // Set preview from URL server return
+                        setPreviewUrl(data.businessAvatarUrl || data.businessAvatar);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch data", error);
+                    toast.error("Không thể tải thông tin yêu cầu.");
+                    navigate(routes.organizerRegistration);
+                } finally {
+                    setIsLoadingData(false);
+                }
+            };
+            fetchData();
+        }
+    }, [id, isEditMode, form, navigate]);
+
     const onSubmit = async (values) => {
         try {
             console.log(values)
-            const reponse = await createOrganizerRegistrationRequest(values);
-            if (reponse.code == HttpStatusCode.Ok) {
+            let response;
+            if (!isEditMode) {
+                response = await createOrganizerRegistrationRequest(values);
+            }
+            else {
+                response = await updateOrganizerRegistrationRequest({ id: id, data: values });
+            }
+            if (response.code == HttpStatusCode.Ok) {
+                toast.success(isEditMode ? "Cập nhật thành công!" : "Đăng ký thành công!");
                 navigate(routes.organizerRegistration, { replace: true })
             }
         } catch (error) {
             console.log(error)
+            toast.error("Có lỗi xảy ra, vui lòng thử lại.");
         }
     }
+    if (isLoadingData) {
+        return (
+            <div className="flex justify-center items-center h-screen w-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
     return (
-        <div className=" space-y-6">
-
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight">Đăng ký Ban Tổ chức</h1>
-                <p className="text-muted-foreground text-sm">
-                    Hoàn tất hồ sơ để bắt đầu kiến tạo những sự kiện tuyệt vời trên nền tảng.
-                </p>
+        <div className="space-y-6">
+            <div className="flex items-center gap-4">
+                <ButtonBack />
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">
+                        {isEditMode ? "Cập nhật hồ sơ Ban Tổ chức" : "Đăng ký Ban Tổ chức"}
+                    </h1>
+                    <p className="text-muted-foreground text-sm">
+                        {isEditMode
+                            ? "Chỉnh sửa thông tin hồ sơ đối tác của bạn."
+                            : "Hoàn tất hồ sơ để bắt đầu kiến tạo những sự kiện tuyệt vời trên nền tảng."}
+                    </p>
+                </div>
             </div>
 
             <Card className="border-border shadow-sm">
@@ -126,8 +177,8 @@ const CreateOrganizerRequestPage = () => {
                                             <FormItem>
                                                 <div className="relative group w-32 h-32
                                                  rounded-lg border-2 border-dashed border-muted-foreground/25
-                                                  hover:border-primary/50 bg-muted/30 flex flex-col items-center 
-                                                  justify-center cursor-pointer transition-colors overflow-hidden">
+                                                 hover:border-primary/50 bg-muted/30 flex flex-col items-center 
+                                                 justify-center cursor-pointer transition-colors overflow-hidden">
                                                     {previewUrl ? (
                                                         <>
                                                             <img
@@ -152,7 +203,7 @@ const CreateOrganizerRequestPage = () => {
                                                         type="file"
                                                         accept="image/*"
                                                         className="absolute inset-0 opacity-0 cursor-pointer h-full w-full z-10"
-                                                        onChange={(e) => handleImageChange(e, onChange)}
+                                                        onChange={handleImageChange}
                                                     />
                                                 </div>
                                                 <FormMessage className="text-xs text-center" />
@@ -300,8 +351,8 @@ const CreateOrganizerRequestPage = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <CheckCircle2 className="mr-2 h-4 w-4" />
-                                        Gửi yêu cầu đăng ký
+                                        {isEditMode ? <Save className="mr-2 h-4 w-4" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                                        {isEditMode ? "Lưu thay đổi" : "Gửi yêu cầu đăng ký"}
                                     </>
                                 )}
                             </Button>
@@ -310,8 +361,6 @@ const CreateOrganizerRequestPage = () => {
                 </Form>
             </Card>
         </div>
-
-
     );
 };
 

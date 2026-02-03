@@ -1,3 +1,4 @@
+import { Toaster } from "sonner";
 import DefaultFooter from "../DefaultFooter";
 import DefaultHeader from "../DefaultHeader";
 import ProfileSidebar from "../ProfileSidebar";
@@ -7,14 +8,20 @@ export default function ProfileLayout({ children }) {
         <div className="min-h-screen flex flex-col bg-background">
             <DefaultHeader />
 
-            <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full p-4 md:p-8 gap-8">
-
+            <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full p-4 md:p-8 gap-8 items-start">
                 <ProfileSidebar />
 
-                <main className="flex-1 min-w-0 flex flex-col gap-6">
+                <main className="flex-1 min-w-0 w-full flex flex-col gap-6">
                     {children}
                 </main>
+                <Toaster position="top-center" richColors
+                    toastOptions={{
+                        classNames: {
+                            error: "bg-red-100 text-white",
 
+                        },
+                    }}
+                />
             </div>
             <DefaultFooter />
         </div>

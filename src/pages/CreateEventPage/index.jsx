@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import EventBasicInfo from './EventBasicInfo';
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,8 @@ import { HttpStatusCode } from 'axios';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
+import ImageUploadSession from './ImageUploadSession';
+
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -23,6 +25,7 @@ const createEventSchema = z.object({
     categoryId: z.string().min(1, { message: "Vui lòng chọn danh mục" }),
     type: z.string().min(1, { message: "Vui lòng chọn loại sự kiện" }),
     description: z.string().min(10, { message: "Mô tả cần ít nhất 10 ký tự" }),
+    poster: z.instanceof(File, { message: "Vui lòng chọn ảnh poster" }),
     thumbnail: z
         .instanceof(File, { message: "Vui lòng chọn ảnh bìa sự kiện" })
         .refine((file) => file.size <= MAX_FILE_SIZE, {
@@ -32,8 +35,7 @@ const createEventSchema = z.object({
             message: "Chỉ hỗ trợ định dạng .jpg, .jpeg, .png và .webp",
         }),
     location: z.string(),
-    meetingUrl: z.string(),
-    meetingPlatform: z.string().optional(),
+    address: z.string(),
     coordinates: z.object({
         lat: z.number(),
         lng: z.number()
@@ -48,24 +50,19 @@ const createEventSchema = z.object({
                     path: ["location"],
                 });
             }
+            if (!data.address || data.address.length < 5) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Vui lòng nhập địa điểm tổ chức (tối thiểu 5 ký tự)",
+                    path: ["address"],
+                });
+            }
 
             if (data.location && data.location.length >= 5 && !data.coordinates) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     message: "Vui lòng chọn địa điểm từ danh sách gợi ý để lấy vị trí chính xác",
                     path: ["location"],
-                });
-            }
-        }
-
-        if (data.type === EventType.ONLINE.key) {
-            // eslint-disable-next-line no-useless-escape
-            const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-            if (!data.meetingUrl || !urlRegex.test(data.meetingUrl)) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Vui lòng nhập đường dẫn cuộc họp hợp lệ (Zoom, Google Meet...)",
-                    path: ["meetingUrl"],
                 });
             }
         }
@@ -76,8 +73,12 @@ const CreateEventPage = () => {
     const [sessions, setSessions] = useState([
         {
             id: `session-1`,
+            checkinStartTime: '',
             startTime: '',
             endTime: '',
+            meetingUrl: '',
+            meetingPassword: '',
+            meetingPlatform: '',
             tickets: []
         }
     ]);
@@ -88,21 +89,29 @@ const CreateEventPage = () => {
             name: "",
             categoryId: "",
             type: EventType.OFFLINE.key,
-            description: "",
+            description: '',
+            address: "",
             thumbnail: undefined,
+            poster: undefined,
             location: "",
-            meetingUrl: "",
-            meetingPlatform: "",
             coordinates: null,
         },
         mode: "onChange",
     });
+
     const handleLocationSelect = (locationName, locationCoordinates) => {
         form.setValue("coordinates", locationCoordinates, { shouldValidate: false });
         form.setValue("location", locationName, { shouldValidate: true });
     };
 
     const createEvent = async (data) => {
+
+        const hasSessionError = sessions.some(s => s.error);
+
+        if (hasSessionError) {
+            toast.error("Vui lòng kiểm tra lại thông tin các suất diễn");
+            return;
+        }
 
         console.log("Form Data Submitted:", data);
         console.log("sessions:", sessions);
@@ -112,7 +121,6 @@ const CreateEventPage = () => {
             if (response.code == HttpStatusCode.Ok) {
                 toast.info("Tạo sự kiện thành công")
                 navigate(routes.eventManagement)
-
             }
         } catch (error) {
             console.log(error)
@@ -123,8 +131,10 @@ const CreateEventPage = () => {
         form.setValue("coordinates", null);
     }
 
+    const currentEventType = form.watch("type");
+
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="max-w">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-black leading-tight">Tạo sự kiện</h1>
@@ -134,26 +144,33 @@ const CreateEventPage = () => {
 
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(createEvent)}>
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-4">
-                        <div className="space-y-6 col-span-2">
-                            <EventBasicInfo form={form} />
-                        </div>
-
-                        <div className="space-y-6 col-span-1">
-                            <EventLocation
-                                form={form}
-                                onLocationSelect={handleLocationSelect}
-                                onLocationChange={handleLocationChange}
-                            />
-                        </div>
+                    <div className="mb-4">
+                        <ImageUploadSession form={form} />
                     </div>
 
-                    <EventSessions sessions={sessions} setSessions={setSessions} />
+                    <div className="mb-4">
+                        <EventBasicInfo form={form} />
+                    </div>
+
+                    <div className='mb-4'>
+                        <EventLocation
+                            form={form}
+                            onLocationSelect={handleLocationSelect}
+                            onLocationChange={handleLocationChange}
+                        />
+                    </div>
+
+                    <EventSessions
+                        sessions={sessions}
+                        setSessions={setSessions}
+                        eventType={currentEventType}
+                    />
 
                     <div className="flex gap-4 pt-6 pb-2 mt-4">
                         <Button
                             type="submit"
-                            className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 transition-all ml-auto"
+                            className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700
+                             text-white font-bold shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 transition-all ml-auto"
                             disabled={form.formState.isSubmitting}
                         >
                             {form.formState.isSubmitting ? (

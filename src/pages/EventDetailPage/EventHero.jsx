@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, Video } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatTime, formatCurrency, displaySessionDate } from '@/utils/format';
@@ -7,7 +7,7 @@ import { formatTime, formatCurrency, displaySessionDate } from '@/utils/format';
 const EventHero = ({ event }) => {
     const firstSession = event.eventSessions?.[0];
     const [displayPrice, setDisplayPrice] = useState();
-
+    const isOnline = event.type === 'ONLINE';
     // Find the lowest price to display "Giá từ..."
     useEffect(() => {
         if (!event || !event.eventSessions) return;
@@ -134,12 +134,25 @@ const EventHero = ({ event }) => {
                         </div>
 
                         {/* Location */}
-                        <div className="flex items-center gap-3">
-                            <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                        <div className="flex items-start gap-3">
+                            {isOnline ? (
+                                <Video className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                            ) : (
+                                <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                            )}
+
                             <div>
-                                <p className="text-white text-sm mt-1">
-                                    {event.location}
+                                <p className="text-white text-sm font-medium">
+                                    {!isOnline && event.address}
                                 </p>
+                                <p className="text-white text-sm mt-1 font-medium">
+                                    {isOnline ? "Sự kiện Online" : event.location}
+                                </p>
+                                {isOnline && firstSession?.meetingPlatform && (
+                                    <p className="text-gray-400 text-xs mt-0.5">
+                                        Nền tảng: {firstSession.meetingPlatform.replace(/_/g, ' ')}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -183,10 +196,15 @@ const EventHero = ({ event }) => {
                     <img
                         src={event.thumbnail}
                         alt={event.name}
-                        className={`w-full h-full object-cover object-center ${eventStatus.label === "Sự kiện đã kết thúc" ? 'grayscale' : ''}`}
+                        className={`w-full h-full object-cover object-center`}
                     />
                     {/* Badges on Image */}
                     <div className="absolute top-4 right-4 z-20 flex gap-2">
+                        {isOnline && (
+                            <Badge className="bg-blue-600 text-white shadow-sm border-none">
+                                Online
+                            </Badge>
+                        )}
                         {event.category && (
                             <Badge variant="secondary" className="bg-white/90 text-black backdrop-blur-md shadow-sm">
                                 {event.category.name}

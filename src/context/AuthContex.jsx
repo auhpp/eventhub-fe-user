@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }) => {
         getCurrentUserInfoAuth();
     }, []);
 
+
     return (
         <AuthContext.Provider value={{ token, user, getCurrentUserInfoAuth, isLoading, setUser, logoutAuth }}>
             {children}

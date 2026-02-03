@@ -13,7 +13,8 @@ import {
     ChevronDown,
     Ticket,
     Clock,
-    CheckCircle2
+    CheckCircle2,
+    Video
 } from 'lucide-react';
 import { displaySessionDate, formatCurrency, formatTime } from '@/utils/format';
 import { routes } from '@/config/routes';
@@ -51,7 +52,10 @@ const TicketSelection = ({ sessions, event }) => {
 
         return { label: 'Ngừng bán', disabled: true, variant: 'secondary' };
     };
-
+    const formatPlatformName = (platform) => {
+        if (!platform) return "Online Meeting";
+        return platform.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    };
     return (
         <div className="flex flex-col gap-3" id="ticket-section">
             {/* Header Section */}
@@ -75,7 +79,7 @@ const TicketSelection = ({ sessions, event }) => {
             <Accordion type="single" collapsible defaultValue={defaultVal} className="w-full space-y-2">
                 {sessions.map((session) => {
                     const status = getSessionStatus(session);
-
+                    const hasPlatform = event.type === 'ONLINE' && session.meetingPlatform;
                     return (
                         <AccordionItem
                             key={session.id}
@@ -100,6 +104,14 @@ const TicketSelection = ({ sessions, event }) => {
                                                 </p>
                                             </div>
                                         </div>
+                                        {hasPlatform && (
+                                            <div className="flex items-center gap-2 text-xs text-blue-600 mt-1 bg-blue-50 w-fit px-2 py-1 rounded-md">
+                                                <Video className="w-3 h-3" />
+                                                <span className="font-medium">
+                                                    {formatPlatformName(session.meetingPlatform)}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Right: Action Button */}
@@ -158,6 +170,7 @@ const TicketRow = ({ ticket }) => {
 
     // Toggle description function
     const handleToggle = () => {
+        if (!ticket.description) return
         setIsExpanded(!isExpanded);
     };
 
@@ -167,7 +180,8 @@ const TicketRow = ({ ticket }) => {
                 group w-full flex flex-col rounded-lg border transition-all duration-200 overflow-hidden
                 ${isSoldOut
                     ? 'bg-gray-100 border-gray-200 opacity-70'
-                    : `bg-white border-gray-200 hover:border-blue-300 hover:shadow-md ${isExpanded ? 'border-blue-400 ring-1 ring-blue-100' : ''}`
+                    : `bg-white border-gray-200 hover:border-blue-300 hover:shadow-md
+                     ${isExpanded ? 'border-blue-400 ring-1 ring-blue-100' : ''}`
                 }
             `}
         >
@@ -175,22 +189,27 @@ const TicketRow = ({ ticket }) => {
             <div
                 onClick={handleToggle}
                 className={`
-                    flex items-center justify-between p-4 cursor-pointer
+                    flex items-center justify-between p-4 
                     ${isSoldOut ? 'cursor-not-allowed' : ''}
+                    ${ticket.description && 'cursor-pointer'}
                 `}
             >
                 {/* Left Side: Icon & Name */}
                 <div className="flex items-center gap-3">
-                    <div className={`
+                    {
+                        ticket.description && (
+                            <div className={`
                         p-1.5 rounded-full transition-colors duration-200
                         ${isSoldOut ? 'bg-gray-200' : 'bg-gray-100 group-hover:bg-blue-50 text-gray-500 group-hover:text-blue-600'}
                     `}>
-                        {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200" />
-                        ) : (
-                            <ChevronRight className="w-4 h-4 transition-transform duration-200" />
-                        )}
-                    </div>
+                                {isExpanded ? (
+                                    <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                                ) : (
+                                    <ChevronRight className="w-4 h-4 transition-transform duration-200" />
+                                )}
+                            </div>
+                        )
+                    }
 
                     <div className="flex flex-col">
                         <span className="font-bold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">

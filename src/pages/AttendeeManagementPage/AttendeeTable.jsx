@@ -12,6 +12,7 @@ import AttendeeTypeBadges from '@/components/AttendeeTypeBadges';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
 import { formatCurrency, formatDateTime } from '@/utils/format';
 import { BookingStatus } from '@/utils/constant';
+import BoringAvatar from "boring-avatars";
 
 const AttendeeTable = ({ data, isLoading, onViewDetail }) => {
     if (isLoading) return <div className="p-8 text-center text-muted-foreground">Đang tải dữ liệu...</div>;
@@ -54,10 +55,16 @@ const AttendeeTable = ({ data, isLoading, onViewDetail }) => {
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarImage src={user.avatar} />
-                                            <AvatarFallback className="bg-primary/10 text-primary">
-                                                {user.fullName?.charAt(0)}</AvatarFallback>
+                                            <AvatarImage src={user.avatar} alt={user.fullName} />
+                                            <AvatarFallback className="bg-transparent p-0 overflow-hidden">
+                                                <BoringAvatar
+                                                    size="100%"
+                                                    name={user.email}
+                                                    variant="marble"
+                                                />
+                                            </AvatarFallback>
                                         </Avatar>
+
                                         <div>
                                             <p className="font-medium">{user.fullName}</p>
                                             <p className="text-sm text-muted-foreground">{user.email}</p>

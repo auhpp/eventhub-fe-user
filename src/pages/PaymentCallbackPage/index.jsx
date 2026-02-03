@@ -20,6 +20,7 @@ import { routes } from '@/config/routes';
 import { displaySessionDate, formatTime } from '@/utils/format';
 import { BookingStatus } from '@/utils/constant';
 import { getBookingById } from '@/services/bookingService';
+import BookingStatusBadge from '@/components/BookingStatusBadge';
 
 const getTicketSummary = (attendees) => {
     if (!attendees || attendees.length === 0) return "Chưa có thông tin vé";
@@ -94,9 +95,10 @@ const PaymentCallbackPage = () => {
             <Card className="w-full max-w-3xl shadow-xl rounded-2xl 
             overflow-hidden border-none relative bg-white dark:bg-[#1a202c]">
                 {/* Decorative Top Border Gradient */}
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-800"></div>
+                <div className="absolute top-0 left-0 w-full h-1.5
+                 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-800"></div>
 
-                <CardContent className="flex flex-col items-center pt-10 pb-8 px-6 md:px-12 text-center">
+                <CardContent className="flex flex-col items-center pt-6 pb-6 px-6 md:px-8 text-center">
 
                     {/* Success Icon */}
                     <div className="mb-6 relative">
@@ -116,15 +118,15 @@ const PaymentCallbackPage = () => {
                     </p>
 
                     {/* Ticket Detail Box */}
-                    <div className="w-full bg-gray-50 dark:bg-gray-800/40 rounded-xl p-5 border border-dashed border-gray-300 dark:border-gray-700 mb-10">
+                    <div className="w-full bg-gray-50 dark:bg-gray-800/40 rounded-xl p-4 border border-dashed border-gray-300 dark:border-gray-700 mb-10">
                         <div className="flex flex-col md:flex-row gap-5 items-center md:items-start text-left">
 
                             {/* Event Image */}
-                            <div className="h-24 w-full md:w-36 shrink-0 rounded-lg overflow-hidden relative shadow-sm group">
+                            <div className="w-full md:w-32 shrink-0 rounded-lg overflow-hidden relative shadow-sm group aspect-[3/4]">
                                 <img
-                                    src={bookingData.event.thumbnail || "https://placehold.co/600x400?text=Event+Image"}
-                                    alt="Event Thumbnail"
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    src={bookingData.event.poster || "https://placehold.co/720x958?text=No+Poster"}
+                                    alt="Event Poster"
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                             </div>
 
@@ -132,17 +134,15 @@ const PaymentCallbackPage = () => {
                             <div className="flex-1 w-full space-y-3">
 
                                 {/* Header: Title + Status Badge */}
-                                <div className="flex flex-col md:flex-row md:justify-between md:items-start">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                <div className="flex flex-col md:flex-row md:justify-between
+                                py-2
+                                md:items-start">
+                                    <h3 className="text-md font-bold text-gray-900 dark:text-white leading-tight">
                                         {bookingData.event.name}
                                     </h3>
 
                                     {bookingData.status === BookingStatus.PAID ? (
-                                        <Badge variant="secondary"
-                                            className="bg-green-100 text-green-700 hover:bg-green-100
-                                             border-green-200 text-[10px]">
-                                            <CheckCircle2 className="w-3 h-3 mr-1" /> Đã thanh toán
-                                        </Badge>
+                                        <BookingStatusBadge status={bookingData.status} />
                                     ) : (
                                         <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
                                             {bookingData.status}
@@ -153,7 +153,9 @@ const PaymentCallbackPage = () => {
                                 <Separator className="bg-gray-200 dark:bg-gray-700" />
 
                                 {/* Grid Details */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm text-gray-600 dark:text-gray-400">
+                                <div className="grid grid-cols-1 sm:grid-cols-2
+                                pt-2
+                                gap-x-4 gap-y-3 text-sm text-gray-600 dark:text-gray-400">
                                     {/* Time */}
                                     <div className="flex items-center gap-2">
                                         <CalendarDays className="w-5 h-5 text-blue-600 shrink-0" />

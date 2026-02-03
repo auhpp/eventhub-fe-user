@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { formatCurrency } from '@/utils/format';
 import AttendeeBookingCard from '@/features/attendee/AttendeeBookingCard';
 import { BookingStatus } from '@/utils/constant';
+import BoringAvatar from "boring-avatars";
 
 const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
     const [data, setData] = useState(null);
@@ -79,12 +80,19 @@ const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
                             {/* User Profile Card */}
                             <Card className="shadow-sm border-none bg-background">
                                 <CardContent className="p-4 flex items-start sm:items-center gap-4 flex-col sm:flex-row">
-                                    <Avatar className="w-16 h-16 border-2 border-background shadow-sm">
-                                        <AvatarImage src={user?.avatar} />
-                                        <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                                            {user?.fullName?.charAt(0)}
-                                        </AvatarFallback>
-                                    </Avatar>
+                                    <div className="flex items-center gap-3">
+                                        <Avatar>
+                                            <AvatarImage src={user.avatar} alt={user.fullName} />
+
+                                            <AvatarFallback className="bg-transparent p-0 overflow-hidden">
+                                                <BoringAvatar
+                                                    size="100%"
+                                                    name={user.email}
+                                                    variant="marble"
+                                                />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </div>
                                     <div className="flex-1 space-y-1">
                                         <h3 className="font-bold text-lg text-foreground">{user?.fullName}</h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">

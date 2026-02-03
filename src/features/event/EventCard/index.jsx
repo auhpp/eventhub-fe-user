@@ -1,12 +1,14 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin } from 'lucide-react';
-import EventStatusBadge from './EventStatusBadge';
+import { Clock, MapPin, Video } from 'lucide-react';
 import { formatDateTime } from '@/utils/format';
+import { EventType, MeetingPlatform } from '@/utils/constant';
+import EventStatusBadge from '@/components/EventStatusBadge';
 
 const EventCard = ({ event, showActionManage, onClick }) => {
-    console.log(event)
+    const isOnline = event.type === EventType.ONLINE.key
+    console.log(isOnline)
     return (
         <Card
             onClick={onClick}
@@ -30,10 +32,27 @@ const EventCard = ({ event, showActionManage, onClick }) => {
                 <div>
                     <h3 className="text-lg font-bold line-clamp-1">{event.name}</h3>
                     <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                        <div>
-                            <MapPin className="size-4" />
-                        </div>
-                        <span>{event.location}</span>
+                        {
+                            isOnline ? (
+                                <>
+                                    <div>
+                                        <Video className="size-4" />
+                                    </div>
+                                    <span>{event.eventSessions.map(
+                                        it =>
+                                            it.meetingPlatform == MeetingPlatform.GOOGLE_MEET ? "Google meet" : "Zoom"
+                                    ).join(", ")}
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <MapPin className="size-4" />
+                                    </div>
+                                    <span>{event.location}</span>
+                                </>
+                            )
+                        }
                     </div>
                     <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="size-4" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-    ArrowLeft, X, Mail, Phone, MapPin,
+    X, Mail, Phone, MapPin,
     Clock, User, Building2, AlertCircle, Calendar,
     Loader2
 } from "lucide-react";
@@ -10,12 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { cancelOrganizerRegistrationRequest, getOrganizerRegistrationById } from "@/services/organizerRegistrationService";
 import { HttpStatusCode } from "axios";
 import { ConfirmCancelModal } from "@/components/ConfirmCancelModal";
 import { StatusBadge } from "@/components/StatusBadge";
 import { RegistrationStatus } from "@/utils/constant";
+import ButtonBack from "@/components/ButtonBack";
 
 
 const OrganizerRequestDetail = () => {
@@ -24,7 +25,6 @@ const OrganizerRequestDetail = () => {
     const organizerRegistrationId = location.pathname.substring(location.pathname.lastIndexOf("/") + 1)
     const [isRefresh, setIsRefresh] = useState(false)
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const navigate = useNavigate()
 
     const handleCancelEvent = async () => {
         console.log("Đã hủy sự kiện");
@@ -67,11 +67,7 @@ const OrganizerRequestDetail = () => {
             {/* --- PAGE HEADER --- */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                    <Button variant="outline" size="icon"
-                        onClick={() => navigate(-1)}
-                        className="h-9 w-9 shrink-0">
-                        <ArrowLeft size={16} />
-                    </Button>
+                    <ButtonBack />
                     <div>
                         <div className="flex flex-wrap items-center gap-3 mb-2">
                             <h1 className="text-2xl font-bold text-foreground tracking-tight leading-none">
@@ -198,6 +194,7 @@ const OrganizerRequestDetail = () => {
                                         <AvatarImage src={organizerRegistration.appUser?.avatar} alt={organizerRegistration.appUser?.fullName} />
                                         <AvatarFallback className="text-lg">{organizerRegistration.appUser?.fullName?.charAt(0)}</AvatarFallback>
                                     </Avatar>
+                                    
                                     {organizerRegistration.appUser.isOnline && (
                                         <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-background rounded-full ring-1 ring-white/10"></span>
                                     )}

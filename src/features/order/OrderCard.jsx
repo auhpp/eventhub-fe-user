@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Ticket, ArrowRight } from 'lucide-react';
+import { MapPin, Ticket, ArrowRight, Video } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { formatCurrency, formatDateTime } from '@/utils/format';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
+import { EventType, MeetingPlatform } from '@/utils/constant';
 
 
 const OrderCard = ({ booking }) => {
@@ -23,10 +24,11 @@ const OrderCard = ({ booking }) => {
     const ticketCount = attendees ? attendees.length : 0;
     const navigate = useNavigate()
 
-    const eventImage = event?.thumbnail || "https://placehold.co/600x400?text=Event+Image";
+    const eventImage = event?.poster || "https://placehold.co/600x400?text=Event+Image";
     const eventName = event?.name || "Sự kiện không xác định";
     const eventLocation = event?.location || "Online / Chưa cập nhật";
 
+    const isOnline = event.type == EventType.ONLINE.key
 
     return (
         <Card className="overflow-hidden border-l-4 hover:shadow-md transition-all duration-200 mb-4 group border-l-primary/80">
@@ -60,8 +62,28 @@ const OrderCard = ({ booking }) => {
 
                         <div className="flex flex-col sm:flex-row gap-y-2 gap-x-6 text-sm text-gray-600 mt-1">
                             <div className="flex items-center gap-1.5">
-                                <MapPin className="w-4 h-4 text-primary" />
-                                <span className="truncate max-w-[200px]">{eventLocation}</span>
+                                {
+                                    isOnline ? (
+                                        <>
+                                            <div>
+                                                <Video className="w-4 h-4 text-primary" />
+                                            </div>
+                                            <span className="truncate max-w-[200px]">{event.eventSessions.map(
+                                                it =>
+                                                    it.meetingPlatform == MeetingPlatform.GOOGLE_MEET ? "Google meet" : "Zoom"
+                                            ).join(", ")}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <MapPin className="w-4 h-4 text-primary" />
+                                            </div>
+                                            <span className="truncate max-w-[200px]">{eventLocation}</span>
+                                        </>
+                                    )
+                                }
+
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Ticket className="w-4 h-4 text-primary" />

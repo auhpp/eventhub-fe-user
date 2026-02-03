@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { Calendar, MapPin, Video, QrCode, Clock } from "lucide-react";
+import { Calendar, MapPin, Video, QrCode, Clock, Loader2, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { AttendeeStatus } from "@/utils/constant";
+import { AttendeeStatus, MeetingPlatform } from "@/utils/constant";
 import { displaySessionDate, formatTime } from "@/utils/format";
 import TicketQRModal from "./TicketQRModal";
 import { useNavigate } from "react-router-dom";
 import { routes } from "@/config/routes";
+import { getMeetingUrl } from "@/services/attendeeService";
+import { toast } from "sonner";
 
 const TicketCard = ({ data }) => {
     const { id, ticketCode, status, ticket, event, eventSession } = data;
@@ -17,7 +19,34 @@ const TicketCard = ({ data }) => {
 
     const statusStyle = AttendeeStatus[status] || AttendeeStatus.PENDING;
     const isOnline = event?.type === "ONLINE";
+    const [isJoining, setIsJoining] = useState(false);
 
+    const handleJoinEvent = async () => {
+        const now = new Date();
+        const startTime = new Date(eventSession.checkingStartTime);
+        const canJoinTime = new Date(startTime.getTime() - 15 * 60000);
+
+        if (eventSession.checkingStartTime && (now < canJoinTime)) {
+            toast.warning(`Sự kiện chưa bắt đầu. Vui lòng quay lại vào lúc ${formatTime(canJoinTime)}`);
+            return;
+        }
+
+        setIsJoining(true);
+        try {
+            const responseResult = await getMeetingUrl({ attendeeId: id });
+            const meetingLink = responseResult.result;
+
+            if (meetingLink) {
+                window.open(meetingLink, '_blank');
+            } else {
+                toast.error("Không tìm thấy link tham gia.");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Lỗi khi lấy link tham gia");
+        } finally {
+            setIsJoining(false);
+        }
+    };
     return (
         <>
             <Card className="overflow-hidden border-l-4 hover:shadow-md transition-all duration-200 mb-4 group border-l-primary/80">
@@ -25,7 +54,7 @@ const TicketCard = ({ data }) => {
                     {/* left column: image */}
                     <div className="w-full md:w-48 h-32 md:h-auto relative shrink-0">
                         <img
-                            src={event?.thumbnail || 'https://placehold.co/600x400'}
+                            src={event?.poster || 'https://placehold.co/600x400'}
                             alt={event?.name}
                             className="w-full h-full object-cover "
                         />
@@ -42,7 +71,7 @@ const TicketCard = ({ data }) => {
                         <div>
                             <div className="flex justify-between items-start">
                                 <div className="flex-1 mr-2">
-                                   
+
                                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                                         <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 hover:bg-primary/10 rounded-sm text-[11px] px-2 py-0.5 font-semibold uppercase">
                                             {ticket?.name || "Vé thường"}
@@ -56,10 +85,12 @@ const TicketCard = ({ data }) => {
                                     ">
                                         {event?.name || "Tên sự kiện chưa cập nhật"}
                                     </h3>
-
-                                    <p className="text-xs text-slate-500 font-mono mt-1">
-                                        Mã vé: <span className="font-bold text-slate-700">#{ticketCode}</span>
-                                    </p>
+                                    {
+                                        !isOnline &&
+                                        <p className="text-xs text-slate-500 font-mono mt-1">
+                                            Mã vé: <span className="font-bold text-slate-700">#{ticketCode}</span>
+                                        </p>
+                                    }
                                 </div>
 
                                 <div className="hidden md:block shrink-0">
@@ -87,7 +118,9 @@ const TicketCard = ({ data }) => {
                                         <MapPin className="w-4 h-4 text-primary shrink-0" />
                                     )}
                                     <span className="truncate max-w-[200px]">
-                                        {isOnline ? "Online Platform" : (event?.location || "Chưa cập nhật")}
+                                        {isOnline ? (
+                                            eventSession.meetingPlatform == MeetingPlatform.GOOGLE_MEET ? "Google meet" : "Zoom"
+                                        ) : (event?.location || "Chưa cập nhật")}
                                     </span>
                                 </div>
                             </div>
@@ -113,14 +146,26 @@ const TicketCard = ({ data }) => {
                                     >
                                         Chi tiết
                                     </Button>
-                                    <Button
-                                        size="sm"
-                                        onClick={() => setIsQRModalOpen(true)}
-                                        className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-sm w-full sm:w-auto"
-                                    >
-                                        <QrCode className="w-3.5 h-3.5" />
-                                        <span>Mã Check-in</span>
-                                    </Button>
+                                    {
+                                        isOnline ? <Button
+                                            size="sm"
+                                            onClick={handleJoinEvent}
+                                            disabled={isJoining}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 w-full md:w-auto font-bold"
+                                        >
+                                            {isJoining ? <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                : <ExternalLink className="w-4 h-4 mr-2" />}
+                                            Vào sự kiện ngay
+                                        </Button> :
+                                            <Button
+                                                size="sm"
+                                                onClick={() => setIsQRModalOpen(true)}
+                                                className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-sm w-full sm:w-auto"
+                                            >
+                                                <QrCode className="w-3.5 h-3.5" />
+                                                <span>Mã Check-in</span>
+                                            </Button>
+                                    }
                                 </div>
                             </div>
                         </div>

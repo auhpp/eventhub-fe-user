@@ -50,3 +50,27 @@ export const cancelOrganizerRegistrationRequest = async ({ id }) => {
     return response.data;
 };
 
+export const updateOrganizerRegistrationRequest = async ({ id, data }) => {
+    const formData = new FormData();
+
+    formData.append("businessName", data.businessName);
+    formData.append("representativeFullName", data.representativeFullName);
+    formData.append("email", data.email);
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("biography", data.biography);
+    formData.append("contactAddress", data.contactAddress);
+
+    if (data.businessAvatar instanceof File) {
+        formData.append("businessAvatar", data.businessAvatar);
+    }
+
+    const response = await API.put(`/api/v1/organizer-registration/${id}`,
+        formData
+        , {
+            requiresAuth: true,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    return response.data;
+};

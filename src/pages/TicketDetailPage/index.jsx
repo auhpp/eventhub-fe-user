@@ -1,80 +1,127 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Calendar,
-    MapPin,
-    Clock,
-    Download,
-    ArrowLeft,
-    Info,
-    FileText,
-    Video,
-    Loader2,
-    CircleX
+    Calendar, MapPin, Clock, Download, ArrowLeft, Info,
+    FileText, Video, Loader2, CircleX, Send, UserCheck, ExternalLink,
+    MonitorPlay
 } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAttendeeById } from '@/services/attendeeService';
+import { getAttendeeById, assignAttendeeEmail, getMeetingUrl } from '@/services/attendeeService';
 import { HttpStatusCode } from 'axios';
 import { routes } from '@/config/routes';
 import { displaySessionDate, formatTime } from '@/utils/format';
 import QRCode from 'react-qr-code';
+import { toast } from 'sonner';
 
 const TicketDetailPage = () => {
-    const [attendee, setAttendee] = useState(null)
+    const [attendee, setAttendee] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const [recipientEmail, setRecipientEmail] = useState("");
+    const [isAssigning, setIsAssigning] = useState(false);
+
+    const [isJoining, setIsJoining] = useState(false);
+
     const { id } = useParams();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
+    const fetchAttendeeById = async () => {
+        try {
+            const response = await getAttendeeById({ id: id });
+            if (response.code === HttpStatusCode.Ok) {
+                setAttendee(response.result);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error("Không thể tải thông tin vé");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchAttendeeById = async () => {
-            try {
-                const response = await getAttendeeById({ id: id })
-                if (response.code === HttpStatusCode.Ok) {
-                    setAttendee(response.result)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        }
-        fetchAttendeeById()
-    }, [id])
+        fetchAttendeeById();
+    }, [id]);
 
-    if (!attendee) {
+    const handleAssignTicket = async () => {
+        if (!recipientEmail || !recipientEmail.includes('@')) {
+            toast.error("Vui lòng nhập email hợp lệ");
+            return;
+        }
+
+        setIsAssigning(true);
+        try {
+            await assignAttendeeEmail({ attendeeId: id, email: recipientEmail });
+            toast.success(`Đã gửi vé thành công cho ${recipientEmail}`);
+            setRecipientEmail("");
+            fetchAttendeeById();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Lỗi khi gửi vé");
+        } finally {
+            setIsAssigning(false);
+        }
+    };
+
+    const handleJoinEvent = async () => {
+        const now = new Date();
+        const startTime = new Date(attendee.eventSession.checkingStartTime);
+        const canJoinTime = new Date(startTime.getTime() - 15 * 60000);
+
+        if (attendee.eventSession.checkingStartTime && (now < canJoinTime)) {
+            toast.warning(`Sự kiện chưa bắt đầu. Vui lòng quay lại vào lúc ${formatTime(canJoinTime)}`);
+            return;
+        }
+
+        setIsJoining(true);
+        try {
+            const responseResult = await getMeetingUrl({ attendeeId: id });
+            const meetingLink = responseResult.result;
+
+            if (meetingLink) {
+                window.open(meetingLink, '_blank');
+            } else {
+                toast.error("Không tìm thấy link tham gia.");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Lỗi khi lấy link tham gia");
+        } finally {
+            setIsJoining(false);
+        }
+    };
+
+    if (loading || !attendee) {
         return (
             <div className="flex justify-center items-center h-screen w-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-        )
+        );
     }
 
-    const handleGoToOrder = () => {
-        navigate(routes.orderDetail.replace(':id', attendee.booking.id))
-    };
+    const isOnlineEvent = attendee.event.type === 'ONLINE';
+    const assignedUserEmail = attendee.ownerEmail;
 
     return (
         <div className="min-h-screen bg-slate-50/50 pb-12 font-sans text-slate-900">
-            {/* --- HEADER --- */}
-            <Button variant="ghost" className="pl-0 text-slate-500 hover:text-primary mb-2" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại danh sách
-            </Button>
+            {/* Header Button */}
+            <div className="container pt-4">
+                <Button variant="ghost" className="pl-0 text-slate-500 hover:text-primary mb-2" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại danh sách
+                </Button>
+            </div>
 
             <main className="container">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                     {/* --- LEFT COLUMN: EVENT INFO --- */}
                     <div className="lg:col-span-8 space-y-6">
-
-                        {/* Banner & Title Card */}
+                        {/* Banner & Title */}
                         <div className="relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-white group">
                             <div className="h-64 sm:h-80 w-full relative overflow-hidden">
-                                <img
-                                    src={attendee.event.thumbnail}
-                                    alt="Event Banner"
-                                    className="w-full h-full object-cover"
-                                />
+                                <img src={attendee.event.thumbnail} alt="Event Banner" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
                                 <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full">
                                     <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md mb-3">
                                         {attendee.event.category?.name}
@@ -89,15 +136,12 @@ const TicketDetailPage = () => {
                             </div>
 
                             <CardContent className="p-3 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* Time */}
                                 <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-2xl
-                                     bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                                         <Calendar className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-500 
-                                        uppercase tracking-wider mb-1">Thời gian</p>
+                                        <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Thời gian</p>
                                         <p className="text-md font-bold text-slate-900">
                                             {displaySessionDate({
                                                 startDateTime: attendee.eventSession.startDateTime,
@@ -110,141 +154,152 @@ const TicketDetailPage = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Location */}
                                 <div className="flex items-start gap-4">
                                     <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                                        {attendee.event.type === 'ONLINE' ?
-                                            <Video className="w-5 h-5" /> : <MapPin className="w-5 h-5" />}
+                                        {isOnlineEvent ? <Video className="w-5 h-5" /> : <MapPin className="w-5 h-5" />}
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                                            {attendee.event.type === 'ONLINE' ? 'Nền tảng' : 'Địa điểm'}
+                                            {isOnlineEvent ? 'Nền tảng' : 'Địa điểm'}
                                         </p>
                                         <p className="text-md font-bold text-slate-900">
                                             {attendee.event.location}
                                         </p>
-                                        {attendee.event.type === 'OFFLINE' && (
-                                            <p className="text-slate-600 mt-1 text-sm">
-                                                {attendee.event.locationCoordinates?.address}
-                                            </p>
-                                        )}
                                     </div>
                                 </div>
                             </CardContent>
                         </div>
 
-                        {/* Important Info Section */}
-                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <Info className="w-5 h-5 text-blue-600" />
-                                Thông tin quan trọng
-                            </h3>
-                            <div className="prose prose-slate text-slate-600 text-sm">
-                                <ul className="space-y-2 list-disc pl-5">
-                                    <li>Vui lòng xuất trình mã QR Code này tại quầy check-in để đổi thẻ tham dự.</li>
-                                    <li>Vé này dành cho 01 người và chỉ có giá trị sử dụng một lần.</li>
-                                    <li>Vui lòng mang theo giấy tờ tùy thân (CCCD/CMND) để đối chiếu khi cần thiết.</li>
-                                    <li>Không hoàn/hủy vé sau khi sự kiện đã bắt đầu.</li>
-                                </ul>
+                        {/* --- JOIN BUTTON FOR ONLINE EVENT --- */}
+                        {isOnlineEvent && (
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 shadow-sm">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
+                                            <Video className="w-5 h-5" /> Sự kiện Online
+                                        </h3>
+                                        <p className="text-blue-700 text-sm mt-1">
+                                            Link tham gia sẽ khả dụng khi sự kiện bắt đầu.
+                                        </p>
+                                    </div>
+                                    <Button
+                                        size="lg"
+                                        onClick={handleJoinEvent}
+                                        disabled={isJoining}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 w-full md:w-auto font-bold"
+                                    >
+                                        {isJoining ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ExternalLink className="w-4 h-4 mr-2" />}
+                                        Vào sự kiện ngay
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
-                    {/* --- RIGHT COLUMN: TICKET CARD --- */}
+                    {/* --- RIGHT COLUMN: TICKET ACTIONS --- */}
                     <div className="lg:col-span-4 sticky top-24 space-y-6">
 
                         {/* Ticket Card */}
-                        <div className="bg-white rounded-xl shadow-xl 
-                        shadow-slate-200 border border-slate-200 overflow-hidden relative group">
+                        <div className="bg-white rounded-xl shadow-xl shadow-slate-200 border border-slate-200 overflow-hidden relative">
                             {/* Decorative Top Bar */}
                             <div className="h-2 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600"></div>
 
                             <div className="p-4 flex flex-col items-center text-center">
-                                <p className="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-6">
-                                    CHECK-IN CODE
-                                </p>
 
-                                {/* QR Code Placeholder */}
-                                <div className="flex flex-col items-center
-                                 justify-center bg-white dark:bg-slate-900">
-                                    <div className="p-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white shadow-sm">
-                                        <div style={{ height: "auto", margin: "0 auto", maxWidth: 200, width: "100%" }}>
-                                            <QRCode
-                                                size={256}
-                                                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                                value={attendee.ticketCode}
-                                                viewBox={`0 0 256 256`}
-                                                fgColor="#000000" 
-                                                bgColor="#FFFFFF" 
-                                            />
+                                {!isOnlineEvent ? (
+                                    <>
+                                        <p className="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-6">CHECK-IN CODE</p>
+                                        <div className="p-4 rounded-xl border-2 border-slate-100 bg-white shadow-sm mb-6">
+                                            <div style={{ height: "auto", margin: "0 auto", maxWidth: 200, width: "100%" }}>
+                                                <QRCode
+                                                    size={256}
+                                                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                                    value={attendee.ticketCode}
+                                                    viewBox={`0 0 256 256`}
+                                                />
+                                            </div>
                                         </div>
+                                    </>
+                                ) : (
+                                    <div className="py-6 flex flex-col items-center justify-center">
+                                        <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-blue-600 ring-4 ring-blue-50/50">
+                                            <MonitorPlay className="w-10 h-10" />
+                                        </div>
+                                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">
+                                            VÉ TRỰC TUYẾN
+                                        </h3>
+                                        <p className="text-xs text-slate-500 max-w-[220px] mb-4">
+                                            Sự kiện này diễn ra online. Bạn không cần mã QR để check-in tại quầy.
+                                        </p>
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Ticket Code */}
-                                <div className="flex
-                                mt-2
-                                items-center gap-3 mb-6 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                                {/* ticket code */}
+                                <div className="flex items-center gap-3 mb-6 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
                                     <span className="text-2xl font-mono font-bold text-slate-900 tracking-wider">
                                         {attendee.ticketCode}
                                     </span>
                                 </div>
 
-                                {/* User & Ticket Type info */}
-                                <div className="w-full space-y-3 mb-6">
-                                    <div className="flex justify-between items-center p-3
-                                     rounded-xl bg-blue-50 border border-blue-100">
-                                        <span className="text-xs text-blue-600 font-medium uppercase">Loại vé</span>
-                                        <span className="text-sm font-bold text-blue-700">{attendee.ticket.name}</span>
+                                {/* Owner Info */}
+                                <div className="w-full bg-slate-50 rounded-lg p-3 mb-4 border border-slate-100 flex items-center justify-between">
+                                    <span className="text-xs text-slate-500 font-medium uppercase">Người sở hữu</span>
+                                    <div className="flex items-center gap-2">
+                                        <UserCheck className="w-4 h-4 text-green-600" />
+                                        <span className="text-sm font-bold text-slate-800 truncate max-w-[150px]"
+                                            title={assignedUserEmail}>
+                                            {assignedUserEmail || "Chưa gán"}
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Action Buttons */}
-                                <div className="w-full space-y-3">
-                                    <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white h-12 rounded-xl font-bold shadow-lg shadow-slate-900/10">
-                                        <Download className="w-4 h-4 mr-2" /> Tải vé PDF
+                                <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white h-12 rounded-xl font-bold shadow-lg">
+                                    <Download className="w-4 h-4 mr-2" /> Tải vé PDF
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* --- ASSIGN TICKET SECTION --- */}
+                        {
+                            !assignedUserEmail &&
+                            <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                                <h3 className="text-md font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                    <Send className="w-4 h-4 text-primary" />
+                                    Gửi vé cho bạn bè
+                                </h3>
+                                <p className="text-xs text-slate-500 mb-4">
+                                    Nhập email của người nhận. Vé sẽ được chuyển sang tài khoản của họ.
+                                </p>
+
+                                <div className="space-y-3">
+                                    <Input
+                                        placeholder="nhap_email_ban_be@example.com"
+                                        value={recipientEmail}
+                                        onChange={(e) => setRecipientEmail(e.target.value)}
+                                        className="h-10 text-sm"
+                                    />
+                                    <Button
+                                        onClick={handleAssignTicket}
+                                        disabled={isAssigning || !recipientEmail}
+                                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                                    >
+                                        {isAssigning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Gửi vé ngay"}
                                     </Button>
-                                    {/* <div className="grid grid-cols-2 gap-3">
-                                        <Button variant="outline" className="h-10 rounded-xl border-slate-200">
-                                            <Share2 className="w-4 h-4 mr-2" /> Chia sẻ
-                                        </Button>
-                                        <Button variant="outline" className="h-10 rounded-xl border-slate-200">
-                                            <ExternalLink className="w-4 h-4 mr-2" /> Ví Apple
-                                        </Button>
-                                    </div> */}
                                 </div>
                             </div>
+                        }
 
-
-                        </div>
-                        <div className="bg-red-50 rounded-xl border border-red-200 p-4 shadow-sm">
-                            <h3 className="text-md font-bold text-red-600 mb-1 flex items-center gap-2">
-                                Quản lý đặt chỗ
-                            </h3>
-                            <div className="prose prose-slate text-slate-600 text-sm flex flex-col items-center">
-                                <p className='text-xs'>Nếu bạn không tham gia, hãy hủy vé sớm để nhường cơ hội cho người khác</p>
-                                <Button className='bg-white hover:bg-red-500 mt-1 
-                                text-red-500 border hover:text-white border-red-500'>
-                                    <CircleX className="w-4 h-4 mr-2" />
-                                    Hủy vé tham gia</Button>
-                            </div>
-                        </div>
-                        {/* Navigation to Order Detail (New Feature) */}
                         <div className="text-center">
-                            <p className="text-sm text-slate-500 mb-3">Bạn muốn kiểm tra lại thanh toán?</p>
                             <Button
                                 variant="outline"
-                                className="w-full border-dashed border-blue-300 bg-blue-50/50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 h-11 rounded-xl"
-                                onClick={handleGoToOrder}
+                                className="w-full border-dashed border-blue-300 bg-blue-50/50 text-blue-700 hover:bg-blue-100 h-11 rounded-xl"
+                                onClick={() => navigate(routes.orderDetail.replace(':id', attendee.booking.id))}
                             >
                                 <FileText className="w-4 h-4 mr-2" />
-                                Xem chi tiết đơn hàng #{attendee.booking.id}
+                                Đơn hàng #{attendee.booking.id}
                             </Button>
                         </div>
-
                     </div>
-
                 </div>
             </main>
         </div>

@@ -50,6 +50,11 @@ export function displaySessionDate({ startDateTime, endDateTime }) {
         return formatDate(startDateTime)
     }
     else {
-        return formatDate(startDateTime) - formatDate(endDateTime)
+        return `${formatDate(startDateTime)} - ${formatDate(endDateTime)}`
     }
 }
+
+export const formatDateForBE = (date) => {
+    if (!date) return null;
+    return format(new Date(date), "yyyy-MM-dd'T'HH:mm:ss");
+};
