@@ -3,15 +3,16 @@ import {
     ArrowLeft,
     Edit,
     PanelsTopLeft,
-    PersonStanding
+    PersonStanding,
+    User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
-import { Link, useParams, useLocation } from "react-router-dom"; 
+import { Link, useParams, useLocation } from "react-router-dom";
 const EventManagementSidebar = () => {
     const { id } = useParams();
-    const location = useLocation(); 
+    const location = useLocation();
 
     const navItems = [
         { label: "Tổng quan", icon: PanelsTopLeft, href: routes.eventOverview.replace(":id", id) },
@@ -19,6 +20,8 @@ const EventManagementSidebar = () => {
     ];
     const eventSettingnavItems = [
         { label: "Chỉnh sửa", icon: Edit, href: routes.editEvent.replace(":id", id) },
+        { label: "Thành viên", icon: User, href: routes.eventStaffManagement.replace(":id", id) },
+
     ];
     return (
         <aside className="w-60 bg-card border-r border-border hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0">

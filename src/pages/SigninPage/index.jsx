@@ -1,10 +1,13 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import SigninForm from "@/features/auth/SigninForm";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { routes } from "@/config/routes";
 
 const SigninPage = () => {
+    const [searchParams] = useSearchParams()
+    const queryParams = searchParams.toString();
+    const signupLink = queryParams ? `${routes.signup}?${queryParams}` : routes.signup;
     return (
         <div className="w-full max-w-md">
 
@@ -29,7 +32,7 @@ const SigninPage = () => {
             <p className="mt-10 text-center text-sm text-slate-500 dark:text-slate-400">
                 Bạn chưa có tài khoản?{" "}
                 <Link
-                    to={routes.signup}
+                    to={signupLink}
                     className="font-bold text-brand hover:text-brand-dark transition-colors"
                 >
                     Đăng ký ngay

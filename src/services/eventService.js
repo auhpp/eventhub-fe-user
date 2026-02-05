@@ -2,7 +2,7 @@ import API from "@/config/api";
 import { EventType } from "@/utils/constant";
 
 export const createEventApi = async ({ eventData, sessions }) => {
-    // Format lại dữ liệu Sessions
+    // Format Sessions
     const sesstionFormated = sessions.map(it => {
         // Map Ticket
         var ticketRequest = it.tickets.map(ticket => {
@@ -18,19 +18,18 @@ export const createEventApi = async ({ eventData, sessions }) => {
             }
         });
 
-        // Tạo object session base
+        // create object session base
         const sessionDto = {
-            checkinStartTime: it.checkinStartTime, // MỚI
+            checkinStartTime: it.checkinStartTime, 
             startDateTime: it.startTime,
             endDateTime: it.endTime,
             ticketCreateRequests: ticketRequest
         };
 
-        // Nếu là Online, thêm meeting info vào session
         if (eventData.type === EventType.ONLINE.key) {
             sessionDto.meetingUrl = it.meetingUrl;
             sessionDto.meetingPlatform = it.meetingPlatform;
-            sessionDto.meetingPassword = it.meetingPassword; // MỚI
+            sessionDto.meetingPassword = it.meetingPassword; 
         }
 
         return sessionDto;
@@ -38,24 +37,21 @@ export const createEventApi = async ({ eventData, sessions }) => {
 
     console.log("Formatted Sessions:", sesstionFormated);
 
-    // DTO gốc không còn chứa meetingUrl nữa
     const requestDTO = {
         name: eventData.name,
         type: eventData.type,
         categoryId: eventData.categoryId,
         description: eventData.description,
-        address: eventData.address, // Tên địa điểm (cho cả online/offline)
+        address: eventData.address, 
         eventSessionCreateRequests: sesstionFormated
     };
 
-    // Chỉ thêm location lat/long nếu là OFFLINE
     if (eventData.type === EventType.OFFLINE.key) {
-        requestDTO.location = eventData.location; // Địa chỉ chi tiết
+        requestDTO.location = eventData.location; 
         requestDTO.locationLongitude = eventData.coordinates?.lng;
         requestDTO.locationLatitude = eventData.coordinates?.lat;
     }
 
-    // Gửi request
     const formData = new FormData();
     formData.append('thumbnail', eventData.thumbnail);
     formData.append('poster', eventData.poster);
@@ -71,15 +67,9 @@ export const createEventApi = async ({ eventData, sessions }) => {
     return response.data;
 };
 
-export const getEventsCurrentUser = async ({ page = 1, size = 10 }) => {
-    const response = await API.get(`/api/v1/event/current-user?page=${page}&size=${size}`, {
-        requiresAuth: true
-    });
-    return response.data;
-};
-
-export const getEvents = async ({ page = 1, size = 10 }) => {
-    const response = await API.get(`/api/v1/event?page=${page}&size=${size}`, {
+// request{status, userId}
+export const getEvents = async ({ request, page = 1, size = 10 }) => {
+    const response = await API.post(`/api/v1/event/filter?page=${page}&size=${size}`, request, {
         requiresAuth: true
     });
     return response.data;
@@ -98,11 +88,11 @@ export const updateEvent = async ({ id, eventData }) => {
         name: eventData.name,
         categoryId: eventData.categoryId,
         description: eventData.description,
-        address: eventData.address, 
+        address: eventData.address,
     };
 
     if (eventData.type === EventType.OFFLINE.key) {
-        requestDTO.location = eventData.location; 
+        requestDTO.location = eventData.location;
         requestDTO.locationLongitude = eventData.coordinates?.lng;
         requestDTO.locationLatitude = eventData.coordinates?.lat;
     }

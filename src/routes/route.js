@@ -14,6 +14,7 @@ import EditProfilePage from "@/pages/EditProfilePage"
 import EventDetailPage from "@/pages/EventDetailPage"
 import EventManagementPage from "@/pages/EventManagementPage"
 import EventOverviewPage from "@/pages/EventOverviewPage"
+import EventStaffManagementPage from "@/pages/EventStaffManagementPage"
 import HomePage from "@/pages/HomePage"
 import InvitationResponsePage from "@/pages/InvitationResponsePage"
 import MyTicketPage from "@/pages/MyTicketPage"
@@ -25,7 +26,13 @@ import PaymentCallbackPage from "@/pages/PaymentCallbackPage"
 import PaymentPage from "@/pages/PaymentPage"
 import SigninPage from "@/pages/SigninPage"
 import SignupPage from "@/pages/SignupPage"
+import StaffInvitationResponsePage from "@/pages/StaffInvitationResponsePage"
 import TicketDetailPage from "@/pages/TicketDetailPage"
+import TicketGiftConfirmPage from "@/pages/TicketGiftConfirmPage"
+import TicketGiftDetailPage from "@/pages/TicketGiftDetailPage"
+import TicketGiftSelectionPage from "@/pages/TicketGiftSelectionPage"
+import TicketGiftsPage from "@/pages/TicketGiftsPage"
+import TicketRecipientPage from "@/pages/TicketRecipientPage"
 import TicketSelectionPage from "@/pages/TicketSelectionPage"
 
 export const publicRoutes = [
@@ -34,9 +41,9 @@ export const publicRoutes = [
     { path: routes.home, page: HomePage, layout: DefaultLayout },
     { path: routes.eventDetail, page: EventDetailPage, layout: DefaultLayout },
     { path: routes.invitationResponse, page: InvitationResponsePage, layout: DefaultLayout },
-
-
+    { path: routes.staffInvitationResponse, page: StaffInvitationResponsePage, layout: DefaultLayout },
 ]
+
 export const privateRoutes = [
     { path: routes.organizerRegistration, page: OrganizerRequestPage, layout: ProfileLayout },
     { path: routes.createOrganizerRegistration, page: CreateOrganizerRequestPage, layout: ProfileLayout },
@@ -52,7 +59,11 @@ export const privateRoutes = [
     { path: routes.profile, page: EditProfilePage, layout: ProfileLayout },
     { path: routes.changePassword, page: ChangePasswordPage, layout: ProfileLayout },
     { path: routes.updateOrganizerRegistration, page: CreateOrganizerRequestPage, layout: ProfileLayout },
-
+    { path: routes.ticketGiftSelection, page: TicketGiftSelectionPage, layout: ProfileLayout },
+    { path: routes.ticketGiftReceiver, page: TicketRecipientPage, layout: ProfileLayout },
+    { path: routes.ticketGiftConfirm, page: TicketGiftConfirmPage, layout: ProfileLayout },
+    { path: routes.ticketGifts, page: TicketGiftsPage, layout: ProfileLayout },
+    { path: routes.ticketGiftDetail, page: TicketGiftDetailPage, layout: ProfileLayout },
 
 ]
 export const organizerRoutes = [
@@ -61,6 +72,7 @@ export const organizerRoutes = [
     { path: routes.eventOverview, page: EventOverviewPage, layout: EventManagementLayout },
     { path: routes.eventAttendee, page: AttendeeManagementPage, layout: EventManagementLayout },
     { path: routes.editEvent, page: EditEventPage, layout: EventManagementLayout },
+    { path: routes.eventStaffManagement, page: EventStaffManagementPage, layout: EventManagementLayout },
 
 
 ]

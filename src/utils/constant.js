@@ -19,9 +19,34 @@ export const MeetingPlatform = {
 
 
 export const RoleName = {
-    ADMIN: 'ADMIN',
-    USER: 'USER',
-    ORGANIZER: 'ORGANIZER'
+    ADMIN: {
+        label: "Quản trị viên",
+        key: 'ADMIN'
+    },
+    USER: {
+        label: "Người dùng",
+        key: 'USER'
+    },
+    ORGANIZER: {
+        label: "Nhà tổ chức",
+        key: 'ORGANIZER'
+    },
+    EVENT_OWNER: {
+        label: "Chủ sự kiện",
+        key: 'EVENT_OWNER'
+    },
+    EVENT_ADMIN: {
+        label: "Quản trị viên",
+        key: 'EVENT_ADMIN'
+    },
+    EVENT_MANAGER: {
+        label: "Quản lý",
+        key: 'EVENT_MANAGER'
+    },
+    EVENT_STAFF: {
+        label: "Nhân viên - checkin",
+        key: 'EVENT_STAFF'
+    }
 }
 
 export const EventStatus = {
@@ -43,12 +68,12 @@ export const BookingStatus = {
 }
 
 export const AttendeeStatus = {
-    INACTIVE: { label: "Chờ thanh toán", color: "bg-yellow-100 text-yellow-700" },
-    VALID: { label: "Hợp lệ", color: "bg-emerald-100 text-emerald-700" },
-    CHECKED_IN: { label: "Đã check-in", color: "bg-blue-100 text-blue-700" },
-    CANCELLED: { label: "Đã hủy", color: "bg-red-100 text-red-700" },
-    COMING: { label: "Sắp đến" },
-    PAST: { label: "Đã qua" },
+    INACTIVE: { label: "Chờ thanh toán", color: "bg-yellow-100 text-yellow-700", key: 'INACTIVE' },
+    VALID: { label: "Hợp lệ", color: "bg-emerald-100 text-emerald-700", key: 'VALID' },
+    CHECKED_IN: { label: "Đã check-in", color: "bg-blue-100 text-blue-700", key: 'CHECKED_IN' },
+    CANCELLED: { label: "Đã hủy", color: "bg-red-100 text-red-700", key: 'CANCELLED' },
+    COMING: { label: "Sắp đến", key: 'COMING' },
+    PAST: { label: "Đã qua", key: 'PAST' },
 
 };
 
@@ -73,3 +98,18 @@ export const AttendeeType = {
 export const InvitationStatus = {
     PENDING: 'PENDING', ACCEPTED: 'ACCEPTED', REJECTED: 'REJECTED', REVOKED: 'REVOKED', EXPIRED: 'EXPIRED'
 }
+
+
+export const EventStaffStatus = {
+    PENDING: 'PENDING', ACTIVE: 'ACTIVE', REJECTED: 'REJECTED', REVOKED: 'REVOKED'
+}
+
+export const SourceType = {
+    PURCHASE: 'PURCHASE', GIFT: 'GIFT', INVITATION: 'INVITATION'
+}
+
+
+export const TicketGiftStatus = {
+    PENDING: 'PENDING', ACCEPTED: 'ACCEPTED', REJECTED: 'REJECTED', REVOKED: 'REVOKED', EXPIRED: 'EXPIRED'
+}
+

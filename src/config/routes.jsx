@@ -23,4 +23,12 @@ export const routes = {
     editEvent: "/organizer/event/:id/edit",
     changePassword: "/change-password",
     updateOrganizerRegistration: "/organizer-registration/edit/:id",
+    eventStaffManagement: "/organizer/event/:id/event-staff",
+    staffInvitationResponse: '/invitation/event-staff/response',
+    ticketGiftSelection: '/orders/:id/ticket-gift/selection',
+    ticketGiftReceiver: '/orders/:id/ticket-gift/receiver',
+    ticketGiftConfirm: '/orders/:id/ticket-gift/confirm',
+    ticketGifts: '/ticket-gift',
+    ticketGiftDetail: '/ticket-gift/:id'
+
 }

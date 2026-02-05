@@ -19,8 +19,8 @@ import {
     rejectEventInvitation
 } from "@/services/eventInvitationService";
 import { formatCurrency, formatTime, displaySessionDate } from '@/utils/format';
-import AcceptInvitationDialog from './AcceptInvitationDialog';
-import RejectInvitationDialog from './RejectInvitationDialog';
+import AcceptInvitationDialog from '../../components/AcceptInvitationDialog';
+import RejectInvitationDialog from '../../components/RejectInvitationDialog';
 import { InvitationStatus } from '@/utils/constant';
 
 

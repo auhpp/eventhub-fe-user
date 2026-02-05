@@ -4,15 +4,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContex';
 import { routes } from '@/config/routes';
 import { Role } from '@/utils/constant';
+import BoringAvatar from "boring-avatars";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 const DefaultHeader = () => {
     const { user, isLoading, logoutAuth } = useContext(AuthContext);
     const navigate = useNavigate();
     const isOrganizer = user?.role.name === Role.ORGANIZER;
-    const getInitials = (name) => {
-        if (!name) return "U";
-        return name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
-    };
+
     const handleLogout = () => {
         if (logoutAuth) logoutAuth();
     };
@@ -94,21 +94,11 @@ const DefaultHeader = () => {
                                     {/* Avatar Trigger */}
                                     <div className="relative flex items-center gap-2 cursor-pointer py-1
                                     hover:bg-gray-100 px-1 rounded-lg">
-                                        <div className="h-9 w-9 rounded-full border
+                                        <Avatar className="h-9 w-9 rounded-full border
                                          border-gray-200 bg-gray-100 overflow-hidden flex items-center
                                           justify-center transition-all">
-                                            {user.avatar ? (
-                                                <img
-                                                    src={user.avatar}
-                                                    alt={user.fullName}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                <span className="text-sm font-bold text-gray-600">
-                                                    {getInitials(user.fullName)}
-                                                </span>
-                                            )}
-                                        </div>
+                                            <DefaultAvatar user={user} />
+                                        </Avatar>
                                         <span className="text-sm font-medium text-gray-700 hidden lg:block max-w-[100px] truncate">
                                             {user.fullName || "Tài khoản"}
                                         </span>

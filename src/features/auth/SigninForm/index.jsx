@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -7,7 +7,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { HttpStatusCode } from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routes } from "@/config/routes";
 import { authenticate, getCurrentUserInfo } from "@/services/authenticationService";
 import { AuthContext } from "@/context/AuthContex";
@@ -24,44 +24,62 @@ const signinFormSchema = z
     })
 
 export default function SigninForm() {
+    const [searchParams] = useSearchParams();
     const [showPassword, setShowPassword] = useState(false);
     const togglePassword = () => setShowPassword(!showPassword);
     const navigate = useNavigate()
     const { setUser } = useContext(AuthContext)
+    const urlEmail = searchParams.get("email");
+
     const form = useForm({
         resolver: zodResolver(signinFormSchema),
         defaultValues: {
-            email: "",
+            email: urlEmail || "",
             password: "",
         },
         mode: "onChange",
     })
-
+    useEffect(() => {
+        if (urlEmail) {
+            form.setValue("email", urlEmail);
+        }
+    }, [urlEmail, form]);
     const onSubmit = async (values) => {
         console.log("Dữ liệu hợp lệ:", values);
         try {
             const data = await authenticate({ email: values.email, password: values.password })
             console.log("login response", data)
             if (data.code == HttpStatusCode.Ok) {
+
+                const redirectUrl = searchParams.get("redirect");
+                if (redirectUrl) {
+                    navigate(redirectUrl, { replace: true });
+                } else {
+                    navigate(routes.home, { replace: true });
+                }
+                
                 localStorage.setItem('access_token', data.result.accessToken);
                 const userInfoResponse = await getCurrentUserInfo();
                 if (userInfoResponse.code == HttpStatusCode.Ok) {
                     setUser(userInfoResponse.result)
                 }
-                navigate(routes.home, { replace: true })
+
             }
         } catch (error) {
             console.log(error)
-            form.setError("email", {
-                type: "manual",
-                message: "Email hoặc mật khẩu không chính xác",
-            });
+            if (!urlEmail) {
+                form.setError("email", {
+                    type: "manual",
+                    message: "Email hoặc mật khẩu không chính xác",
+                });
+                form.setFocus("email");
+                form.setValue("email", "");
+            }
             form.setError("password", {
                 type: "manual",
                 message: "Email hoặc mật khẩu không chính xác",
             });
-            form.setFocus("email");
-            form.setValue("email", "");
+
             form.setValue("password", "");
         }
     }
@@ -86,10 +104,17 @@ export default function SigninForm() {
                                         placeholder="nhapemail@example.com"
                                         className="pl-10 h-12 rounded-xl bg-white dark:bg-slate-950 focus-visible:ring-brand"
                                         {...field}
+                                        disabled={!!urlEmail}
                                     />
                                 </FormControl>
                             </div>
+                            {urlEmail && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    * Email này được cố định theo lời mời.
+                                </p>
+                            )}
                             <FormMessage />
+
                         </FormItem>
                     )}
                 />

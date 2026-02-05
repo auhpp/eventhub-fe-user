@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { sendOtpCreateUser } from "@/services/authenticationService";
 import { HttpStatusCode } from "axios";
+import { useSearchParams } from "react-router-dom";
 
 const formSchema = z
     .object({
@@ -34,16 +35,23 @@ export default function SignupForm({ showOtpForm }) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const togglePassword = () => setShowPassword(!showPassword);
     const toggleConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
+    const [searchParams] = useSearchParams();
+    const urlEmail = searchParams.get("email");
 
     const form = useForm({
-        resolver: zodResolver(formSchema), 
+        resolver: zodResolver(formSchema),
         defaultValues: {
-            email: "",
+            email: urlEmail || "",
             password: "",
             confirmPassword: "",
         },
         mode: "onChange",
     });
+    useEffect(() => {
+        if (urlEmail) {
+            form.setValue("email", urlEmail);
+        }
+    }, [urlEmail, form]);
 
     const passwordValue = form.watch("password") || "";
 
@@ -91,9 +99,15 @@ export default function SignupForm({ showOtpForm }) {
                                         placeholder="nhapemail@example.com"
                                         className="pl-10 h-12 rounded-xl bg-white dark:bg-slate-950 focus-visible:ring-brand"
                                         {...field}
+                                        disabled={!!urlEmail}
                                     />
                                 </FormControl>
                             </div>
+                            {urlEmail && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    * Bạn đang đăng ký tài khoản cho email được mời.
+                                </p>
+                            )}
                             <FormMessage />
                         </FormItem>
                     )}

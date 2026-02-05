@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { routes } from "@/config/routes";
 import SignupForm from "@/features/auth/SignupForm";
 import OtpForm from "@/features/auth/OtpForm";
@@ -8,7 +8,10 @@ import OtpForm from "@/features/auth/OtpForm";
 const SignupPage = () => {
     const [showOtpForm, setShowOtpForm] = useState(false)
     const [registerRequest, setRegisterRequest] = useState(false)
+    const [searchParams] = useSearchParams()
 
+    const queryParams = searchParams.toString();
+    const signinLink = queryParams ? `${routes.signin}?${queryParams}` : routes.signin;
     const handleShowOtpForm = (data, registerRequestParam) => {
         setShowOtpForm(data)
         setRegisterRequest(registerRequestParam)
@@ -41,7 +44,7 @@ const SignupPage = () => {
             <p className="mt-10 text-center text-sm text-slate-500 dark:text-slate-400">
                 Bạn đã có tài khoản?{" "}
                 <Link
-                    to={routes.signin}
+                    to={signinLink}
                     className="font-bold text-brand hover:text-brand-dark transition-colors"
                 >
                     Đăng nhập

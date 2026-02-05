@@ -20,7 +20,7 @@ const ProtectedRoute = () => {
     if (!token || !user) {
         return <Navigate to={routes.signin} />;
     }
-    if (user && (user.role.name === RoleName.ORGANIZER || user.role.name === RoleName.USER)) {
+    if (user && (user.role.name === RoleName.ORGANIZER.key || user.role.name === RoleName.USER.key)) {
         return <Outlet />;
     }
     else {

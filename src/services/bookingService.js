@@ -56,3 +56,18 @@ export const getUserSummaryBooking = async ({ eventSessionId, userId }) => {
     });
     return response.data;
 }
+
+export const groupAttendeesByTicket = (attendees = []) => {
+    return attendees.reduce((acc, attendee) => {
+        const ticketId = attendee.ticket.id;
+
+        if (!acc[ticketId]) {
+            acc[ticketId] = {
+                ticketInfo: attendee.ticket, // Lưu thông tin loại vé (Tên, giá...)
+                items: []
+            };
+        }
+        acc[ticketId].items.push(attendee);
+        return acc;
+    }, {});
+};

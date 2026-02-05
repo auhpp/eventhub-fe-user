@@ -1,4 +1,4 @@
-import { IdCard, Ticket, ClipboardList, User, Key, KeyRound } from "lucide-react";
+import { IdCard, Ticket, ClipboardList, User, Key, KeyRound, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
@@ -10,6 +10,7 @@ export default function ProfileSidebar() {
         { icon: IdCard, label: "Đăng ký BTC", href: routes.organizerRegistration },
         { icon: Ticket, label: "Vé của tôi", href: routes.myTicket },
         { icon: ClipboardList, label: "Đơn hàng", href: routes.order },
+        { icon: Gift, label: "Vé đã tặng", href: routes.ticketGifts },
         { icon: KeyRound, label: "Đổi mật khẩu", href: routes.changePassword },
 
     ];

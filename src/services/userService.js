@@ -16,3 +16,10 @@ export const changePassword = async ({ id, oldPassword, newPassword }) => {
     });
     return response.data;
 };
+
+export const getUserByEmail = async ({ email }) => {
+    const response = await API.get(`/api/v1/user?email=${email}`, {
+        requiresAuth: true,
+    });
+    return response.data;
+};

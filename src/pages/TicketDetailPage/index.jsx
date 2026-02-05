@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Calendar, MapPin, Clock, Download, ArrowLeft, Info,
-    FileText, Video, Loader2, CircleX, Send, UserCheck, ExternalLink,
+    Calendar, MapPin, Clock, Download, 
+    FileText, Video, Loader2, Send, UserCheck, ExternalLink,
     MonitorPlay
 } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { routes } from '@/config/routes';
 import { displaySessionDate, formatTime } from '@/utils/format';
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
+import ButtonBack from '@/components/ButtonBack';
 
 const TicketDetailPage = () => {
     const [attendee, setAttendee] = useState(null);
@@ -106,10 +107,11 @@ const TicketDetailPage = () => {
     return (
         <div className="min-h-screen bg-slate-50/50 pb-12 font-sans text-slate-900">
             {/* Header Button */}
-            <div className="container pt-4">
-                <Button variant="ghost" className="pl-0 text-slate-500 hover:text-primary mb-2" onClick={() => navigate(-1)}>
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại danh sách
-                </Button>
+            <div className="mx-auto mb-2 flex items-center gap-3">
+                <ButtonBack />
+                <div className="flex flex-col">
+                    <h1 className="text-lg font-semibold text-gray-900 leading-tight">Chi tiết vé</h1>
+                </div>
             </div>
 
             <main className="container">

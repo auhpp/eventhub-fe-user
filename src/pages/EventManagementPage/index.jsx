@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EventCard from '@/features/event/EventCard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getEventsCurrentUser } from '@/services/eventService';
+import { getEvents } from '@/services/eventService';
 import { HttpStatusCode } from 'axios';
 import DefaultPagination from '@/components/DefaultPagination';
 import { routes } from '@/config/routes';
+import { AuthContext } from '@/context/AuthContex';
 
 const EvenManagementPage = () => {
     const [events, setEvents] = useState(null)
@@ -16,25 +17,27 @@ const EvenManagementPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = parseInt(searchParams.get("page") || "1");
     const pageSize = 4;
-
+    const { user } = useContext(AuthContext)
     const navigate = useNavigate()
 
     useEffect(
         () => {
             const fetchEvents = async () => {
                 try {
-                    const response = await getEventsCurrentUser({ page: currentPage, size: pageSize })
-                    if (response.code == HttpStatusCode.Ok) {
-                        setEvents(response.result.data)
-                        setTotalPages(response.result.totalPage);
-                        setTotalElements(response.result.totalElements);
+                    if (user) {
+                        const response = await getEvents({ request: { userId: user.id }, page: currentPage, size: pageSize })
+                        if (response.code == HttpStatusCode.Ok) {
+                            setEvents(response.result.data)
+                            setTotalPages(response.result.totalPage);
+                            setTotalElements(response.result.totalElements);
+                        }
                     }
                 } catch (error) {
                     console.log(error)
                 }
             }
             fetchEvents()
-        }, [currentPage]
+        }, [currentPage, user]
     )
 
 

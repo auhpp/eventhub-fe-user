@@ -20,7 +20,7 @@ const OrganizerRoute = () => {
     if (!token || !user) {
         return <Navigate to={routes.signin} />;
     }
-    if (user && user.role.name === RoleName.ORGANIZER) {
+    if (user && user.role.name === RoleName.ORGANIZER.key) {
         return <Outlet />;
     }
     else {

@@ -10,7 +10,8 @@ import {
     Ticket,
     User,
     Wallet,
-    Loader2
+    Loader2,
+    Gift
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { HttpStatusCode } from 'axios';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
+import { routes } from '@/config/routes';
+import ButtonBack from '@/components/ButtonBack';
 
 
 const WalletInfo = ({ type }) => {
@@ -82,28 +85,33 @@ const OrderDetailPage = () => {
 
                 {/* --- PAGE HEADER --- */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <Button variant="ghost" className="pl-0 text-slate-500 hover:text-primary mb-2" onClick={() => navigate(-1)}>
-                            <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại danh sách
-                        </Button>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold text-slate-900">
-                                Đơn hàng #{booking.id}
-                            </h1>
-                            <BookingStatusBadge status={booking.status} />
+                    <div className='flex items-center gap-2'>
+                        <ButtonBack />
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-2xl font-bold text-slate-900">
+                                    Đơn hàng #{booking.id}
+                                </h1>
+                                <BookingStatusBadge status={booking.status} />
+                            </div>
+                            <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
+                                <Calendar className="w-4 h-4" />
+                                Ngày đặt: {formatDateTime(booking.createdAt)}
+                            </p>
                         </div>
-                        <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            Ngày đặt: {formatDateTime(booking.createdAt)}
-                        </p>
                     </div>
 
                     <div className="flex gap-3">
                         <Button variant="outline" className="gap-2">
                             <Download className="w-4 h-4" /> Xuất hóa đơn
                         </Button>
-                        <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
+                        {/* <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
                             <Mail className="w-4 h-4" /> Gửi lại vé
+                        </Button> */}
+                        <Button className="bg-blue-600 hover:bg-blue-700 gap-2"
+                            onClick={() => navigate(routes.ticketGiftSelection.replace(":id", booking.id))}
+                        >
+                            <Gift className="w-4 h-4" /> Tặng vé
                         </Button>
                     </div>
                 </div>
@@ -208,7 +216,7 @@ const OrderDetailPage = () => {
                                 </span>
                             </div>
 
-                            {/* Timeline đơn giản */}
+                            {/* Timeline */}
                             <div className="bg-slate-50 p-4 rounded-lg mt-4 border border-slate-100">
                                 <p className="text-xs font-bold text-slate-400 uppercase mb-3">Lịch sử giao dịch</p>
                                 <div className="relative pl-4 border-l-2 border-green-200">

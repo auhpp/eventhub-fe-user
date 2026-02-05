@@ -5,6 +5,7 @@ import { HttpStatusCode } from 'axios';
 import EventCard from '@/features/event/EventCard';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
+import { EventStatus } from '@/utils/constant';
 
 const FeaturedEvents = () => {
     const [events, setEvents] = useState(null)
@@ -13,7 +14,7 @@ const FeaturedEvents = () => {
         () => {
             const fetchEvents = async () => {
                 try {
-                    const response = await getEvents({ page: 1, size: 4 })
+                    const response = await getEvents({ request: { status: EventStatus.APPROVED }, page: 1, size: 4 })
                     if (response.code == HttpStatusCode.Ok) {
                         setEvents(response.result.data)
                     }
