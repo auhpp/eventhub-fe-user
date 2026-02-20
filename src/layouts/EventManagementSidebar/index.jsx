@@ -2,6 +2,7 @@ import React from "react";
 import {
     ArrowLeft,
     Edit,
+    GalleryHorizontalEnd,
     PanelsTopLeft,
     PersonStanding,
     User
@@ -21,6 +22,8 @@ const EventManagementSidebar = () => {
     const eventSettingnavItems = [
         { label: "Chỉnh sửa", icon: Edit, href: routes.editEvent.replace(":id", id) },
         { label: "Thành viên", icon: User, href: routes.eventStaffManagement.replace(":id", id) },
+        { label: "Ảnh", icon: GalleryHorizontalEnd, href: routes.eventGallery.replace(":id", id) },
+
 
     ];
     return (

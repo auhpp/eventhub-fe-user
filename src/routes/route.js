@@ -12,6 +12,7 @@ import CreateOrganizerRequestPage from "@/pages/CreateOrganizerRequestPage"
 import EditEventPage from "@/pages/EditEventPage"
 import EditProfilePage from "@/pages/EditProfilePage"
 import EventDetailPage from "@/pages/EventDetailPage"
+import EventGalleryPage from "@/pages/EventGalleryPage"
 import EventManagementPage from "@/pages/EventManagementPage"
 import EventOverviewPage from "@/pages/EventOverviewPage"
 import EventStaffManagementPage from "@/pages/EventStaffManagementPage"
@@ -73,6 +74,7 @@ export const organizerRoutes = [
     { path: routes.eventAttendee, page: AttendeeManagementPage, layout: EventManagementLayout },
     { path: routes.editEvent, page: EditEventPage, layout: EventManagementLayout },
     { path: routes.eventStaffManagement, page: EventStaffManagementPage, layout: EventManagementLayout },
+    { path: routes.eventGallery, page: EventGalleryPage, layout: EventManagementLayout },
 
 
 ]

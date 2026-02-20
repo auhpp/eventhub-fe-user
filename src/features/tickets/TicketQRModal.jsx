@@ -16,10 +16,7 @@ const TicketQRModal = ({ isOpen, onClose, ticketData }) => {
     const userEmail = ticketData.booking?.customerEmail || "email@example.com";
     const ticketCode = ticketData.ticketCode || "NO-CODE";
 
-    const qrValue = JSON.stringify({
-        code: ticketCode,
-        eventId: ticketData.event?.id,
-    });
+   
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -36,7 +33,7 @@ const TicketQRModal = ({ isOpen, onClose, ticketData }) => {
                             <QRCode
                                 size={256}
                                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                value={qrValue}
+                                value={ticketCode}
                                 viewBox={`0 0 256 256`}
                                 fgColor="#000000"
                                 bgColor="#FFFFFF"

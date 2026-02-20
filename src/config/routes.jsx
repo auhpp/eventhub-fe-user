@@ -29,6 +29,8 @@ export const routes = {
     ticketGiftReceiver: '/orders/:id/ticket-gift/receiver',
     ticketGiftConfirm: '/orders/:id/ticket-gift/confirm',
     ticketGifts: '/ticket-gift',
-    ticketGiftDetail: '/ticket-gift/:id'
+    ticketGiftDetail: '/ticket-gift/:id',
+    eventGallery: "/event/:id/gallery",
+
 
 }

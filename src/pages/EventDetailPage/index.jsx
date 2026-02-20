@@ -1,18 +1,20 @@
 import { getEventById } from "@/services/eventService";
 import { HttpStatusCode } from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import TicketSelection from "./TicketSelection";
 import EventHero from "./EventHero";
 import EventOrganizer from "./EventOrganizer";
 import { Info, Loader2, MapPin } from "lucide-react";
 import Map from "@/components/Map";
+import FaceSearch from "./FaceSearch";
+import { AuthContext } from "@/context/AuthContex";
 
 const EventDetailPage = () => {
     const [event, setEvent] = useState(null);
     const location = useLocation();
     const eventId = location.pathname.substring(location.pathname.lastIndexOf("/") + 1)
-
+    const { user } = useContext(AuthContext)
     useEffect(() => {
         const fetchEventById = async () => {
             try {
@@ -35,6 +37,10 @@ const EventDetailPage = () => {
         )
     }
     const isOnline = event.type === 'ONLINE';
+    const now = new Date();
+    const sessions = event.eventSessions;
+    const allSessionsEnded = sessions.every(session => new Date(session.endDateTime) < now);
+
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-black pb-20">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -45,7 +51,12 @@ const EventDetailPage = () => {
                 </nav>
 
                 <EventHero event={event} />
-
+                {
+                    allSessionsEnded && !isOnline && event.hasPhotos && user &&
+                    <div className="my-8 flex justify-center w-full">
+                        <FaceSearch eventId={eventId} />
+                    </div>
+                }
                 <div className=" flex flex-col gap-8">
                     <EventOrganizer organizer={event.appUser} />
                     {/* Description */}
