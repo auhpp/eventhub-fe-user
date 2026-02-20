@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Calendar, MapPin, Video, QrCode, Clock, Loader2, ExternalLink } from "lucide-react";
+// THÊM MỚI: Import thêm CalendarPlus để dùng cho nút Add to Calendar
+import { Calendar, CalendarPlus, MapPin, Video, QrCode, Clock, Loader2, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,40 @@ const TicketCard = ({ data }) => {
             setIsJoining(false);
         }
     };
+
+    // Format to UTC standard of Google Calendar (YYYYMMDDTHHMMSSZ)
+    const formatGoogleCalendarDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        // Convert to ISO: 2026-10-20T02:00:00.000Z 
+        return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+    };
+
+    // Create link and open Google Calendar
+    const handleAddToCalendar = () => {
+        if (!eventSession?.startDateTime || !eventSession?.endDateTime) {
+            toast.error("Sự kiện chưa có thông tin thời gian cụ thể.");
+            return;
+        }
+
+        const title = encodeURIComponent(event?.name || "Sự kiện của tôi");
+        const details = encodeURIComponent(`Bạn đã đặt vé tham gia sự kiện này.\n- Loại vé: ${ticket?.name
+            || "Vé thường"}\n- Mã vé của bạn: ${ticketCode || "N/A"}\n\nXem chi tiết: http://localhost:3000/my-tickets/${id}.`);
+
+        const locationText = isOnline
+            ? (eventSession.meetingPlatform === MeetingPlatform.GOOGLE_MEET ? "Google Meet" : "Zoom")
+            : (event?.location || "Đang cập nhật địa điểm");
+        const location = encodeURIComponent(locationText);
+
+        const startDate = formatGoogleCalendarDate(eventSession.startDateTime);
+        const endDate = formatGoogleCalendarDate(eventSession.endDateTime);
+
+        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}
+        &dates=${startDate}/${endDate}&details=${details}&location=${location}`;
+
+        window.open(url, '_blank');
+    };
+
     return (
         <>
             <Card className="overflow-hidden border-l-4 hover:shadow-md transition-all duration-200 mb-4 group border-l-primary/80">
@@ -138,6 +173,17 @@ const TicketCard = ({ data }) => {
 
                                 {/* Right: Buttons */}
                                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-1">
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleAddToCalendar}
+                                        className="gap-1 hidden sm:flex border-slate-200 hover:bg-slate-100"
+                                    >
+                                        <CalendarPlus className="w-4 h-4 text-slate-600" />
+                                        <span>Lưu Lịch</span>
+                                    </Button>
+
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -146,6 +192,7 @@ const TicketCard = ({ data }) => {
                                     >
                                         Chi tiết
                                     </Button>
+
                                     {
                                         isOnline ? <Button
                                             size="sm"
