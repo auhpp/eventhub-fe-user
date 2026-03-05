@@ -37,3 +37,10 @@ export const searchPhotos = async ({ eventId, file }) => {
     });
     return response.data;
 };
+
+export const refreshProcessImages = async ({ eventId }) => {
+    const response = await API.post(`/api/v1/event-image/refresh/${eventId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};

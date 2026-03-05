@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { getEventById } from "@/services/eventService";
 
 import { formatTime, displaySessionDate } from '@/utils/format';
-import { EventStaffStatus, EventType, InvitationStatus, RoleName } from '@/utils/constant';
+import { EventStaffStatus, EventType, InvitationStatus, MeetingPlatform, RoleName } from '@/utils/constant';
 import RejectInvitationDialog from '../../components/RejectInvitationDialog';
 import AcceptInvitationDialog from '../../components/AcceptInvitationDialog';
 import { acceptEventStaff, getEventStaffByToken, rejectEventStaff } from '@/services/eventStaffService';
@@ -21,6 +21,7 @@ import { AuthContext } from '@/context/AuthContex';
 import { routes } from '@/config/routes';
 import { HttpStatusCode } from 'axios';
 import DefaultAvatar from '@/components/DefaultAvatar';
+import EventTypeBadge from '@/components/EventTypeBadge';
 
 const StaffInvitationResponsePage = () => {
     const [searchParams] = useSearchParams();
@@ -152,21 +153,21 @@ const StaffInvitationResponsePage = () => {
         );
     }
 
-    const firstSession = event.eventSessions?.[0];
     const isOnline = event.type === EventType.ONLINE;
 
     return (
-        <div className="min-h-screen bg-[#f8f9fc] py-10 px-4 flex justify-center items-center">
-            <div className="w-full max-w-5xl bg-background rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 p-6 md:p-8">
+        <div className="min-h-screen bg-[#f8f9fc] py-4 px-4 flex justify-center items-center">
+            <div className="w-full max-w-5xl bg-background rounded-lg shadow
+             overflow-hidden border border-gray-100 p-4 md:p-6">
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                     {/* --- LEFT COLUMN: Event Visuals & Organizer --- */}
                     <div className="lg:col-span-5 flex flex-col gap-6">
                         {/* Event Thumbnail */}
-                        <div className="aspect-square w-full rounded-2xl overflow-hidden shadow-sm relative group">
+                        <div className="aspect-square w-full rounded-lg overflow-hidden shadow-sm relative group">
                             <img
-                                src={event.poster}
+                                src={event.thumbnail}
                                 alt={event.name}
                                 className="w-full h-full object-cover"
                             />
@@ -186,7 +187,6 @@ const StaffInvitationResponsePage = () => {
                                 </Avatar>
                                 <div>
                                     <p className="font-bold text-foreground text-lg">{event.appUser?.fullName}</p>
-                                    <p className="text-sm text-muted-foreground">Ban tổ chức</p>
                                 </div>
                             </div>
                         </div>
@@ -209,41 +209,36 @@ const StaffInvitationResponsePage = () => {
 
                         {/* Event Details */}
                         <div className="space-y-6">
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
+                            <h1 className="text-xl md:text-2xl font-extrabold text-foreground leading-tight">
                                 {event.name}
                             </h1>
 
                             <div className="space-y-4">
-                                {/* Date Block */}
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary shrink-0">
-                                        <Calendar className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-lg text-foreground">
-                                            {firstSession ? displaySessionDate({
-                                                startDateTime: firstSession.startDateTime,
-                                                endDateTime: firstSession.endDateTime
-                                            }) : 'Chưa cập nhật'}
-                                        </p>
-                                        <p className="text-muted-foreground">
-                                            {firstSession ? `${formatTime(firstSession.startDateTime)} - 
-                                            ${formatTime(firstSession.endDateTime)}` : ''}
-                                        </p>
-                                    </div>
-                                </div>
 
                                 {/* Location Block */}
                                 <div className="flex items-start gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary shrink-0">
                                         <MapPin className="w-6 h-6" />
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-lg text-foreground">Địa điểm chính</p>
-                                        <p className="text-muted-foreground leading-relaxed">
-                                            {event.location}
-                                        </p>
-                                    </div>
+                                    {
+                                        event.type == EventType.OFFLINE.key ?
+                                            <div>
+                                                <p className="font-bold text-lg text-foreground">Địa điểm tổ chức</p>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {event.address}
+                                                </p>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {event.location}
+                                                </p>
+                                            </div> :
+                                            <div>
+                                                <p className="font-bold text-lg text-foreground">Địa điểm tổ chức</p>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {event.meetingPlatform == MeetingPlatform.GOOGLE_MEET ? "Google meet" :
+                                                        "Zoom"}
+                                                </p>
+                                            </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -263,45 +258,45 @@ const StaffInvitationResponsePage = () => {
                             </div>
 
                             {/* Role & Sessions Card */}
-                            <div className="bg-white rounded-xl overflow-hidden border border-indigo-100 shadow-sm mb-6">
+                            <div className="bg-white rounded-xl overflow-hidden 
+                            border border-indigo-100 shadow-sm mb-6">
                                 {/* Header Card */}
-                                <div className="bg-indigo-600 p-4 flex items-center justify-between text-white">
+                                <div className="bg-primary p-4 flex items-center justify-between text-white">
                                     <span className="font-semibold text-lg">Vai trò</span>
-                                    <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-0">
+                                    <Badge variant="secondary"
+                                        className="bg-white/20 hover:bg-white/30 text-white border-0 text-sm">
                                         {RoleName[invitation.role.name].label}
                                     </Badge>
                                 </div>
 
                                 <div className="p-4">
-                                    <p className="text-sm font-semibold text-muted-foreground mb-3 uppercase text-xs">
+                                    <p className="text-sm font-semibold text-muted-foreground mb-3 uppercase ">
                                         Danh sách khung giờ cần quản lý
                                     </p>
 
                                     <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-2">
                                         {event.eventSessions?.map((session) => {
-
                                             return (
                                                 <div
                                                     key={session.id}
                                                     className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 hover:bg-gray-100 transition-colors"
                                                 >
                                                     {/* --- ICON LOGIC --- */}
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 
+                                                    <div className={`w-10 h-10 rounded-full 
+                                                    flex items-center justify-center shrink-0 
                         ${isOnline
                                                             ? 'bg-blue-100 text-blue-600'
                                                             : 'bg-orange-100 text-orange-600'
                                                         }`}
                                                     >
-                                                        {isOnline ? <Video size={18} /> : <MapPin size={18} />}
+                                                        {isOnline ? <Video size={18} /> :
+                                                            <MapPin size={18} />}
                                                     </div>
 
                                                     {/* --- INFO LOGIC --- */}
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="font-medium text-gray-900 truncate">
-                                                            {session.name}
-                                                        </p>
-
-                                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mt-0.5">
+                                                        <div className="flex flex-wrap font-medium items-center
+                                                         gap-x-2 gap-y-1 text-sm text-gray-900 mt-0.5">
                                                             {/* date */}
                                                             <span>
                                                                 {displaySessionDate({
@@ -310,11 +305,12 @@ const StaffInvitationResponsePage = () => {
                                                                 })}
                                                             </span>
 
-                                                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                            <span className="w-1 h-1 rounded-full bg-gray-400"></span>
 
                                                             {/* time */}
-                                                            <span className="font-medium text-gray-600">
-                                                                {formatTime(session.startDateTime)} - {formatTime(session.endDateTime)}
+                                                            <span className="font-medium">
+                                                                {formatTime(session.startDateTime)} -
+                                                                {formatTime(session.endDateTime)}
                                                             </span>
 
                                                             {isOnline && session.meetingPlatform && (
@@ -329,16 +325,7 @@ const StaffInvitationResponsePage = () => {
                                                     </div>
 
                                                     {/* --- BADGE LOGIC --- */}
-                                                    <Badge
-                                                        variant="outline"
-                                                        className={`shrink-0 text-[10px] px-2 py-0.5 h-6 
-                            ${isOnline
-                                                                ? 'border-blue-200 text-blue-700 bg-blue-50'
-                                                                : 'border-orange-200 text-orange-700 bg-orange-50'
-                                                            }`}
-                                                    >
-                                                        {isOnline ? 'Online' : 'Offline'}
-                                                    </Badge>
+                                                    <EventTypeBadge type={event.type} />
                                                 </div>
                                             );
                                         })}
@@ -359,13 +346,15 @@ const StaffInvitationResponsePage = () => {
                                 <div className="grid grid-cols-2 gap-3">
                                     <Button
                                         variant="outline"
-                                        className="h-12 text-base font-semibold border-gray-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                                        className="h-12 text-base font-semibold border-gray-300 
+                                        hover:bg-red-50 hover:text-red-600 hover:border-red-200"
                                         onClick={() => setIsRejectOpen(true)}
                                     >
                                         Từ chối
                                     </Button>
                                     <Button
-                                        className="h-12 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                                        className="h-12 text-base font-semibold 
+                                        bg-primary hover:bg-primary shadow-lg shadow"
                                         onClick={() => setIsAcceptOpen(true)}
                                     >
                                         Chấp nhận tham gia

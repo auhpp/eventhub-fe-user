@@ -7,10 +7,13 @@ import OrganizerLayout from "@/layouts/OrganizerLayout"
 import ProfileLayout from "@/layouts/ProfileLayout"
 import AttendeeManagementPage from "@/pages/AttendeeManagementPage"
 import ChangePasswordPage from "@/pages/ChangePasswordPage"
+import CheckInReportPage from "@/pages/CheckInReportPage"
 import CreateEventPage from "@/pages/CreateEventPage"
 import CreateOrganizerRequestPage from "@/pages/CreateOrganizerRequestPage"
+import CreateVoucherPage from "@/pages/CreateVoucherPage"
 import EditEventPage from "@/pages/EditEventPage"
 import EditProfilePage from "@/pages/EditProfilePage"
+import EditVoucherPage from "@/pages/EditVoucherPage"
 import EventDetailPage from "@/pages/EventDetailPage"
 import EventGalleryPage from "@/pages/EventGalleryPage"
 import EventManagementPage from "@/pages/EventManagementPage"
@@ -21,10 +24,12 @@ import InvitationResponsePage from "@/pages/InvitationResponsePage"
 import MyTicketPage from "@/pages/MyTicketPage"
 import OrderDetailPage from "@/pages/OrderDetailPage"
 import OrderHistoryPage from "@/pages/OrderHistoryPage"
+import OrderManagement from "@/pages/OrderManagementPage"
 import OrganizerRequestDetail from "@/pages/OrganizerRequestDetailPage"
 import OrganizerRequestPage from "@/pages/OrganizerRequestPage"
 import PaymentCallbackPage from "@/pages/PaymentCallbackPage"
 import PaymentPage from "@/pages/PaymentPage"
+import SearchEventPage from "@/pages/SearchEventPage"
 import SigninPage from "@/pages/SigninPage"
 import SignupPage from "@/pages/SignupPage"
 import StaffInvitationResponsePage from "@/pages/StaffInvitationResponsePage"
@@ -35,6 +40,7 @@ import TicketGiftSelectionPage from "@/pages/TicketGiftSelectionPage"
 import TicketGiftsPage from "@/pages/TicketGiftsPage"
 import TicketRecipientPage from "@/pages/TicketRecipientPage"
 import TicketSelectionPage from "@/pages/TicketSelectionPage"
+import VoucherManagementPage from "@/pages/VoucherManagementPage"
 
 export const publicRoutes = [
     { path: routes.signin, page: SigninPage, layout: AuthLayout },
@@ -43,6 +49,8 @@ export const publicRoutes = [
     { path: routes.eventDetail, page: EventDetailPage, layout: DefaultLayout },
     { path: routes.invitationResponse, page: InvitationResponsePage, layout: DefaultLayout },
     { path: routes.staffInvitationResponse, page: StaffInvitationResponsePage, layout: DefaultLayout },
+    { path: routes.search, page: SearchEventPage, layout: DefaultLayout },
+
 ]
 
 export const privateRoutes = [
@@ -75,6 +83,12 @@ export const organizerRoutes = [
     { path: routes.editEvent, page: EditEventPage, layout: EventManagementLayout },
     { path: routes.eventStaffManagement, page: EventStaffManagementPage, layout: EventManagementLayout },
     { path: routes.eventGallery, page: EventGalleryPage, layout: EventManagementLayout },
+    { path: routes.eventOrder, page: OrderManagement, layout: EventManagementLayout },
+    { path: routes.createVoucher, page: CreateVoucherPage, layout: EventManagementLayout },
+    { path: routes.voucher, page: VoucherManagementPage, layout: EventManagementLayout },
+    { path: routes.checkIn, page: CheckInReportPage, layout: EventManagementLayout },
+    { path: routes.orderDetailOrganizer, page: OrderDetailPage, layout: EventManagementLayout },
+    { path: routes.editVoucher, page: EditVoucherPage, layout: EventManagementLayout },
 
 
 ]

@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Search, ChevronLeft, Ticket, X, ChevronDown, ChevronUp, User, ArrowRight } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
+import { Search, Ticket, X, ChevronDown, ChevronUp, User, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { getUserByEmail } from '@/services/userService';
 import { routes } from '@/config/routes';
 import { HttpStatusCode } from 'axios';
 import DefaultAvatar from '@/components/DefaultAvatar';
+import ButtonBack from '@/components/ButtonBack';
+import { AuthContext } from '@/context/AuthContex';
 
 const TicketRecipientPage = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-
+    const { user } = useContext(AuthContext)
     // --- STATE ---
     const [selectedTickets, setSelectedTickets] = useState([]);
     const [emailInput, setEmailInput] = useState('');
@@ -47,7 +49,10 @@ const TicketRecipientPage = () => {
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!emailInput.trim()) return;
-
+        if (emailInput.trim() == user.email) {
+            toast.error("Không tặng cho chính mình được!")
+            return;
+        }
         setLoading(true);
         setRecipient(null);
 
@@ -86,9 +91,7 @@ const TicketRecipientPage = () => {
             {/* HEADER */}
             <div className="bg-white border-b border-gray-100 py-3 sticky top-0 z-10">
                 <div className=" mx-auto px-4 flex items-center gap-3">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-8 w-8 -ml-2 text-gray-500">
-                        <ChevronLeft className="w-5 h-5" />
-                    </Button>
+                    <ButtonBack />
                     <h1 className="text-lg font-semibold text-gray-900">Người nhận vé</h1>
                 </div>
             </div>
@@ -196,7 +199,7 @@ const TicketRecipientPage = () => {
                                         <h3 className="text-lg font-bold text-gray-900 truncate">
                                             {recipient.fullName || "Người dùng"}
                                         </h3>
-                                        <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-0.5 truncate">
+                                        <div className="flex items-center gap-1.5 text-md text-gray-500 mt-0.5 truncate">
                                             <User className="w-3.5 h-3.5" />
                                             <span>{recipient.email}</span>
                                         </div>
@@ -207,7 +210,7 @@ const TicketRecipientPage = () => {
                     )}
 
                     {!recipient && !loading && (
-                        <div className="text-xs text-gray-400 text-center px-4">
+                        <div className="text-sm text-gray-400 text-center px-4">
                             Lưu ý: Người nhận phải có tài khoản trên hệ thống để nhận vé.
                         </div>
                     )}
@@ -218,9 +221,9 @@ const TicketRecipientPage = () => {
             <div className="sticky bottom-0 z-20 bg-white border-t border-gray-200 py-3 px-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
                 <div className="mx-auto flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">Gửi tới</span>
-                        <div className="text-sm font-semibold text-gray-900 max-w-[500px] truncate">
-                            {recipient ? recipient.fullName : "---"}
+                        <span className="text-xs text-gray-500 uppercase tracking-wide">Gửi tới</span>
+                        <div className="text-md font-semibold text-gray-900 max-w-[500px] truncate">
+                            {recipient?.fullName ? recipient?.fullName : recipient?.email}
                         </div>
                     </div>
 
@@ -228,7 +231,8 @@ const TicketRecipientPage = () => {
                         onClick={handleContinue}
                         disabled={!recipient}
                         size="sm"
-                        className="h-10 px-8 rounded-lg font-medium bg-brand hover:bg-brand/90 text-white min-w-[140px] shadow-lg shadow-blue-500/20 disabled:shadow-none transition-all"
+                        className="h-10 px-8 rounded-lg font-medium bg-brand hover:bg-brand/90 
+                        text-white min-w-[140px] shadow-lg shadow-blue-500/20 disabled:shadow-none transition-all"
                     >
                         Tiếp tục <ArrowRight className="ml-1.5 w-4 h-4" />
                     </Button>

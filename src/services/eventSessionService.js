@@ -39,3 +39,10 @@ export const deleteEventSession = async ({ id }) => {
     });
     return response.data;
 };
+
+export const reportCheckin = async ({ eventSessionId }) => {
+    const response = await API.get(`/api/v1/event-session/report/check-in/${eventSessionId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};

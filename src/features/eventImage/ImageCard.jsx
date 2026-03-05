@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"; 
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
 
 const statusConfig = {
@@ -11,7 +11,7 @@ const statusConfig = {
     FAILED: { color: "bg-red-500", icon: XCircle, label: "Lỗi" },
 };
 
-const ImageCard = ({ image }) => {
+const ImageCard = ({ image, showStatus = false }) => {
     const config = statusConfig[image.processStatus] || statusConfig.PENDING;
     const Icon = config.icon;
 
@@ -28,12 +28,15 @@ const ImageCard = ({ image }) => {
                             loading="lazy"
                         />
 
-                        <div className="absolute top-2 right-2">
-                            <Badge className={`${config.color} text-white hover:${config.color} gap-1 pr-2`}>
-                                <Icon className={`h-3 w-3 ${config.animate ? "animate-spin" : ""}`} />
-                                <span className="text-[10px] uppercase font-bold">{config.label}</span>
-                            </Badge>
-                        </div>
+                        {
+                            showStatus &&
+                            <div className="absolute top-2 right-2">
+                                <Badge className={`${config.color} text-white hover:${config.color} gap-1 pr-2`}>
+                                    <Icon className={`h-3 w-3 ${config.animate ? "animate-spin" : ""}`} />
+                                    <span className="text-[10px] uppercase font-bold">{config.label}</span>
+                                </Badge>
+                            </div>
+                        }
 
                         <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 opacity-0 transition-opacity group-hover:opacity-100">
                             <p className="text-xs text-white truncate">ID: {image.id}</p>

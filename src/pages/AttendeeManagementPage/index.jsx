@@ -4,29 +4,30 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Download, Filter, UserPlus, Users, Mail } from "lucide-react";
+import { Search, Download, Filter, UserPlus, Users, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import SessionSelector from './SessionSelector';
+import SessionSelector from '../../components/SessionSelector';
 import AttendeeTable from './AttendeeTable';
 import UserBookingDetail from './UserBookingDetail';
 import DefaultPagination from '@/components/DefaultPagination';
 import GuestTable from './GuestTable';
 
-import { getUserSummaryBookings } from '@/services/bookingService';
 import { getEventInvitations, revokeEventInvitation } from '@/services/eventInvitationService';
 import { EventContext } from '@/context/EventContext';
 import InviteGuestDialog from '@/features/attendee/InviteGuestDialog';
 import InvitationDetail from './InvitationDetail';
 import { HttpStatusCode } from 'axios';
 import { BookingStatus, InvitationStatus } from '@/utils/constant';
+import { getUserSummaryAttendees } from '@/services/attendeeService';
+import { isExpiredEventSessionStartDate } from '@/utils/eventUtils';
 
 const AttendeeManagementPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { event } = useContext(EventContext);
     const [detailToken, setDetailToken] = useState(null);
     const [isInviteDetailOpen, setIsInviteDetailOpen] = useState(false);
-
+    const [currentSession, setCurrentSession] = useState()
     const currentSessionId = useMemo(() => {
         const idFromUrl = searchParams.get("sessionId");
         if (idFromUrl) return Number(idFromUrl);
@@ -82,7 +83,7 @@ const AttendeeManagementPage = () => {
                     size: pageSize
                 });
             } else {
-                res = await getUserSummaryBookings({
+                res = await getUserSummaryAttendees({
                     eventSessionId: currentSessionId,
                     status: statusFilter,
                     keyword: keyword,
@@ -159,7 +160,22 @@ const AttendeeManagementPage = () => {
         }
     }
 
-    if (!event) return <div>Đang tải thông tin sự kiện...</div>;
+    useEffect(
+        () => {
+            const session = event.eventSessions.find(es => es.id == currentSessionId)
+            console.log(session)
+
+            setCurrentSession(session)
+        }, [event, currentSessionId]
+    )
+    if (!event) {
+        return (
+            <div className="flex h-[80vh] w-full items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            </div>
+        );
+    }
+
 
     return (
         <div className="space-y-6 pb-10">
@@ -189,11 +205,12 @@ const AttendeeManagementPage = () => {
                     </TabsList>
 
                     {/* Button invite */}
-                    {currentTab === 'guests' && (
-                        <Button className="gap-2" onClick={() => setIsInviteOpen(true)}>
-                            <UserPlus size={16} /> Gửi lời mời
-                        </Button>
-                    )}
+                    {currentTab === 'guests' && currentSession && !isExpiredEventSessionStartDate({ startDateTime: currentSession.startDateTime })
+                        && (
+                            <Button className="gap-2" onClick={() => setIsInviteOpen(true)}>
+                                <UserPlus size={16} /> Gửi lời mời
+                            </Button>
+                        )}
                 </div>
 
                 {/* Toolbar Filter (Reused for both tabs) */}

@@ -16,3 +16,10 @@ export const confirmPaymentBooking = async ({ vnpTxnRef }) => {
     });
     return response.data;
 };
+
+export const refundBooking = async ({ eventId }) => {
+    const response = await API.post(`/api/v1/payment/refund/${eventId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};

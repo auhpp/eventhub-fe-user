@@ -1,11 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-    ArrowLeft,
-    Calendar,
     CreditCard,
     Download,
-    Mail,
-    Phone,
     QrCode,
     Ticket,
     User,
@@ -31,6 +27,9 @@ import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
 import { routes } from '@/config/routes';
 import ButtonBack from '@/components/ButtonBack';
+import { AttendeeType, RoleName } from '@/utils/constant';
+import { AuthContext } from '@/context/AuthContex';
+import AttendeeTypeBadges from '@/components/AttendeeTypeBadges';
 
 
 const WalletInfo = ({ type }) => {
@@ -44,7 +43,8 @@ const OrderDetailPage = () => {
     const { id } = useParams();
     const [selectedTickets, setSelectedTickets] = useState(null)
     const navigate = useNavigate()
-
+    const { user } = useContext(AuthContext)
+    
     useEffect(() => {
         const fetchBookingById = async () => {
             try {
@@ -80,8 +80,8 @@ const OrderDetailPage = () => {
         )
     }
     return (
-        <div className="min-h-screen bg-gray-50/50 font-sans text-slate-900">
-            <div className="max-w-5xl mx-auto space-y-6">
+        <div className="min-h-screen bg-gray-50/50 font-sans text-slate-900 pb-4">
+            <div className="space-y-4">
 
                 {/* --- PAGE HEADER --- */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -89,13 +89,15 @@ const OrderDetailPage = () => {
                         <ButtonBack />
                         <div>
                             <div className="flex items-center gap-3">
-                                <h1 className="text-2xl font-bold text-slate-900">
+                                <h1 className="text-xl font-bold text-slate-900">
                                     Đơn hàng #{booking.id}
                                 </h1>
                                 <BookingStatusBadge status={booking.status} />
+                                <AttendeeTypeBadges attendees={booking.attendees} />
+
                             </div>
                             <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
-                                <Calendar className="w-4 h-4" />
+                                {/* <Calendar className="w-4 h-4" /> */}
                                 Ngày đặt: {formatDateTime(booking.createdAt)}
                             </p>
                         </div>
@@ -108,11 +110,15 @@ const OrderDetailPage = () => {
                         {/* <Button className="bg-blue-600 hover:bg-blue-700 gap-2">
                             <Mail className="w-4 h-4" /> Gửi lại vé
                         </Button> */}
-                        <Button className="bg-blue-600 hover:bg-blue-700 gap-2"
-                            onClick={() => navigate(routes.ticketGiftSelection.replace(":id", booking.id))}
-                        >
-                            <Gift className="w-4 h-4" /> Tặng vé
-                        </Button>
+                        {
+
+                            booking.type == AttendeeType.BUY && user.role.name != RoleName.ORGANIZER.key &&
+                            <Button className="bg-blue-600 hover:bg-blue-700 gap-2"
+                                onClick={() => navigate(routes.ticketGiftSelection.replace(":id", booking.id))}
+                            >
+                                <Gift className="w-4 h-4" /> Tặng vé
+                            </Button>
+                        }
                     </div>
                 </div>
 
@@ -120,26 +126,25 @@ const OrderDetailPage = () => {
                 <Card className="shadow-sm border-slate-200">
                     <CardHeader className="pb-2 border-b border-slate-100">
                         <CardTitle className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                            <User className="w-4 h-4" /> Thông tin người mua
+                            <User className="w-4 h-4" /> {booking.type == AttendeeType.BUY ? 'Thông tin người mua' :
+                                'Thông tin khách mời'}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div>
-                                <p className="text-xs text-slate-500 mb-1 font-medium">Họ và tên</p>
+                                <p className="text-sm text-slate-500 mb-1 font-medium">Họ và tên</p>
                                 <p className="text-base font-semibold text-slate-900">{booking.customerName}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 mb-1 font-medium">Số điện thoại</p>
+                                <p className="text-sm text-slate-500 mb-1 font-medium">Số điện thoại</p>
                                 <div className="flex items-center gap-2">
-                                    <Phone className="w-3.5 h-3.5 text-slate-400" />
                                     <p className="text-base font-semibold text-slate-900">{booking.customerPhone}</p>
                                 </div>
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 mb-1 font-medium">Email</p>
+                                <p className="text-sm text-slate-500 mb-1 font-medium">Email</p>
                                 <div className="flex items-center gap-2">
-                                    <Mail className="w-3.5 h-3.5 text-slate-400" />
                                     <p className="text-base font-semibold text-slate-900">{booking.customerEmail}</p>
                                 </div>
                             </div>
@@ -243,10 +248,6 @@ const OrderDetailPage = () => {
                                 <span className="font-medium text-slate-900">{formatCurrency(booking.totalAmount)}</span>
                             </div>
 
-                            <div className="flex justify-between text-sm">
-                                <span className="text-slate-500">Phí dịch vụ</span>
-                                <span className="font-medium text-slate-900">0 ₫</span>
-                            </div>
 
                             {booking.discountAmount > 0 && (
                                 <div className="flex justify-between text-sm text-green-600">
@@ -261,7 +262,7 @@ const OrderDetailPage = () => {
 
                             <div className="flex justify-between items-center">
                                 <span className="text-base font-bold text-slate-900">Tổng tiền</span>
-                                <span className="text-xl font-bold text-blue-600">
+                                <span className="text-xl font-bold text-red-500">
                                     {formatCurrency(booking.finalAmount)}
                                 </span>
                             </div>

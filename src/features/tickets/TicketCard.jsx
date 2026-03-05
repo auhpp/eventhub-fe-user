@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// THÊM MỚI: Import thêm CalendarPlus để dùng cho nút Add to Calendar
 import { Calendar, CalendarPlus, MapPin, Video, QrCode, Clock, Loader2, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +11,15 @@ import { useNavigate } from "react-router-dom";
 import { routes } from "@/config/routes";
 import { getMeetingUrl } from "@/services/attendeeService";
 import { toast } from "sonner";
+import { isExpiredEventSession } from "@/utils/eventUtils";
+import SourceTypeBadge from "@/components/SourceTypeBadge";
+import AttendeeStatusBadge from "@/components/AttendeeStatusBadge";
 
 const TicketCard = ({ data }) => {
     const { id, ticketCode, status, ticket, event, eventSession } = data;
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    const statusStyle = AttendeeStatus[status] || AttendeeStatus.PENDING;
     const isOnline = event?.type === "ONLINE";
     const [isJoining, setIsJoining] = useState(false);
 
@@ -81,10 +82,12 @@ const TicketCard = ({ data }) => {
 
         window.open(url, '_blank');
     };
-
+    const isInvalid = isExpiredEventSession({ eventSession: eventSession }) || status != AttendeeStatus.VALID.key
+    console.log(isExpiredEventSession({ eventSession: eventSession }))
     return (
         <>
-            <Card className="overflow-hidden border-l-4 hover:shadow-md transition-all duration-200 mb-4 group border-l-primary/80">
+            <Card className="overflow-hidden  hover:shadow-md 
+            transition-all duration-200 mb-4 group ">
                 <div className="flex flex-col md:flex-row">
                     {/* left column: image */}
                     <div className="w-full md:w-48 h-32 md:h-auto relative shrink-0">
@@ -94,11 +97,6 @@ const TicketCard = ({ data }) => {
                             className="w-full h-full object-cover "
                         />
 
-                        <div className="absolute bottom-2 right-2 md:hidden">
-                            <span className={`rounded px-2 py-0.5 text-[10px] font-bold shadow-sm bg-white border ${statusStyle.color}`}>
-                                {statusStyle.label}
-                            </span>
-                        </div>
                     </div>
 
                     {/* right column: content */}
@@ -120,18 +118,12 @@ const TicketCard = ({ data }) => {
                                     ">
                                         {event?.name || "Tên sự kiện chưa cập nhật"}
                                     </h3>
-                                    {
-                                        !isOnline &&
-                                        <p className="text-xs text-slate-500 font-mono mt-1">
-                                            Mã vé: <span className="font-bold text-slate-700">#{ticketCode}</span>
-                                        </p>
-                                    }
                                 </div>
 
-                                <div className="hidden md:block shrink-0">
-                                    <span className={`inline-block rounded px-2.5 py-0.5 text-[11px] font-bold border ${statusStyle.color} bg-opacity-10`}>
-                                        {statusStyle.label}
-                                    </span>
+                                <div className="flex gap-2">
+                                    <SourceTypeBadge sourceType={data.sourceType} />
+                                    <AttendeeStatusBadge status={status} />
+
                                 </div>
                             </div>
 
@@ -152,7 +144,7 @@ const TicketCard = ({ data }) => {
                                     ) : (
                                         <MapPin className="w-4 h-4 text-primary shrink-0" />
                                     )}
-                                    <span className="truncate max-w-[200px]">
+                                    <span className="truncate max-w">
                                         {isOnline ? (
                                             eventSession.meetingPlatform == MeetingPlatform.GOOGLE_MEET ? "Google meet" : "Zoom"
                                         ) : (event?.location || "Chưa cập nhật")}
@@ -173,16 +165,19 @@ const TicketCard = ({ data }) => {
 
                                 {/* Right: Buttons */}
                                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-1">
-
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleAddToCalendar}
-                                        className="gap-1 hidden sm:flex border-slate-200 hover:bg-slate-100"
-                                    >
-                                        <CalendarPlus className="w-4 h-4 text-slate-600" />
-                                        <span>Lưu Lịch</span>
-                                    </Button>
+                                    {
+                                        !isInvalid && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleAddToCalendar}
+                                                className="gap-1 hidden sm:flex border-slate-200 hover:bg-slate-100"
+                                            >
+                                                <CalendarPlus className="w-4 h-4 text-slate-600" />
+                                                <span>Lưu Lịch</span>
+                                            </Button>
+                                        )
+                                    }
 
                                     <Button
                                         variant="outline"

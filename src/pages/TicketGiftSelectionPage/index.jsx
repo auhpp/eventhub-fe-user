@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Loader2, ArrowRight, Gift } from "lucide-react";
+import { Loader2, ArrowRight, Gift } from "lucide-react";
 import TicketGroup from './TicketGroup';
 import { getBookingById, groupAttendeesByTicket } from '@/services/bookingService';
 import { routes } from '@/config/routes';
 import { HttpStatusCode } from 'axios';
+import ButtonBack from '@/components/ButtonBack';
 
 const TicketGiftSelectionPage = () => {
     const { id } = useParams();
@@ -64,14 +65,7 @@ const TicketGiftSelectionPage = () => {
             {/* Header */}
             <div className="bg-white border-b border-gray-100 py-3 sticky top-0 z-10">
                 <div className="mx-auto px-4 flex items-center gap-3">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate(-1)}
-                        className="h-8 w-8 -ml-2 text-gray-500 hover:text-gray-900"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                    </Button>
+                    <ButtonBack />
                     <h1 className="text-lg font-semibold text-gray-900">Chọn vé tặng</h1>
                 </div>
             </div>
@@ -82,7 +76,7 @@ const TicketGiftSelectionPage = () => {
                         <h2 className="text-base font-bold text-gray-900 line-clamp-1">
                             {booking.event?.name}
                         </h2>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-sm text-gray-500 mt-1">
                             Mã đơn: <span className="font-mono text-gray-700">#{booking.id}</span>
                         </div>
                     </div>
@@ -107,15 +101,16 @@ const TicketGiftSelectionPage = () => {
             </div>
 
             {/* --- FOOTER --- */}
-            <div className="sticky bottom-0 z-20 bg-white border-t border-gray-200 py-3 px-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-                <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">Đã chọn</span>
+            <div className="sticky bottom-0 z-20 bg-white border-t 
+            border-gray-200 py-3 px-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+                <div className="mx-auto flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-sm text-gray-500 uppercase tracking-wide">Đã chọn</span>
                         <div className="flex items-baseline gap-1 text-brand">
                             <span className="text-xl font-bold leading-none">
                                 {selectedIds.length}
                             </span>
-                            <span className="text-xs font-medium">vé</span>
+                            <span className="text-sm font-medium">vé</span>
                         </div>
                     </div>
 

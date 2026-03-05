@@ -1,7 +1,6 @@
 import React from 'react';
 import { MapPin, Ticket, ArrowRight, Video } from 'lucide-react';
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency, formatDateTime } from '@/utils/format';
@@ -9,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
 import { EventType, MeetingPlatform } from '@/utils/constant';
+import AttendeeTypeBadges from '@/components/AttendeeTypeBadges';
 
 
 const OrderCard = ({ booking }) => {
@@ -31,7 +31,8 @@ const OrderCard = ({ booking }) => {
     const isOnline = event.type == EventType.ONLINE.key
 
     return (
-        <Card className="overflow-hidden border-l-4 hover:shadow-md transition-all duration-200 mb-4 group border-l-primary/80">
+        <Card className="overflow-hidden hover:shadow-md
+         transition-all duration-200 mb-4 group">
             <div className="flex flex-col md:flex-row">
 
                 {/* Thumbnail */}
@@ -56,11 +57,17 @@ const OrderCard = ({ booking }) => {
                                 </h3>
                             </div>
                             {/* Badge status */}
-                            <BookingStatusBadge status={status} />
-
+                            <div className='gap-2 flex'>
+                                <AttendeeTypeBadges attendees={attendees} />
+                                <BookingStatusBadge status={status} />
+                            </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-y-2 gap-x-6 text-sm text-gray-600 mt-1">
+                            <div className="flex items-center gap-1.5">
+                                <Ticket className="w-4 h-4 text-primary" />
+                                <span>{ticketCount} vé</span>
+                            </div>
                             <div className="flex items-center gap-1.5">
                                 {
                                     isOnline ? (
@@ -79,16 +86,13 @@ const OrderCard = ({ booking }) => {
                                             <div>
                                                 <MapPin className="w-4 h-4 text-primary" />
                                             </div>
-                                            <span className="truncate max-w-[200px]">{eventLocation}</span>
+                                            <span className="truncate">{eventLocation}</span>
                                         </>
                                     )
                                 }
 
                             </div>
-                            <div className="flex items-center gap-1.5">
-                                <Ticket className="w-4 h-4 text-primary" />
-                                <span>{ticketCount} vé</span>
-                            </div>
+
                         </div>
                     </div>
 
@@ -97,7 +101,7 @@ const OrderCard = ({ booking }) => {
                         <div className="flex justify-between items-end">
                             <div>
                                 <p className="text-xs text-muted-foreground">Tổng thanh toán</p>
-                                <p className="text-xl font-bold text-primary">
+                                <p className="text-xl font-bold text-red-500">
                                     {formatCurrency(finalAmount)}
                                 </p>
                             </div>

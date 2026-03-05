@@ -63,15 +63,19 @@ export const WalletType = {
 export const BookingStatus = {
     PENDING: 'PENDING',
     PAID: 'PAID',
-    CANCELLED: 'CANCELLED',
+    CANCELLED_BY_EVENT: 'CANCELLED_BY_EVENT',
+    CANCELLED_BY_USER: 'CANCELLED_BY_USER',
+    REFUNDED_CANCELLED_BY_EVENT: 'REFUNDED_CANCELLED_BY_EVENT',
+    REFUNDED_CANCELLED_BY_USER: 'REFUNDED_CANCELLED_BY_USER',
     REFUNDED: 'REFUNDED'
 }
 
 export const AttendeeStatus = {
     INACTIVE: { label: "Chờ thanh toán", color: "bg-yellow-100 text-yellow-700", key: 'INACTIVE' },
-    VALID: { label: "Hợp lệ", color: "bg-emerald-100 text-emerald-700", key: 'VALID' },
+    VALID: { label: "Chưa check-in", color: "bg-gray-100 text-gray-700", key: 'VALID' },
     CHECKED_IN: { label: "Đã check-in", color: "bg-blue-100 text-blue-700", key: 'CHECKED_IN' },
-    CANCELLED: { label: "Đã hủy", color: "bg-red-100 text-red-700", key: 'CANCELLED' },
+    CANCELLED_BY_EVENT: { label: "Đã hủy bởi sự kiện", color: "bg-red-100 text-red-700", key: 'CANCELLED_BY_EVENT' },
+    CANCELLED_BY_USER: { label: "Đã hủy bởi bạn", color: "bg-red-100 text-red-700", key: 'CANCELLED_BY_USER' },
     COMING: { label: "Sắp đến", key: 'COMING' },
     PAST: { label: "Đã qua", key: 'PAST' },
 
@@ -112,4 +116,13 @@ export const SourceType = {
 export const TicketGiftStatus = {
     PENDING: 'PENDING', ACCEPTED: 'ACCEPTED', REJECTED: 'REJECTED', REVOKED: 'REVOKED', EXPIRED: 'EXPIRED'
 }
+export const DiscountType = {
+    PERCENTAGE: 'PERCENTAGE',
+    FIXED_AMOUNT: 'FIXED_AMOUNT',
+}
 
+
+export const SortType = {
+    NEWEST: 'NEWEST',
+    OLDEST: 'OLDEST',
+}

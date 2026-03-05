@@ -2,11 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import {
     PlusCircle,
     Loader2,
-    MoreVertical,
-    IdCard
-} from "lucide-react";
+    MoreVertical} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -19,6 +17,7 @@ import { AuthContext } from "@/context/AuthContex";
 import { Role } from "@/utils/constant";
 import DefaultPagination from "@/components/DefaultPagination";
 import { HttpStatusCode } from "axios";
+import DefaultAvatar from "@/components/DefaultAvatar";
 
 
 export default function OrganizerRequestPage() {
@@ -64,7 +63,7 @@ export default function OrganizerRequestPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        Yêu cầu Đăng ký Ban Tổ chức
+                        Đăng ký thành nhà tổ chức sự kiện
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Theo dõi trạng thái hồ sơ đối tác của doanh nghiệp bạn.
@@ -101,8 +100,7 @@ export default function OrganizerRequestPage() {
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarImage src={item.appUser?.avatar} alt={item.representativeFullName} />
-                                            <AvatarFallback>{item.representativeFullName?.charAt(0)}</AvatarFallback>
+                                            <DefaultAvatar user={item.appUser} />
                                         </Avatar>
                                         <div>
                                             <p className="font-medium text-foreground">{item.representativeFullName}</p>

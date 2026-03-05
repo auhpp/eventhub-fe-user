@@ -2,12 +2,13 @@ import React from 'react';
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Mail, MoreVertical, Shield } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { EventStaffStatus, RoleName } from '@/utils/constant';
 import EventStaffStatusBadge from '@/components/EventStaffStatusBadge';
+import { Avatar } from '@/components/ui/avatar';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 const EventStaffTable = ({ data, isLoading, onViewDetail, onRevoke, onResend }) => {
 
@@ -31,9 +32,9 @@ const EventStaffTable = ({ data, isLoading, onViewDetail, onRevoke, onResend }) 
                             {/* Email / User Info */}
                             <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
-                                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-full">
-                                        <Mail size={16} />
-                                    </div>
+                                    <Avatar>
+                                        <DefaultAvatar user={staff} />
+                                    </Avatar>
                                     <div className="flex flex-col">
                                         <span>{staff.email}</span>
                                         {staff.user && <span className="text-xs text-muted-foreground">{staff.user.fullName}</span>}
@@ -44,7 +45,6 @@ const EventStaffTable = ({ data, isLoading, onViewDetail, onRevoke, onResend }) 
                             {/* Role */}
                             <TableCell>
                                 <div className="flex items-center gap-2">
-                                    <Shield size={14} className="text-muted-foreground" />
                                     <span className="font-medium">
                                         {RoleName[staff.role.name]?.label || staff.roleName}
                                     </span>

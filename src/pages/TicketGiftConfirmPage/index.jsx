@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, Calendar, MapPin, ArrowRight, User, Ticket, Clock, CheckCircle2, TriangleAlert } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
+import { MapPin, Ticket, Clock, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { createTicketGift } from '@/services/ticketGiftService';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -10,6 +10,7 @@ import { routes } from '@/config/routes';
 import { HttpStatusCode } from 'axios';
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { displaySessionDate, formatTime } from '@/utils/format';
+import ButtonBack from '@/components/ButtonBack';
 
 const TicketGiftConfirmPage = () => {
     const navigate = useNavigate();
@@ -83,9 +84,7 @@ const TicketGiftConfirmPage = () => {
             {/* Header */}
             <div className="bg-white border-b border-gray-100 py-3 sticky top-0 z-10">
                 <div className="mx-auto px-4 flex items-center gap-3">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-8 w-8 -ml-2 text-gray-500 hover:text-gray-900">
-                        <ChevronLeft className="w-5 h-5" />
-                    </Button>
+                    <ButtonBack />
                     <h1 className="text-lg font-semibold text-gray-900">Xác nhận tặng vé</h1>
                 </div>
             </div>
@@ -94,14 +93,14 @@ const TicketGiftConfirmPage = () => {
 
                 {/* user info */}
                 <section>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Người nhận vé</h2>
+                    <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Người nhận vé</h2>
                     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 relative overflow-hidden">
                         <Avatar className="w-14 h-14 border border-gray-100 shadow-sm">
                             <DefaultAvatar user={recipient} />
                         </Avatar>
 
                         <div className="relative z-10">
-                            <h3 className="font-bold text-gray-900 text-lg leading-tight">{recipient.fullName}</h3>
+                            <h3 className="font-bold text-gray-900 text-md leading-tight">{recipient.fullName}</h3>
                             <p className="text-gray-500 text-sm font-medium">{recipient.email}</p>
                         </div>
                     </div>
@@ -109,16 +108,16 @@ const TicketGiftConfirmPage = () => {
 
                 {/* event and booking info */}
                 <section>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Thông tin sự kiện</h2>
+                    <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Thông tin sự kiện</h2>
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         {/* Event Header */}
                         <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                            <h3 className="font-bold text-gray-900 text-lg leading-snug mb-2">
+                            <h3 className="font-bold text-gray-900 text-md leading-snug mb-2">
                                 {eventInfo.name}
                             </h3>
                             <div className="flex flex-col gap-1.5 text-sm text-gray-600">
-                                <div className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-gray-400" />
+                                <div className="flex items-start gap-2">
+                                    <Clock className="w-4 h-4 mt-1 text-gray-400" />
                                     <div className='flex flex-col'>
                                         <span>{displaySessionDate({
                                             startDateTime: eventSession.startDateTime,
@@ -127,8 +126,8 @@ const TicketGiftConfirmPage = () => {
                                         <span>{formatTime(eventSession.startDateTime)} - {formatTime(eventSession.endDateTime)}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-gray-400" />
+                                <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 mt-1 text-gray-400" />
                                     <div className='flex flex-col'>
                                         <span className="truncate">{eventInfo.address || "Địa điểm chưa cập nhật"}</span>
                                         <span className="truncate">{eventInfo.location || "Địa điểm chưa cập nhật"}</span>
@@ -149,7 +148,7 @@ const TicketGiftConfirmPage = () => {
 
                 {/* ticket gift */}
                 <section>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+                    <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
                         Chi tiết vé tặng ({tickets.length})</h2>
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
                         {groupedTickets.map((group, idx) => (
@@ -163,7 +162,7 @@ const TicketGiftConfirmPage = () => {
                                         <div className="font-semibold text-gray-900 text-base">
                                             {group.name}
                                         </div>
-                                        <div className="text-xs text-gray-400 mt-1 font-mono max-w-[200px] truncate">
+                                        <div className="text-sm text-gray-400 mt-1 font-mono max-w-[200px] truncate">
                                             {group.codes.join(', ')}
                                         </div>
                                     </div>

@@ -96,7 +96,7 @@ const EventHero = ({ event }) => {
         <div className="w-full mb-8">
             {/* Main Container - Ticket Shape */}
             <div className="flex flex-col lg:flex-row w-full bg-[#38383d]
-             rounded-3xl overflow-hidden min-h-[450px] relative">
+             rounded-xl overflow-hidden min-h-[450px] relative">
                 {/* Left Side: Info */}
                 <div className="lg:w-[35%] p-8 flex flex-col 
                  justify-between relative z-10 border-r border-dashed border-gray-600/50">

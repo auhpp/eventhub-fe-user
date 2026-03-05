@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { QrCode, User, CheckCircle2, Gift } from "lucide-react";
-import { SourceType } from '@/utils/constant';
+import { AttendeeStatus, SourceType } from '@/utils/constant';
+import { isAttendeeUnusable } from '@/utils/attendeeUtils';
+import { AuthContext } from '@/context/AuthContex';
+import { isExpiredEventSession } from '@/utils/eventUtils';
 
 const TicketItemRow = ({ attendee, isSelected, onToggle }) => {
     const isGifted = attendee.sourceType === SourceType.GIFT;
+    const isUnusable = isAttendeeUnusable({ attendee: attendee })
+    const isTransferable = attendee.sourceType === SourceType.PURCHASE && !isGifted && !isUnusable;
+    const { user } = useContext(AuthContext)
 
-    const isTransferable = attendee.sourceType === SourceType.PURCHASE && !isGifted;
+    const isEventExpired = isExpiredEventSession({ eventSession: attendee.eventSession }); 
+    const isCheckedIn = attendee.status === AttendeeStatus.CHECKED_IN.key;
+    const isCancelled = attendee.status === AttendeeStatus.CANCELLED_BY_EVENT.key ||
+        attendee.status === AttendeeStatus.CANCELLED_BY_USER.key; 
+
+    let overlayText = "";
+    if (isGifted) overlayText = "Đã tặng";
+    else if (isCancelled) overlayText = "Đã hủy";
+    else if (isCheckedIn) overlayText = "Đã check-in";
+    else if (isEventExpired) overlayText = "Đã kết thúc";
 
     const handleRowClick = () => {
         if (isTransferable) {
@@ -51,24 +66,25 @@ const TicketItemRow = ({ attendee, isSelected, onToggle }) => {
                     <div className="flex items-center gap-1.5 mb-0.5">
                         {isGifted ? (
                             <>
-                                <span className="font-mono text-sm font-semibold text-gray-500 italic flex items-center gap-1.5">
-                                    Vé đã tặng
+                                <span className="text-sm font-semibold
+                                 text-gray-500 italic flex items-center gap-1.5">
+                                    Vé {overlayText.toLowerCase()}
                                 </span>
                             </>
                         ) : (
                             <>
                                 <QrCode className={`w-3.5 h-3.5 ${isSelected ? 'text-brand' : 'text-gray-400'}`} />
-                                <span className={`font-mono text-sm font-medium truncate ${isSelected ? 'text-brand' : 'text-gray-700'}`}>
+                                <span className={` text-sm font-medium truncate ${isSelected ? 'text-brand' : 'text-gray-700'}`}>
                                     {attendee.ticketCode}
                                 </span>
                             </>
                         )}
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500 truncate">
+                    <div className="flex items-center gap-1.5 text-sm text-gray-500 truncate">
                         <User className="w-3 h-3" />
-                        <span className="truncate max-w-[150px] sm:max-w-[200px]">
-                            {isGifted ? attendee.owner.email : "Chưa định danh"}
+                        <span className="truncate max-w-[150px] sm:max-w-[300px]">
+                            {isGifted && (attendee.owner.email != user.email) ? attendee.owner.email : "Chưa định danh"}
                         </span>
                     </div>
                 </div>
@@ -77,8 +93,9 @@ const TicketItemRow = ({ attendee, isSelected, onToggle }) => {
             {/* Status Badge / Check Indicator */}
             <div className="pl-2 shrink-0">
                 {isGifted ? (
-                    <Badge variant="outline" className="text-[10px] h-5 px-2 bg-gray-100 text-gray-500 border-gray-200 font-normal">
-                        Đã tặng
+                    <Badge variant="outline" className="text-xs h-5 px-2 
+                    bg-gray-100 text-gray-700 border-gray-200 font-normal">
+                        {overlayText}
                     </Badge>
                 ) : (
                     isTransferable ? (

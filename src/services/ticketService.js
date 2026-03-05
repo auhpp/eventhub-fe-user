@@ -7,12 +7,12 @@ export const updateTicket = async ({ id, data }) => {
         name: data.name,
         price: data.price,
         quantity: data.quantity,
-        maxPerOrder: data.maxPerOrder,
+        maxPerOrder: data.maximumPerPurchase,
         invitationQuota: data.invitationQuota,
         description: data.description,
-        openAt: formatDateForBE(data.startDate), // Map startDate -> openAt
-        endAt: formatDateForBE(data.endDate),     // Map endDate -> endAt
-        maximumPerPurchase: data.maxPerOrder     
+        openAt: formatDateForBE(data.openAt), // Map startDate -> openAt
+        endAt: formatDateForBE(data.endAt),     // Map endDate -> endAt
+        maximumPerPurchase: data.maxPerOrder
     };
 
     const response = await API.put(`/api/v1/ticket/${id}`, payload, {
@@ -23,6 +23,13 @@ export const updateTicket = async ({ id, data }) => {
 
 export const deleteTicket = async ({ id }) => {
     const response = await API.delete(`/api/v1/ticket/${id}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const getTickets = async ({ eventSessionId }) => {
+    const response = await API.get(`/api/v1/ticket?eventSessionId=${eventSessionId}`, {
         requiresAuth: true
     });
     return response.data;

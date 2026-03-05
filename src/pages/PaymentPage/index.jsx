@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ArrowLeft, Clock, User, Mail, Phone, Tag, ShieldCheck, CheckCircle2, QrCode, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, Clock, User, Mail, Phone, ShieldCheck, CheckCircle2, QrCode, Loader2, FileText, Ticket }
+    from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,12 +12,16 @@ import { HttpStatusCode } from 'axios';
 import { getEventSessionById } from '@/services/eventSessionService';
 import { getEventById } from '@/services/eventService';
 import { createSearchParams, useNavigate, useParams } from 'react-router-dom';
-import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle }
+    from '@/components/ui/alert-dialog';
 import { routes } from '@/config/routes';
 import { AuthContext } from '@/context/AuthContex';
 import { createPaymentUrl } from '@/services/paymentService';
-import { WalletType } from '@/utils/constant';
+import { DiscountType, WalletType } from '@/utils/constant';
 import logoVnpay from "@/assets/images/vnpay_logo.png";
+import { countBookingByUserId, getCoupons } from '@/services/couponService';
+import VoucherModal from './VoucherModal';
+import { toast } from 'sonner';
 
 const PaymentPage = () => {
     const [timeLeft, setTimeLeft] = useState(0);
@@ -31,6 +36,17 @@ const PaymentPage = () => {
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
     const [errors, setErrors] = useState({});
+
+    // --- STATES for VOUCHER ---
+    const [publicCoupons, setPublicCoupons] = useState([]);
+    const [selectedCoupon, setSelectedCoupon] = useState(null);
+    // eslint-disable-next-line no-unused-vars
+    const [voucherCode, setVoucherCode] = useState('');
+    const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+    // const [voucherError, setVoucherError] = useState('');
+
+    const [couponUsages, setCouponUsages] = useState({});
+    const [isFetchingVouchers, setIsFetchingVouchers] = useState(false);
 
     useEffect(() => {
         const fetchBookingById = async () => {
@@ -204,6 +220,46 @@ const PaymentPage = () => {
             console.error("Lỗi khi hủy đơn", error);
         }
     };
+    // Handle voucher 
+    const fetchPublicCoupons = async () => {
+        if (!eventId) return;
+        try {
+            const res = await getCoupons({ eventId: Number(eventId), hasPublic: true, page: 1, size: 50 });
+            if (res.code === HttpStatusCode.Ok && res.result?.data) {
+                const fetchedCoupons = res.result.data;
+                setPublicCoupons(fetchedCoupons);
+
+                if (user?.id) {
+                    const usages = {};
+                    await Promise.all(fetchedCoupons.map(async (coupon) => {
+                        try {
+                            const countRes = await countBookingByUserId({
+                                userId: user.id,
+                                couponId: coupon.id
+                            });
+                            usages[coupon.id] = countRes.result ?? countRes ?? 0;
+                        } catch (e) {
+                            console.error(`Lỗi lấy lượt dùng của voucher ${coupon.code}`, e);
+                            usages[coupon.id] = 0;
+                        }
+                    }));
+                    setCouponUsages(usages);
+                }
+            }
+        } catch (error) {
+            console.error("Lỗi fetch vouchers:", error);
+        }
+    };
+    useEffect(() => {
+        fetchPublicCoupons();
+    }, [eventId, user?.id]);
+
+    const handleOpenVoucherModal = async () => {
+        setIsFetchingVouchers(true);
+        await fetchPublicCoupons();
+        setIsFetchingVouchers(false);
+        setIsVoucherModalOpen(true);
+    };
 
     if (!event || !eventSession || !booking) {
         return (
@@ -213,7 +269,38 @@ const PaymentPage = () => {
         )
     }
     const totalAmount = selectedTickets.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const totalTicketsQuantity = selectedTickets?.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
+    // Handle voucher
+    const calculateDiscountAmount = (coupon) => {
+        if (!coupon || totalAmount === 0) return 0;
+        let discount = 0;
+        if (coupon.discountType === DiscountType.PERCENTAGE) {
+            discount = totalAmount * (coupon.value / 100);
+            if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
+                discount = coupon.maxDiscountAmount;
+            }
+        } else {
+            discount = coupon.value;
+        }
+        return discount > totalAmount ? totalAmount : discount;
+    };
+    const currentDiscountAmount = calculateDiscountAmount(selectedCoupon);
+    const finalAmount = totalAmount - currentDiscountAmount > 0 ? totalAmount - currentDiscountAmount : 0;
+
+    const validateAndApplyCoupon = (coupon) => {
+        if (!coupon) {
+            setSelectedCoupon(null);
+            setVoucherCode('');
+            setIsVoucherModalOpen(false);
+            return;
+        }
+
+        setSelectedCoupon(coupon);
+        setVoucherCode('');
+        setIsVoucherModalOpen(false);
+        toast.success("Áp dụng mã giảm giá thành công!");
+    };
 
     const onSubmitPayment = async () => {
         if (!validateForm()) {
@@ -223,6 +310,7 @@ const PaymentPage = () => {
             const bookingPaymentRequest = {
                 customerName: formData.fullname,
                 customerPhone: formData.phone,
+                couponId: selectedCoupon ? selectedCoupon.id : null,
                 note: formData.note,
                 walletType: paymentMethod
             }
@@ -249,7 +337,7 @@ const PaymentPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans pb-12">
             <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-                <AlertDialogContent className="sm:max-w-[425px] rounded-xl">
+                <AlertDialogContent className="sm:max-w-[425px] rounded-lg">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-center text-xl font-bold text-gray-900 pb-2">
                             Hủy đơn hàng?
@@ -258,7 +346,8 @@ const PaymentPage = () => {
                             <p className="font-medium text-center">Bạn có chắc chắn muốn tiếp tục?</p>
                             <ul className="list-disc pl-5 space-y-1 text-gray-500">
                                 <li>Bạn sẽ mất vị trí mình đã lựa chọn.</li>
-                                <li>Đơn hàng đang trong quá trình thanh toán hoặc đã thanh toán thành công cũng có thể bị huỷ.</li>
+                                <li>Đơn hàng đang trong quá trình thanh toán hoặc đã thanh toán thành công cũng
+                                    có thể bị huỷ.</li>
                             </ul>
                         </div>
                     </AlertDialogHeader>
@@ -293,7 +382,8 @@ const PaymentPage = () => {
                     </div>
 
                     {/* Countdown Badge */}
-                    <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-full border border-green-100 dark:border-green-800">
+                    <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20
+                     px-4 py-2 rounded-lg border border-green-300 dark:border-green-800">
                         <Clock className="w-4 h-4 text-green-600 dark:text-green-400" />
                         <span className="text-sm font-bold text-green-700 dark:text-green-400">
                             Thời gian giữ vé: {formatTimeLeft(timeLeft)}
@@ -303,17 +393,19 @@ const PaymentPage = () => {
             </div>
 
             {/* --- Main Content --- */}
-            <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
+            <div className="max-w-6xl mx-auto px-4 md:px-8 py-1">
+                <div className="flex flex-col lg:flex-row gap-6">
 
                     {/* LEFT COLUMN: Forms */}
                     <div className="flex-1 flex flex-col gap-6">
 
                         {/* 1. Ticket Review Section (Simplified) */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 opacity-80 hover:opacity-100 transition-all shadow-sm">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700
+                         p-4 opacity-80 hover:opacity-100 transition-all shadow-sm">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white shrink-0">
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500 
+                                    text-white shrink-0">
                                         <CheckCircle2 className="w-5 h-5" />
                                     </div>
                                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">Danh sách vé</h2>
@@ -330,7 +422,8 @@ const PaymentPage = () => {
                         </div>
 
                         {/* 2. User Information Form */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm relative overflow-hidden">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700
+                         p-6 shadow-sm relative overflow-hidden">
                             {/* Decorative Left Border */}
                             <div className="absolute left-0 top-6 bottom-6 w-1 bg-primary rounded-r-full"></div>
 
@@ -338,7 +431,8 @@ const PaymentPage = () => {
                             <h2 className="text-xl font-bold mb-6 flex items-center gap-3 pl-2">
                                 {
                                     totalAmount != 0 && (
-                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm shadow-md shadow-blue-500/30">1</span>
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary
+                                         text-white text-sm shadow-md shadow-blue-500/30">1</span>
                                     )
                                 }
                                 Thông tin người mua
@@ -346,7 +440,8 @@ const PaymentPage = () => {
 
                             <div className="flex flex-col gap-6 pl-2">
                                 {/* Auto-fill Checkbox */}
-                                <div className="rounded-lg border border-blue-100 bg-blue-50/50 dark:border-blue-900/30 dark:bg-blue-900/10 p-4 flex items-start gap-3">
+                                <div className="rounded-lg border border-blue-100 bg-blue-50/50 dark:border-blue-900/30
+                                 dark:bg-blue-900/10 p-4 flex items-start gap-3">
                                     <Checkbox
                                         id="use_profile"
                                         checked={useProfile}
@@ -354,7 +449,8 @@ const PaymentPage = () => {
                                         className="mt-1"
                                     />
                                     <div className="text-sm">
-                                        <label htmlFor="use_profile" className="font-bold text-gray-900 dark:text-white cursor-pointer select-none">
+                                        <label htmlFor="use_profile" className="font-bold text-gray-900 dark:text-white
+                                         cursor-pointer select-none">
                                             Sử dụng thông tin từ tài khoản đã đăng nhập
                                         </label>
                                         <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -368,7 +464,8 @@ const PaymentPage = () => {
                                     <div className="space-y-2">
                                         <Label htmlFor="fullname">Họ và tên <span className="text-red-500">*</span></Label>
                                         <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none
+                                             text-gray-400">
                                                 <User className="w-5 h-5" />
                                             </div>
                                             <Input
@@ -376,17 +473,20 @@ const PaymentPage = () => {
                                                 name="fullname"
                                                 value={formData.fullname}
                                                 onChange={handleInputChange}
-                                                className={`pl-10 ${errors.fullname ? "border-red-500 focus-visible:ring-red-500" : ""}`} placeholder="Nhập họ tên đầy đủ"
+                                                className={`pl-10 ${errors.fullname ? "border-red-500 focus-visible:ring-red-500"
+                                                    : ""}`} placeholder="Nhập họ tên đầy đủ"
                                             />
                                         </div>
-                                        {errors.fullname && <p className="text-red-500 text-sm mt-1 animate-in slide-in-from-top-1">{errors.fullname}</p>}
+                                        {errors.fullname && <p className="text-red-500 text-sm mt-1 animate-in 
+                                        slide-in-from-top-1">{errors.fullname}</p>}
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div className="space-y-2">
                                             <Label htmlFor="email">Email nhận vé <span className="text-red-500">*</span></Label>
                                             <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center 
+                                                pointer-events-none text-gray-400">
                                                     <Mail className="w-5 h-5" />
                                                 </div>
                                                 <Input
@@ -404,7 +504,8 @@ const PaymentPage = () => {
                                         <div className="space-y-2">
                                             <Label htmlFor="phone">Số điện thoại <span className="text-red-500">*</span></Label>
                                             <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center 
+                                                pointer-events-none text-gray-400">
                                                     <Phone className="w-5 h-5" />
                                                 </div>
                                                 <Input
@@ -412,16 +513,20 @@ const PaymentPage = () => {
                                                     name="phone"
                                                     value={formData.phone}
                                                     onChange={handleInputChange}
-                                                    className={`pl-10 ${errors.phone ? "border-red-500 focus-visible:ring-red-500" : ""}`} placeholder="Nhập số điện thoại"
+                                                    className={`pl-10 ${errors.phone ?
+                                                        "border-red-500 focus-visible:ring-red-500" :
+                                                        ""}`} placeholder="Nhập số điện thoại"
                                                 />
                                             </div>
-                                            {errors.phone && <p className="text-red-500 text-sm mt-1 animate-in slide-in-from-top-1">{errors.phone}</p>}
+                                            {errors.phone && <p className="text-red-500 text-sm mt-1 animate-in 
+                                            slide-in-from-top-1">{errors.phone}</p>}
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="note">Ghi chú (Tùy chọn)</Label>
                                         <div className="relative">
-                                            <div className="absolute top-3 left-0 pl-3 flex items-start pointer-events-none text-gray-400">
+                                            <div className="absolute top-3 left-0 pl-3 flex items-start
+                                             pointer-events-none text-gray-400">
                                                 <FileText className="w-5 h-5" />
                                             </div>
                                             <textarea
@@ -430,7 +535,11 @@ const PaymentPage = () => {
                                                 value={formData.note}
                                                 onChange={handleInputChange}
                                                 rows={3}
-                                                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10 resize-none"
+                                                className="flex w-full rounded-md border border-input 
+                                                bg-background px-3 py-2 text-sm ring-offset-background 
+                                                placeholder:text-muted-foreground focus-visible:outline-none
+                                                 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                                                  disabled:cursor-not-allowed disabled:opacity-50 pl-10 resize-none"
                                                 placeholder="Nhập ghi chú thêm cho ban tổ chức..."
                                             />
                                         </div>
@@ -442,19 +551,21 @@ const PaymentPage = () => {
                         {/* 3. Payment Method Section */}
                         {
                             totalAmount != 0 && (
-                                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm relative overflow-hidden">
+                                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 
+                                dark:border-gray-700 p-6 shadow-sm relative overflow-hidden">
                                     {/* Decorative Left Border */}
                                     <div className="absolute left-0 top-6 bottom-6 w-1 bg-primary rounded-r-full"></div>
 
                                     <h2 className="text-xl font-bold mb-6 flex items-center gap-3 pl-2">
-                                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm shadow-md shadow-blue-500/30">2</span>
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-full
+                                         bg-primary text-white text-sm shadow-md shadow-blue-500/30">2</span>
                                         Phương thức thanh toán
                                     </h2>
 
                                     <div className="flex flex-col gap-6 pl-2">
                                         <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="gap-4">
                                             {/* Option VNPAY */}
-                                            <div className={`relative rounded-xl
+                                            <div className={`relative rounded-lg
                                          border-2 p-4 cursor-pointer transition-all ${paymentMethod === WalletType.VNPay
                                                     ? 'border-primary bg-blue-50/50 dark:bg-blue-900/10' :
                                                     'border-gray-200 hover:border-blue-200'}`}>
@@ -466,7 +577,7 @@ const PaymentPage = () => {
                                              flex items-center justify-center shrink-0 overflow-hidden">
                                                         <img src={logoVnpay} alt="" />
                                                     </div>
-                                                    
+
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <span className="font-bold text-gray-900 dark:text-white
@@ -481,7 +592,10 @@ const PaymentPage = () => {
                                                         </p>
 
                                                         {paymentMethod === WalletType.VNPay && (
-                                                            <div className="mt-3 pt-3 border-t border-dashed border-gray-200 dark:border-gray-700 flex gap-2 text-sm text-gray-600 dark:text-gray-300 animate-in fade-in slide-in-from-top-2">
+                                                            <div className="mt-3 pt-3 border-t border-dashed 
+                                                            border-gray-200 dark:border-gray-700 flex gap-2 text-sm
+                                                             text-gray-600 dark:text-gray-300 animate-in fade-in 
+                                                             slide-in-from-top-2">
                                                                 <QrCode className="w-5 h-5 text-primary shrink-0" />
                                                                 <p>Hệ thống sẽ chuyển hướng bạn đến cổng thanh toán VNPAY.</p>
                                                             </div>
@@ -497,21 +611,44 @@ const PaymentPage = () => {
                                         <div className="h-px bg-gray-100 dark:bg-gray-700"></div>
 
                                         {/* Voucher Input */}
-                                        <div className="space-y-2">
-                                            <Label htmlFor="voucher" className="flex items-center gap-2"><Tag className="w-4 h-4" /> Mã giảm giá</Label>
-                                            <div className="flex gap-2">
-                                                <div className="relative flex-1">
-                                                    <Input id="voucher" placeholder="Nhập mã voucher (nếu có)" />
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between p-4 bg-white 
+                                            dark:bg-gray-800 rounded-lg border border-gray-200 shadow-sm cursor-pointer 
+                                            hover:border-red-200 transition-colors"
+                                                onClick={!isFetchingVouchers ? handleOpenVoucherModal : undefined}>
+                                                <div className="flex items-center gap-3">
+                                                    <Ticket className="w-6 h-6 text-red-500" />
+                                                    <span className="font-semibold text-gray-900 dark:text-white text-base">
+                                                        Voucher của Shop</span>
                                                 </div>
-                                                <Button variant="secondary" className="whitespace-nowrap">Áp dụng</Button>
+                                                <div className="flex items-center gap-2">
+                                                    {selectedCoupon && !isFetchingVouchers && (
+                                                        <span className="text-sm font-semibold px-2 py-1 bg-red-50 
+                                                        text-red-600 rounded">
+                                                            -{(currentDiscountAmount / 1000)}k
+                                                        </span>
+                                                    )}
+                                                    {isFetchingVouchers ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                                                    ) : (
+                                                        <span className="text-blue-600 font-medium text-sm hover:underline">
+                                                            {selectedCoupon ? 'Thay đổi' : 'Chọn Voucher'}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
+
+                                            {/* {voucherError && <p className="text-red-500 text-sm animate-in slide-in-from-top-1">{voucherError}</p>} */}
                                         </div>
 
                                         {/* Terms */}
-                                        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg p-4 flex gap-3">
+                                        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100
+                                        dark:border-blue-900/30 rounded-lg p-4 flex gap-3">
                                             <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0" />
                                             <p className="text-sm text-blue-800 dark:text-blue-400 leading-snug">
-                                                Bằng cách chọn Hoàn tất thanh toán, bạn đồng ý với <a href="#" className="underline font-semibold hover:text-blue-600">Điều khoản sử dụng</a> và Chính sách của chúng tôi.
+                                                Bằng cách chọn Hoàn tất thanh toán, bạn đồng ý với <a href="#"
+                                                    className="underline font-semibold hover:text-blue-600">
+                                                    Điều khoản sử dụng</a> và Chính sách của chúng tôi.
                                             </p>
                                         </div>
                                     </div>
@@ -524,14 +661,16 @@ const PaymentPage = () => {
                     {/* RIGHT COLUMN: Order Summary */}
                     <div className="w-full lg:w-[380px] shrink-0">
                         <div className="sticky top-24">
-                            {/* Reusing your OrderSummary Component */}
                             <OrderSummary
                                 event={event}
                                 selectedTickets={selectedTickets}
                                 totalAmount={totalAmount}
+                                discountAmount={currentDiscountAmount}
+                                finalAmount={finalAmount}
                                 eventSession={eventSession}
                                 messageButton={"Thanh toán"}
                                 onSubmit={onSubmitPayment}
+
                             />
 
                         </div>
@@ -539,6 +678,18 @@ const PaymentPage = () => {
 
                 </div>
             </div>
+            <VoucherModal
+                isOpen={isVoucherModalOpen}
+                onClose={() => setIsVoucherModalOpen(false)}
+                coupons={publicCoupons}
+                totalTicketsQuantity={totalTicketsQuantity}
+                selectedTickets={selectedTickets} 
+                couponUsages={couponUsages}       
+                onApply={validateAndApplyCoupon}
+                currentSelectedCoupon={selectedCoupon}
+                totalAmount={totalAmount}
+                organizer={event.appUser}
+            />
         </div>
     );
 };

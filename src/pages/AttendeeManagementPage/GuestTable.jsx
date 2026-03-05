@@ -56,7 +56,7 @@ const GuestTable = ({ data, isLoading, onViewDetail, onRevoke }) => {
                             {/* createdAt */}
                             <TableCell className="text-muted-foreground text-sm">
                                 <div className="flex items-center gap-1">
-                                    <CalendarClock size={14} />
+                                    {/* <CalendarClock size={14} /> */}
                                     {formatDateTime(invite.createdAt)}
                                 </div>
                             </TableCell>

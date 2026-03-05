@@ -7,12 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Clock, AlertCircle } from "lucide-react";
+import { Upload, Clock, AlertCircle, Download } from "lucide-react";
 import { toast } from "sonner";
 import { createEventInvitation } from '@/services/eventInvitationService';
 import { addHours, format, isAfter } from "date-fns";
 import { vi } from "date-fns/locale";
 import { formatDateTime } from '@/utils/format';
+import { getTickets } from '@/services/ticketService';
+import { HttpStatusCode } from 'axios';
+import DateTimePicker from '@/components/DateTimePicker';
 
 const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSuccess }) => {
     const [selectedTicketId, setSelectedTicketId] = useState("");
@@ -25,12 +28,29 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
     const [customExpireDate, setCustomExpireDate] = useState("");
 
     const currentSession = sessions.find(s => s.id === currentSessionId);
-    const availableTickets = currentSession?.tickets || [];
+    const [availableTickets, setAvailabelTickets] = useState([]);
     const selectedTicket = availableTickets.find(t => String(t.id) === selectedTicketId);
 
     const remainingQuota = selectedTicket
         ? (selectedTicket.invitationQuota || 0) - (selectedTicket.invitedQuantity || 0)
         : 0;
+
+    useEffect(
+        () => {
+            const getAllTicket = async () => {
+                try {
+                    const res = await getTickets({ eventSessionId: currentSessionId })
+                    if (res.code == HttpStatusCode.Ok) {
+                        setAvailabelTickets(res.result)
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+
+            getAllTicket()
+        }, [currentSessionId]
+    )
 
     // Reset form
     useEffect(() => {
@@ -64,6 +84,20 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
             toast.success(`Đã nhập ${extractedEmails.length} email từ file.`);
         };
         reader.readAsText(file);
+    };
+
+    // Download sample
+    const handleDownloadSample = () => {
+        const sampleContent = "nguyenvana@gmail.com\ntranthib@yahoo.com\nlecv@hotmail.com";
+        const blob = new Blob([sampleContent], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "danh_sach_email_mau.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleSubmit = async () => {
@@ -109,7 +143,7 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[650px]">
+            <DialogContent className="sm:max-w-[700px] fixed top-4 left-1/2 -translate-x-1/2 translate-y-0 ">
                 <DialogHeader>
                     <DialogTitle>Gửi lời mời tham gia</DialogTitle>
                     <DialogDescription>
@@ -151,7 +185,7 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
                                 onChange={(e) => setQuantity(Number(e.target.value))}
                                 className="w-24"
                             />
-                            <span className="text-xs text-muted-foreground">vé</span>
+                            <span className="text-sm text-muted-foreground">vé</span>
                         </div>
                     </div>
 
@@ -177,11 +211,9 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
 
                             {/* Input Custom Date */}
                             {expireDuration === 'custom' && (
-                                <Input
-                                    type="datetime-local"
+                                <DateTimePicker
+                                    onChange={(val) => setCustomExpireDate(val)}
                                     value={customExpireDate}
-                                    onChange={(e) => setCustomExpireDate(e.target.value)}
-                                    className="mt-2"
                                 />
                             )}
 
@@ -198,16 +230,27 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
                     <div className="grid grid-cols-4 items-start gap-4">
                         <Label className="text-right pt-2">Email <span className="text-red-500">*</span></Label>
                         <div className="col-span-3 space-y-2">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center pb-1">
                                 <span className="text-xs text-muted-foreground">Nhập mỗi email một dòng</span>
-                                <div className="relative">
-                                    <Input
-                                        type="file" accept=".txt,.csv" className="hidden"
-                                        id="file-upload" onChange={handleFileUpload}
-                                    />
-                                    <Label htmlFor="file-upload" className="cursor-pointer flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                        <Upload size={12} /> Import file
-                                    </Label>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={handleDownloadSample}
+                                        className="flex items-center gap-1 text-xs text-green-600 hover:underline cursor-pointer"
+                                    >
+                                        <Download size={12} /> Tải file mẫu
+                                    </button>
+
+                                    <div className="relative">
+                                        <Input
+                                            type="file" accept=".txt,.csv" className="hidden"
+                                            id="file-upload" onChange={handleFileUpload}
+                                        />
+                                        <Label htmlFor="file-upload" className="cursor-pointer flex
+                                         items-center gap-1 text-xs text-blue-600 hover:underline">
+                                            <Upload size={12} /> Import file
+                                        </Label>
+                                    </div>
                                 </div>
                             </div>
                             <Textarea
@@ -224,7 +267,7 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
                         <Label className="text-right pt-2">Lời nhắn</Label>
                         <div className="col-span-3">
                             <Textarea
-                                placeholder="Gửi lời nhắn riêng (Optional)..."
+                                placeholder="Gửi lời nhắn riêng (tùy chọn)..."
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                             />

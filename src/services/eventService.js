@@ -11,16 +11,17 @@ export const createEventApi = async ({ eventData, sessions }) => {
                 description: ticket.description,
                 quantity: ticket.quantity,
                 name: ticket.name,
-                openAt: ticket.startDate,
-                endAt: ticket.endDate,
-                maximumPerPurchase: ticket.maxPerOrder,
-                invitationQuota: ticket.invitationQuota
+                openAt: ticket.openAt,
+                endAt: ticket.endAt,
+                maximumPerPurchase: ticket.maximumPerPurchase,
+                invitationQuota: ticket.invitationQuota,
+                cancelBeforeMinutes: ticket.cancelBeforeMinutes
             }
         });
 
         // create object session base
         const sessionDto = {
-            checkinStartTime: it.checkinStartTime, 
+            checkinStartTime: it.checkinStartTime,
             startDateTime: it.startTime,
             endDateTime: it.endTime,
             ticketCreateRequests: ticketRequest
@@ -29,7 +30,7 @@ export const createEventApi = async ({ eventData, sessions }) => {
         if (eventData.type === EventType.ONLINE.key) {
             sessionDto.meetingUrl = it.meetingUrl;
             sessionDto.meetingPlatform = it.meetingPlatform;
-            sessionDto.meetingPassword = it.meetingPassword; 
+            sessionDto.meetingPassword = it.meetingPassword;
         }
 
         return sessionDto;
@@ -42,12 +43,12 @@ export const createEventApi = async ({ eventData, sessions }) => {
         type: eventData.type,
         categoryId: eventData.categoryId,
         description: eventData.description,
-        address: eventData.address, 
+        address: eventData.address,
         eventSessionCreateRequests: sesstionFormated
     };
 
     if (eventData.type === EventType.OFFLINE.key) {
-        requestDTO.location = eventData.location; 
+        requestDTO.location = eventData.location;
         requestDTO.locationLongitude = eventData.coordinates?.lng;
         requestDTO.locationLatitude = eventData.coordinates?.lat;
     }
@@ -67,7 +68,7 @@ export const createEventApi = async ({ eventData, sessions }) => {
     return response.data;
 };
 
-// request{status, userId}
+// request{status, userId, eventSearchStatus, type, categoryIds, thisWeek, thisMonth}
 export const getEvents = async ({ request, page = 1, size = 10 }) => {
     const response = await API.post(`/api/v1/event/filter?page=${page}&size=${size}`, request, {
         requiresAuth: true
@@ -118,6 +119,13 @@ export const updateEvent = async ({ id, eventData }) => {
 
 export const createEventSession = async ({ id, data }) => {
     const response = await API.post(`/api/v1/event/${id}/event-session`, data, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const cancelEvent = async ({ id }) => {
+    const response = await API.post(`/api/v1/event/cancel/${id}`, {
         requiresAuth: true
     });
     return response.data;

@@ -6,13 +6,11 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { MoreVertical, Ticket } from "lucide-react";
 import AttendeeTypeBadges from '@/components/AttendeeTypeBadges';
-import BookingStatusBadge from '@/components/BookingStatusBadge';
-import { formatCurrency, formatDateTime } from '@/utils/format';
-import { BookingStatus } from '@/utils/constant';
-import BoringAvatar from "boring-avatars";
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { AttendeeStatus } from '@/utils/constant';
 
 const AttendeeTable = ({ data, isLoading, onViewDetail }) => {
     if (isLoading) return <div className="p-8 text-center text-muted-foreground">Đang tải dữ liệu...</div>;
@@ -26,43 +24,23 @@ const AttendeeTable = ({ data, isLoading, onViewDetail }) => {
                         <TableHead className="w-[30%]">Người tham gia</TableHead>
                         <TableHead>Loại</TableHead>
                         <TableHead>Thông tin vé</TableHead>
-                        <TableHead>Tổng chi tiêu</TableHead>
-                        <TableHead>Đơn hàng mới nhất</TableHead>
+                        <TableHead>Đã check-in</TableHead>
                         <TableHead className="text-right pr-4">Hành động</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {data.map((item, index) => {
                         const user = item.user;
-                        const bookings = item.bookings || [];
-
-                        const sortedBookings = [...bookings].sort((a, b) =>
-                            new Date(b.createdAt) - new Date(a.createdAt)
-                        );
-
-                        const latestBooking = sortedBookings.length > 0 ? sortedBookings[0] : null;
-
-                        const totalSpent = bookings
-                            .filter(b => b.status === BookingStatus.PAID)
-                            .reduce((sum, b) => sum + (b.finalAmount || 0), 0);
-
-                        const totalTickets = bookings
-                            .filter(b => b.status === BookingStatus.PAID)
-                            .reduce((sum, b) => sum + (b.attendees ? b.attendees.length : 0), 0);
-
+                        const attendees = item.attendees
+                        const totalTickets = attendees.length
+                        const checkInQuantity = attendees.filter(a => a.status == AttendeeStatus.CHECKED_IN.key).length
                         return (
                             <TableRow key={user.id || index} className="group hover:bg-muted/50">
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarImage src={user.avatar} alt={user.fullName} />
-                                            <AvatarFallback className="bg-transparent p-0 overflow-hidden">
-                                                <BoringAvatar
-                                                    size="100%"
-                                                    name={user.email}
-                                                    variant="marble"
-                                                />
-                                            </AvatarFallback>
+                                            <DefaultAvatar user={user} />
+
                                         </Avatar>
 
                                         <div>
@@ -72,7 +50,7 @@ const AttendeeTable = ({ data, isLoading, onViewDetail }) => {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <AttendeeTypeBadges bookings={bookings} />
+                                    <AttendeeTypeBadges attendees={attendees} />
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-col gap-1">
@@ -80,29 +58,10 @@ const AttendeeTable = ({ data, isLoading, onViewDetail }) => {
                                             <Ticket size={14} className="text-blue-500" />
                                             {totalTickets} vé sở hữu
                                         </span>
-                                        <span className="text-xs text-muted-foreground">
-                                            Tổng {bookings.length} lần đặt
-                                        </span>
                                     </div>
                                 </TableCell>
-                                <TableCell>
-                                    <span className="font-medium text-green-700">
-                                        {formatCurrency(totalSpent)}
-                                    </span>
-                                </TableCell>
-                                <TableCell>
-                                    {latestBooking ? (
-                                        <div className="flex flex-col gap-1">
-                                            <div>
-                                                <BookingStatusBadge status={latestBooking.status} />
-                                            </div>
-                                            <span className="text-[10px] text-muted-foreground">
-                                                {formatDateTime(latestBooking.createdAt)}
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <span className="text-muted-foreground">-</span>
-                                    )}
+                                <TableCell className="text-sm font-medium">
+                                    {checkInQuantity} vé
                                 </TableCell>
                                 <TableCell className="text-right pr-4">
                                     <DropdownMenu>

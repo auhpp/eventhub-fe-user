@@ -3,9 +3,9 @@ import React from 'react';
 import '../../assets/css/hero.css';
 import CategorySection from '@/pages/HomePage/CategorySection';
 import FeaturedEvents from '@/pages/HomePage/FeaturedEvents';
-import UpcomingEvents from '@/features/event/UpcomingEvents';
 import CTASection from '@/features/event/CTASection';
 import bannerImage from '../../assets/images/banner.jpg';
+import CategertEvents from '@/features/event/CategeryEvents';
 
 const HomePage = () => {
     return (
@@ -34,7 +34,9 @@ const HomePage = () => {
 
             <CategorySection />
             <FeaturedEvents />
-            <UpcomingEvents />
+            <CategertEvents categoryId={2} />
+            <CategertEvents categoryId={3} />
+            <CategertEvents categoryId={52} />
             <CTASection />
         </>
 

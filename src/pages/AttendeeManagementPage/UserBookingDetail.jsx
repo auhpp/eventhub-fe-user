@@ -9,19 +9,19 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Loader2, CalendarCheck, Mail, Phone } from "lucide-react";
 import { getUserSummaryBooking } from '@/services/bookingService';
 import { toast } from "sonner";
 import { formatCurrency } from '@/utils/format';
 import AttendeeBookingCard from '@/features/attendee/AttendeeBookingCard';
-import { BookingStatus } from '@/utils/constant';
-import BoringAvatar from "boring-avatars";
+import { BookingStatus, SourceType } from '@/utils/constant';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const [totalTickets, setTotalTickets] = useState(0)
     useEffect(() => {
         if (isOpen && eventSessionId && userId) {
             fetchDetail();
@@ -49,13 +49,26 @@ const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
         .filter(b => b.status === BookingStatus.PAID)
         .reduce((sum, b) => sum + (b.finalAmount || 0), 0);
 
-    const totalTickets = bookings
-        .filter(b => b.status === BookingStatus.PAID)
-        .reduce((sum, b) => sum + (b.attendees?.length || 0), 0);
 
+    useEffect(
+        () => {
+            if (data?.user) {
+                var totalTicketsTmp = 0
+                bookings.forEach(booking => {
+                    booking.attendees.forEach(attendee => {
+                        if (attendee.owner?.email == user.email) {
+                            totalTicketsTmp++
+                        }
+                    });
+                });
+                setTotalTickets(totalTicketsTmp)
+            }
+        }, [bookings, user, data]
+    )
+    const totalBooking = bookings.filter(b => b.sourceType === SourceType.PURCHASE).length
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetContent className="sm:max-w-[700px] w-full p-0 flex flex-col gap-0 bg-gray-50">
+            <SheetContent className="sm:max-w-[900px] w-full p-0 flex flex-col gap-0 bg-gray-50">
                 {/* Header Section */}
                 <SheetHeader className="p-6 bg-background border-b">
                     <SheetTitle className="flex items-center gap-2">
@@ -82,15 +95,7 @@ const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
                                 <CardContent className="p-4 flex items-start sm:items-center gap-4 flex-col sm:flex-row">
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarImage src={user.avatar} alt={user.fullName} />
-
-                                            <AvatarFallback className="bg-transparent p-0 overflow-hidden">
-                                                <BoringAvatar
-                                                    size="100%"
-                                                    name={user.email}
-                                                    variant="marble"
-                                                />
-                                            </AvatarFallback>
+                                            <DefaultAvatar user={user} />
                                         </Avatar>
                                     </div>
                                     <div className="flex-1 space-y-1">
@@ -109,7 +114,7 @@ const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
                                 <div className="grid grid-cols-3 border-t bg-muted/30 divide-x">
                                     <div className="p-3 text-center">
                                         <div className="text-xs text-muted-foreground uppercase font-semibold">Tổng chi tiêu</div>
-                                        <div className="text-sm font-bold text-primary">{formatCurrency(totalSpent)}</div>
+                                        <div className="text-sm font-bold  text-red-500">{formatCurrency(totalSpent)}</div>
                                     </div>
                                     <div className="p-3 text-center">
                                         <div className="text-xs text-muted-foreground uppercase font-semibold">Tổng vé sở hữu</div>
@@ -117,7 +122,7 @@ const UserBookingDetail = ({ isOpen, onClose, eventSessionId, userId }) => {
                                     </div>
                                     <div className="p-3 text-center">
                                         <div className="text-xs text-muted-foreground uppercase font-semibold">Số lần đặt</div>
-                                        <div className="text-sm font-bold">{bookings.length} lần</div>
+                                        <div className="text-sm font-bold">{totalBooking} lần</div>
                                     </div>
                                 </div>
                             </Card>

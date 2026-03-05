@@ -97,11 +97,7 @@ const TicketGiftDetailPage = () => {
     const isSender = user?.id === gift?.sender?.id;
     const isReceiver = user?.id === gift?.receiver?.id;
 
-    // --- HELPER: Render Status Badge ---
-
-
     // --- ACTIONS ---
-
     // 1. Sender Revoke
     const handleRevokeSubmit = async () => {
         setIsProcessing(true);
@@ -126,9 +122,6 @@ const TicketGiftDetailPage = () => {
             toast.success("Đã nhận vé thành công! Kiểm tra ví của bạn.");
             setGift(prev => ({ ...prev, status: TicketGiftStatus.ACCEPTED }));
             setIsAcceptOpen(false);
-
-            // Optional: Chuyển hướng về trang danh sách vé của tôi sau khi nhận
-            // setTimeout(() => navigate('/my-tickets'), 1500); 
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data?.message || "Lỗi khi nhận vé");
@@ -179,7 +172,6 @@ const TicketGiftDetailPage = () => {
                     <ButtonBack />
                     <div className="flex flex-col">
                         <h1 className="text-lg font-semibold text-gray-900 leading-tight">Chi tiết tặng vé</h1>
-                        {/* Hiển thị thời gian hết hạn nếu đang Pending */}
                         {isPending && gift.expiredAt && (
                             <span className="text-xs text-orange-600 font-medium">
                                 Hết hạn: {new Date(gift.expiredAt).toLocaleString('vi-VN')}
@@ -195,9 +187,10 @@ const TicketGiftDetailPage = () => {
 
                 {/* user info */}
                 <section>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">{
+                    <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">{
                         isSender ? 'Người nhận vé' : 'Người gửi vé'}</h2>
-                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 relative overflow-hidden">
+                    <div className="bg-white p-4
+                     rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 relative overflow-hidden">
                         <Avatar className="w-14 h-14 border border-gray-100 shadow-sm">
                             <DefaultAvatar user={isSender ? recipient : sender} />
                         </Avatar>
@@ -213,15 +206,15 @@ const TicketGiftDetailPage = () => {
 
                 {/* envent and booking info */}
                 <section>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Thông tin sự kiện</h2>
+                    <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Thông tin sự kiện</h2>
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                            <h3 className="font-bold text-gray-900 text-lg leading-snug mb-2">
+                            <h3 className="font-bold text-gray-900 text-md leading-snug mb-2">
                                 {eventInfo.name}
                             </h3>
                             <div className="flex flex-col gap-1.5 text-sm text-gray-600">
-                                <div className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 text-gray-400" />
+                                <div className="flex items-start gap-2">
+                                    <Clock className="w-4 h-4 mt-1 text-gray-400" />
                                     <div className='flex flex-col'>
                                         <span>
                                             {displaySessionDate({
@@ -235,8 +228,8 @@ const TicketGiftDetailPage = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-gray-400" />
+                                <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 mt-1 text-gray-400" />
                                     <div className='flex flex-col'>
                                         <span className="truncate">{eventInfo.address}</span>
                                         <span className="truncate">{eventInfo.location}</span>
@@ -255,13 +248,14 @@ const TicketGiftDetailPage = () => {
 
                 {/* tiket gift */}
                 <section>
-                    <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+                    <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
                         Chi tiết vé tặng ({attendees.length})</h2>
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
                         {groupedTickets.map((group, idx) => (
                             <div key={idx} className="p-4 flex justify-between items-start">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-1 w-8 h-8 rounded-full bg-blue-50 text-brand flex items-center justify-center shrink-0">
+                                <div className="flex items-center gap-3">
+                                    <div className="mt-1 w-8 h-8 rounded-full bg-blue-50 text-brand flex items-center 
+                                    justify-center shrink-0">
                                         <Ticket className="w-4 h-4 text-blue-600" />
                                     </div>
                                     <div>
@@ -271,7 +265,8 @@ const TicketGiftDetailPage = () => {
                                         {(isSender && gift.status !== TicketGiftStatus.ACCEPTED ||
                                             !isSender && gift.status === TicketGiftStatus.ACCEPTED
                                         ) && (
-                                                <div className="text-xs text-gray-400 mt-1 font-mono break-all max-w-[200px] truncate">
+                                                <div className="text-xs text-gray-400 mt-1 font-mono break-all 
+                                                max-w-[200px] truncate">
                                                     {group.codes.join(', ')}
                                                 </div>
                                             )}
@@ -306,7 +301,8 @@ const TicketGiftDetailPage = () => {
                         {isSender && (
                             <Button
                                 variant="destructive"
-                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 shadow-sm"
+                                className="bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700
+                                 shadow-sm"
                                 onClick={() => setIsRevokeOpen(true)}
                             >
                                 Thu hồi vé tặng
@@ -347,7 +343,8 @@ const TicketGiftDetailPage = () => {
                 title="Thu hồi quà tặng"
                 description={
                     <div className="space-y-2 mt-2">
-                        <p>Bạn có chắc chắn muốn thu hồi <b>{attendees.length} vé</b> đã gửi cho <b>{recipient.fullName}</b> không?</p>
+                        <p>Bạn có chắc chắn muốn thu hồi <b>{attendees.length} vé</b> đã gửi cho <b>{recipient.fullName}
+                            </b> không?</p>
                         <p className="text-gray-500 text-sm">
                             Hành động này sẽ hủy yêu cầu tặng vé và vé sẽ vẫn thuộc quyền sở hữu của bạn.
                         </p>

@@ -33,22 +33,17 @@ export const getExistsPendingBooking = async ({ eventSessionId }) => {
     return response.data;
 };
 
-export const getBookingsByCurrentUser = async ({ status, page, size }) => {
+export const getBookings = async ({ userId, eventSessionId, status, page, size }) => {
     const reqStatus = status === "ALL" ? null : status;
-    const response = await API.post(`/api/v1/booking/current-user?page=${page}&size=${size}`, { status: reqStatus }, {
+    const response = await API.post(`/api/v1/booking/filter?page=${page}&size=${size}`, {
+        status: reqStatus,
+        userId, eventSessionId
+    }, {
         requiresAuth: true
     });
     return response.data;
 }
 
-export const getUserSummaryBookings = async ({ eventSessionId, status, page, size }) => {
-    const reqStatus = status === "ALL" ? null : status;
-    const response = await API.post(`/api/v1/booking/event-session/${eventSessionId}/filter?page=${page}&size=${size}`,
-        { status: reqStatus }, {
-        requiresAuth: true
-    });
-    return response.data;
-}
 
 export const getUserSummaryBooking = async ({ eventSessionId, userId }) => {
     const response = await API.get(`/api/v1/booking/event-session/${eventSessionId}/user/${userId}`, {

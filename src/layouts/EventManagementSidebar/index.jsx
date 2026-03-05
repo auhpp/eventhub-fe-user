@@ -1,9 +1,12 @@
 import React from "react";
 import {
     ArrowLeft,
+    CheckCircle,
     Edit,
     GalleryHorizontalEnd,
+    ListOrdered,
     PanelsTopLeft,
+    PercentSquare,
     PersonStanding,
     User
 } from "lucide-react";
@@ -18,13 +21,17 @@ const EventManagementSidebar = () => {
     const navItems = [
         { label: "Tổng quan", icon: PanelsTopLeft, href: routes.eventOverview.replace(":id", id) },
         { label: "Người tham gia", icon: PersonStanding, href: routes.eventAttendee.replace(":id", id) },
+        { label: "Danh sách đơn hàng", icon: ListOrdered, href: routes.eventOrder.replace(":id", id) },
+        { label: "Check-in", icon: CheckCircle, href: routes.checkIn.replace(":id", id) },
+
     ];
     const eventSettingnavItems = [
         { label: "Chỉnh sửa", icon: Edit, href: routes.editEvent.replace(":id", id) },
         { label: "Thành viên", icon: User, href: routes.eventStaffManagement.replace(":id", id) },
         { label: "Ảnh", icon: GalleryHorizontalEnd, href: routes.eventGallery.replace(":id", id) },
-
-
+    ];
+    const marketing = [
+        { label: "Voucher", icon: PercentSquare, href: routes.voucher.replace(":id", id) },
     ];
     return (
         <aside className="w-60 bg-card border-r border-border hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0">
@@ -42,6 +49,9 @@ const EventManagementSidebar = () => {
 
                 {/* Navigation */}
                 <nav className="flex flex-col gap-1.5 flex-1 mt-6">
+                    <div className="px-2 mb-2 text-sm font-medium text-muted-foreground">
+                        Báo cáo
+                    </div>
                     {navItems.map((item, index) => {
                         const isActive = location.pathname.startsWith(item.href);
 
@@ -68,6 +78,31 @@ const EventManagementSidebar = () => {
                         Cài đặt sự kiện
                     </div>
                     {eventSettingnavItems.map((item, index) => {
+                        const isActive = location.pathname.startsWith(item.href);
+
+                        return (
+                            <Button
+                                key={index}
+                                variant={isActive ? "secondary" : "ghost"}
+                                className={cn(
+                                    "w-full justify-start gap-3 h-10 font-medium",
+                                    isActive
+                                        ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary font-bold"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                                asChild
+                            >
+                                <Link to={item.href}>
+                                    <item.icon className={cn("size-5", isActive && "stroke-[2.5px]")} />
+                                    {item.label}
+                                </Link>
+                            </Button>
+                        )
+                    })}
+                    <div className="px-2 mb-2 text-sm font-medium text-muted-foreground">
+                        Marketing
+                    </div>
+                    {marketing.map((item, index) => {
                         const isActive = location.pathname.startsWith(item.href);
 
                         return (

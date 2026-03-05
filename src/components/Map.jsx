@@ -74,7 +74,7 @@ const Map = ({ lat, lng, address }) => {
     };
 
     return (
-        <div className="relative w-full h-full rounded-xl overflow-hidden shadow-sm border border-slate-200">
+        <div className="relative w-full h-full rounded-lg overflow-hidden shadow border border-slate-200">
             <div ref={mapElement} className="w-full h-full min-h-[240px]" />
 
             <div className="absolute bottom-3 right-3 z-[1000]">

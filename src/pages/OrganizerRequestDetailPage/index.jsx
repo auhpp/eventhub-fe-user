@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
-    X, Mail, Phone, MapPin,
-    Clock, User, Building2, AlertCircle, Calendar,
+    X, Mail, Phone, 
+    Clock, Building2, AlertCircle, Calendar,
     Loader2
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLocation } from "react-router-dom";
@@ -17,6 +17,7 @@ import { ConfirmCancelModal } from "@/components/ConfirmCancelModal";
 import { StatusBadge } from "@/components/StatusBadge";
 import { RegistrationStatus } from "@/utils/constant";
 import ButtonBack from "@/components/ButtonBack";
+import DefaultAvatar from "@/components/DefaultAvatar";
 
 
 const OrganizerRequestDetail = () => {
@@ -111,7 +112,7 @@ const OrganizerRequestDetail = () => {
                 </Alert>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
 
                 {/* --- ORGANIZER INFO --- */}
                 <div className="lg:col-span-2 space-y-6">
@@ -143,25 +144,25 @@ const OrganizerRequestDetail = () => {
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Đại diện pháp lý</label>
                                         <p className="text-sm font-medium flex items-center gap-2">
-                                            <User size={16} className="text-muted-foreground" /> {organizerRegistration.representativeFullName}
+                                            {organizerRegistration.representativeFullName}
                                         </p>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Email liên hệ</label>
                                         <p className="text-sm font-medium text-primary hover:underline cursor-pointer flex items-center gap-2">
-                                            <Mail size={16} className="text-muted-foreground" /> {organizerRegistration.email}
+                                            {organizerRegistration.email}
                                         </p>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Số điện thoại</label>
                                         <p className="text-sm font-medium flex items-center gap-2">
-                                            <Phone size={16} className="text-muted-foreground" /> {organizerRegistration.phoneNumber}
+                                            {organizerRegistration.phoneNumber}
                                         </p>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground uppercase">Địa chỉ trụ sở</label>
-                                        <p className="text-sm font-medium flex items-center gap-2">
-                                            <MapPin size={16} className="text-muted-foreground" /> {organizerRegistration.contactAddress}
+                                        <p className="text-sm font-medium flex items-start gap-2">
+                                            {organizerRegistration.contactAddress}
                                         </p>
                                     </div>
                                 </div>
@@ -191,10 +192,9 @@ const OrganizerRequestDetail = () => {
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="relative">
                                     <Avatar className="h-16 w-16 border-2 border-background shadow-sm">
-                                        <AvatarImage src={organizerRegistration.appUser?.avatar} alt={organizerRegistration.appUser?.fullName} />
-                                        <AvatarFallback className="text-lg">{organizerRegistration.appUser?.fullName?.charAt(0)}</AvatarFallback>
+                                        <DefaultAvatar user={organizerRegistration.appUser} />
                                     </Avatar>
-                                    
+
                                     {organizerRegistration.appUser.isOnline && (
                                         <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-background rounded-full ring-1 ring-white/10"></span>
                                     )}

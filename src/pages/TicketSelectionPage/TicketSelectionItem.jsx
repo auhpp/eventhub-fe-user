@@ -52,7 +52,7 @@ const TicketSelectionItem = ({ ticket, quantity, onUpdateQuantity }) => {
 
     return (
         <div className={`
-            p-5 rounded-xl border transition-all duration-200 relative overflow-hidden
+            p-3 rounded-lg border transition-all duration-200 relative overflow-hidden
             ${quantity > 0 && ticketStatus.isBuyable
                 ? 'border-primary bg-primary/5 dark:bg-primary/10'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'

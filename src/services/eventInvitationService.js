@@ -18,7 +18,7 @@ export const getEventInvitations = async ({ status, eventSessionId, page, size }
 
 export const acceptEventInvitation = async ({ token }) => {
     const response = await API.post(`/api/v1/event-invitation/accept/${token}`, {
-        requiresAuth: false
+        requiresAuth: true
     });
     return response.data;
 };

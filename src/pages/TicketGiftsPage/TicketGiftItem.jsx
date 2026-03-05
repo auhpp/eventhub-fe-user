@@ -58,13 +58,13 @@ const TicketGiftItem = ({ data, isSentType }) => {
                             <DefaultAvatar user={displayUser} />
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="text-xs text-muted-foreground">{actionLabel}</span>
+                            <span className="text-sm text-muted-foreground">{actionLabel}</span>
                             <span className="text-sm font-semibold
                              text-gray-900 truncate max-w-[120px]" title={displayUser?.fullName}>
                                 {displayUser?.fullName}
                             </span>
                             <span className="text-sm 
-                             text-gray-700 truncate max-w-[120px]" title={displayUser?.email}>
+                             text-gray-700 truncate max-w-[160px]" title={displayUser?.email}>
                                 {displayUser?.email}
                             </span>
                         </div>
@@ -79,7 +79,7 @@ const TicketGiftItem = ({ data, isSentType }) => {
                             {ticketSummary || "Chi tiết vé không có sẵn"}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <span>Đơn hàng #{booking?.id}</span>
                         <span>•</span>
                         <span>{formatDateTime(createdAt)}</span>

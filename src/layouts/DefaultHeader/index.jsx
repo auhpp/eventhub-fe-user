@@ -1,17 +1,24 @@
 import React, { useContext } from 'react';
 import { Search, Calendar, Menu, Bell, LayoutDashboard, PlusCircle, Ticket, User, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContex';
 import { routes } from '@/config/routes';
 import { Role } from '@/utils/constant';
-import BoringAvatar from "boring-avatars";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar } from '@/components/ui/avatar';
 import DefaultAvatar from '@/components/DefaultAvatar';
 
 const DefaultHeader = () => {
     const { user, isLoading, logoutAuth } = useContext(AuthContext);
     const navigate = useNavigate();
     const isOrganizer = user?.role.name === Role.ORGANIZER;
+    const [searchParams] = useSearchParams();
+    const defaultSearch = searchParams.get("name") || "";
+
+    const handleSearch = (e) => {
+        if (e.key === 'Enter' && e.target.value.trim() !== '') {
+            navigate(`/search?name=${encodeURIComponent(e.target.value.trim())}`);
+        }
+    };
 
     const handleLogout = () => {
         if (logoutAuth) logoutAuth();
@@ -35,8 +42,10 @@ const DefaultHeader = () => {
                         </div>
                         <input
                             type="text"
+                            defaultValue={defaultSearch}
+                            onKeyDown={handleSearch}
                             className="block w-full rounded-full border border-input bg-muted/50 py-1.5 pl-10 pr-4 text-sm focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all"
-                            placeholder="Tìm sự kiện, địa điểm..."
+                            placeholder="Tìm sự kiện..."
                         />
                     </div>
                 </div>
@@ -44,8 +53,8 @@ const DefaultHeader = () => {
                 {/* Navigation & Actions */}
                 <div className="hidden flex-1 items-center justify-end gap-8 md:flex">
                     <nav className="flex items-center gap-6">
-                        <a href="#" className="text-sm font-medium hover:text-brand transition-colors">Khám phá</a>
-                        <a href="#" className="text-sm font-medium hover:text-brand transition-colors">Tổ chức sự kiện</a>
+                        <Link to={routes.search} className="text-sm font-medium hover:text-brand 
+                        transition-colors">Khám phá</Link>
                     </nav>
                     <div className="flex gap-3">
                         {isLoading ? (

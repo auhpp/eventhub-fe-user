@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Loader2, CalendarDays, Ticket } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import TicketCard from "@/features/tickets/TicketCard";
 import DefaultPagination from "@/components/DefaultPagination";
 import { useSearchParams } from "react-router-dom";
@@ -21,6 +20,7 @@ const MyTicketPage = () => {
     const tabs = [
         { value: "COMING", label: "Sắp diễn ra" },
         { value: "PAST", label: "Đã qua" },
+        { value: "CHECKED_IN", label: "Đã check-in" },
         { value: "CANCELLED", label: "Đã hủy" },
     ]
 
@@ -47,29 +47,36 @@ const MyTicketPage = () => {
         }
         fetchTickets()
     }, [activeTab, currentPage]);
-
+    
+    const handleChangeTab = (tab) => {
+        setActiveTab(tab)
+        setSearchParams((prev) => {
+            prev.set("page", 1);
+            return prev;
+        });
+    }
     return (
         <div className="w-full dark:bg-slate-950 font-sans rounded-md">
             {/* Header Page */}
             <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        Vé điện tử của tôi
+                        Vé của tôi
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Quản lý vé tham dự và mã QR check-in của bạn.
                     </p>
                 </div>
-                <Button variant="outline" className="hidden md:flex gap-2 rounded-xl bg-white shadow-sm">
+                {/* <Button variant="outline" className="hidden md:flex gap-2 rounded-xl bg-white shadow-sm">
                     <CalendarDays className="h-5 w-5" />
                     Xem lịch trình
-                </Button>
+                </Button> */}
             </div>
 
             {/* Filters */}
             <TabsLayout
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleChangeTab}
                 tabs={tabs}
                 content={
                     <div className="space-y-6">
@@ -90,13 +97,16 @@ const MyTicketPage = () => {
                 }
             />
             {/* Pagination */}
-            <DefaultPagination
-                currentPage={currentPage}
-                setSearchParams={setSearchParams}
-                totalPages={totalPages}
-                totalElements={totalElements}
-                pageSize={pageSize}
-            />
+            {
+                tickets.length > 0 &&
+                <DefaultPagination
+                    currentPage={currentPage}
+                    setSearchParams={setSearchParams}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    pageSize={pageSize}
+                />
+            }
 
         </div>
     );

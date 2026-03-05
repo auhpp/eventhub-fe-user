@@ -10,7 +10,7 @@ const SessionSelector = ({ sessions, selectedSessionId, onSelect }) => {
     return (
         <div className="mb-6">
             <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-                <CalendarDays size={16} /> Chọn ngày diễn ra sự kiện
+                <CalendarDays size={16} /> Chọn khung giờ
             </h3>
             <div className="flex flex-wrap gap-2">
                 {sessions.map((session) => {

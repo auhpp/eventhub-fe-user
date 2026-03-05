@@ -4,7 +4,7 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
     Loader2, Shield, CheckCircle2, XCircle, Send,
@@ -17,8 +17,8 @@ import { isPast } from "date-fns";
 import { formatDateTime } from '@/utils/format';
 import { EventStaffStatus, RoleName } from '@/utils/constant';
 import TimelineItem from '@/features/attendee/TimelineItem';
-import EventSessionStatusBadge from '@/components/EventSessionStatusBadge';
 import EventStaffStatusBadge from '@/components/EventStaffStatusBadge';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 const StaffInvitationDetail = ({ isOpen, onClose, id }) => {
     const [data, setData] = useState(null);
@@ -65,7 +65,7 @@ const StaffInvitationDetail = ({ isOpen, onClose, id }) => {
                 {/* Header */}
                 <SheetHeader className="p-6 border-b">
                     <SheetTitle className="flex items-center gap-2 text-xl">
-                        Chi tiết nhân sự
+                        Chi tiết thành viên
                         {/* Render Badge Status */}
                         {isOwner ? (
                             <Badge className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-100 hover:text-purple-700">
@@ -76,7 +76,7 @@ const StaffInvitationDetail = ({ isOpen, onClose, id }) => {
                         )}
                     </SheetTitle>
                     <SheetDescription>
-                        Mã nhân sự: <span className="font-mono text-xs">#{data?.id}</span>
+                        Mã thành viên: <span className="font-mono text-xs">#{data?.id}</span>
                     </SheetDescription>
                 </SheetHeader>
 
@@ -91,18 +91,12 @@ const StaffInvitationDetail = ({ isOpen, onClose, id }) => {
                             {/* User Info Section */}
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-4">
-                                    <Avatar className={cn("h-14 w-14 border-2", isOwner ? "border-purple-100"
-                                        : "border-indigo-100")}>
-                                        <AvatarFallback className={cn("text-lg font-bold", isOwner ?
-                                            "bg-purple-50 text-purple-600" : "bg-indigo-50 text-indigo-600")}>
-                                            {data?.email?.charAt(0).toUpperCase()}
-                                        </AvatarFallback>
+                                    <Avatar >
+                                        <DefaultAvatar user={data} />
                                     </Avatar>
                                     <div>
-                                        <p className="text-sm text-muted-foreground font-medium">Email nhân viên</p>
                                         <p className="text-lg font-semibold">{data?.email}</p>
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                                            {isOwner ? <Shield size={14} className="text-purple-600" /> : <Shield size={14} />}
                                             <span>Vai trò: <span className="font-medium text-foreground">
                                                 {RoleName[data?.role.name]?.label || data?.roleName}</span></span>
                                         </div>
@@ -119,7 +113,7 @@ const StaffInvitationDetail = ({ isOpen, onClose, id }) => {
                                             <Clock size={16} />
                                             <span className="font-medium">Hạn xác nhận:</span>
                                         </div>
-                                        <span className="font-mono font-bold">
+                                        <span className="font-bold">
                                             {formatDateTime(data?.expiredAt)}
                                         </span>
                                     </div>
@@ -130,7 +124,8 @@ const StaffInvitationDetail = ({ isOpen, onClose, id }) => {
 
                             {/* Timeline */}
                             <div>
-                                <h4 className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground">Tiến trình</h4>
+                                <h4 className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground">
+                                    Tiến trình</h4>
                                 <div className="pl-2">
 
                                     {/* --- OWNER --- */}

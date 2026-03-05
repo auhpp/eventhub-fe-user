@@ -1,14 +1,19 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin } from 'lucide-react';
+import { CalendarDays, MapPin, Video } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { displaySessionDate, formatCurrency, formatTime } from '@/utils/format';
+import { EventType, MeetingPlatform } from '@/utils/constant';
 
 const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onSubmit,
+    discountAmount = 0,       
+    finalAmount = totalAmount,
     messageButton
 }) => {
+    const isOnline = event.type == EventType.ONLINE.key;
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow
+         border border-gray-200 dark:border-gray-700 overflow-hidden">
             {/* Event Header Image */}
             <div className="relative h-32 w-full bg-gray-200">
                 <img
@@ -37,7 +42,7 @@ const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onS
                                 endDateTime: eventSession.endDateTime
                             })}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-gray-500">
                             {formatTime(eventSession.startDateTime) + " - " +
                                 formatTime(eventSession.endDateTime)}
 
@@ -47,16 +52,28 @@ const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onS
 
                 <div className="flex items-start gap-3">
                     <div className="p-2 rounded bg-blue-50 dark:bg-blue-900/20 text-primary">
-                        <MapPin className="w-5 h-5" />
+                        {isOnline ?
+                            <Video className="w-5 h-5" />
+                            :
+                            <MapPin className="w-5 h-5" />
+                        }
                     </div>
-                    <div>
-                        <p className="font-bold text-sm text-gray-900 dark:text-gray-100">
-                            {event.location}
-                        </p>
-                        <p className="text-xs text-gray-500 line-clamp-1">
-                            {event.address}
-                        </p>
-                    </div>
+                    {
+                        isOnline ?
+                            <div>
+                                <p className="font-bold text-sm text-gray-900 dark:text-gray-100">
+                                    {event.meetingPlatform == MeetingPlatform.ZOOM ? "Zoom" : "Google meet"}
+                                </p>
+                            </div> :
+                            <div>
+                                <p className="font-bold text-sm text-gray-900 dark:text-gray-100">
+                                    {event.address}
+                                </p>
+                                <p className="text-sm text-gray-500 line-clamp-1">
+                                    {event.location}
+                                </p>
+                            </div>
+                    }
                 </div>
 
                 <Separator className="my-1" />
@@ -68,7 +85,7 @@ const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onS
                             <div key={item.id} className="flex justify-between items-start text-sm">
                                 <div className="flex flex-col">
                                     <span className="font-medium text-gray-800 dark:text-gray-200">{item.name}</span>
-                                    <span className="text-xs text-gray-500">x {item.quantity}</span>
+                                    <span className="text-sm text-gray-500">x {item.quantity}</span>
                                 </div>
                                 <span className="font-bold text-gray-900 dark:text-white">
                                     {formatCurrency(item.price * item.quantity)}
@@ -85,11 +102,31 @@ const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onS
                 <Separator className="my-1" />
 
                 {/* Total */}
-                <div className="flex justify-between items-end">
-                    <span className="text-sm font-medium text-gray-500">Tạm tính</span>
-                    <span className="text-2xl font-black text-primary tracking-tight">
-                        {formatCurrency(totalAmount)}
-                    </span>
+                <div className="flex flex-col gap-3">
+                    <div className="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                        <span className="text-sm font-medium">Tạm tính</span>
+                        <span className="text-base font-semibold">
+                            {formatCurrency(totalAmount)}
+                        </span>
+                    </div>
+
+                    {discountAmount > 0 && (
+                        <div className="flex justify-between items-center text-green-600 dark:text-green-500 animate-in fade-in">
+                            <span className="text-sm font-medium">Giảm giá voucher</span>
+                            <span className="text-base font-semibold">
+                                - {formatCurrency(discountAmount)}
+                            </span>
+                        </div>
+                    )}
+
+                    <Separator className="my-1 border-dashed" />
+
+                    <div className="flex justify-between items-end pt-1">
+                        <span className="text-sm font-bold text-gray-800 dark:text-gray-200">Tổng thanh toán</span>
+                        <span className="text-2xl font-black text-red-500 tracking-tight">
+                            {formatCurrency(finalAmount)}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Submit Button */}

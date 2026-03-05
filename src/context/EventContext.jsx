@@ -11,22 +11,22 @@ export const EventProvider = ({ children }) => {
 
     const [event, setEvent] = useState(null);
     const { id } = useParams()
-
-
-    useEffect(() => {
-        const getEventInit = async () => {
-            try {
-                const data = await getEventById({ id: id });
-                if (data.code === HttpStatusCode.Ok) {
-                    setEvent(data.result);
-                } else {
-                    setEvent(null);
-                }
-            } catch (error) {
-                console.error(error);
+    const getEventInit = async () => {
+        try {
+            const data = await getEventById({ id: id });
+            if (data.code === HttpStatusCode.Ok) {
+                setEvent(data.result);
+            } else {
                 setEvent(null);
             }
+        } catch (error) {
+            console.error(error);
+            setEvent(null);
         }
+    }
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         getEventInit();
     }, []);
 
@@ -40,7 +40,7 @@ export const EventProvider = ({ children }) => {
 
 
     return (
-        <EventContext.Provider value={{ event }}>
+        <EventContext.Provider value={{ event, getEventInit }}>
             {children}
         </EventContext.Provider>
     );

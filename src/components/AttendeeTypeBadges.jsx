@@ -2,14 +2,13 @@ import { Crown, User } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { AttendeeType } from "@/utils/constant";
 
-const AttendeeTypeBadges = ({ bookings }) => {
+const AttendeeTypeBadges = ({ attendees }) => {
     const uniqueTypes = new Set();
 
-    bookings?.forEach(booking => {
-        booking.attendees?.forEach(attendee => {
-            if (attendee.type) uniqueTypes.add(attendee.type);
-        });
+    attendees?.forEach(attendee => {
+        if (attendee.type) uniqueTypes.add(attendee.type);
     });
+
 
     const typesArray = Array.from(uniqueTypes);
 

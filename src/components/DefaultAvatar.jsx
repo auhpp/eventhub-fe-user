@@ -4,11 +4,11 @@ import BoringAvatar from "boring-avatars";
 const DefaultAvatar = ({ user }) => {
     return (
         <>
-            <AvatarImage src={user.avatar} alt={user.fullName} />
+            <AvatarImage src={user?.avatar} alt={user?.fullName} />
             <AvatarFallback>
                 <BoringAvatar
                     size="100%"
-                    name={user.email}
+                    name={user?.email}
                     variant="marble"
                 />
             </AvatarFallback>

@@ -9,7 +9,7 @@ const InvitationStatusBadge = ({ status }) => {
         REVOKED: "bg-rose-100 text-rose-700 hover:bg-rose-100 border-rose-200",
 
     };
-    const labels = { PENDING: "Đang chờ", ACCEPTED: "Đã chấp nhận", REJECTED: "Từ chối", EXPIRED: "Hết hạn", REVOKED: 'Đã thu hồi' };
+    const labels = { PENDING: "Đang chờ", ACCEPTED: "Đã chấp nhận", REJECTED: "Đã từ chối", EXPIRED: "Hết hạn", REVOKED: 'Đã thu hồi' };
     return <Badge variant="outline" className={styles[status] || "bg-gray-100"}>{labels[status] || status}</Badge>;
 };
 

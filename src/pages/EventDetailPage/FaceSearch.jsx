@@ -70,9 +70,11 @@ const FaceSearch = ({ eventId }) => {
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button size="lg" className="w-full sm:w-auto bg-primary text-white gap-2 h-14 text-lg px-8 rounded-lg shadow-lg hover:scale-105 transition-transform">
+                <Button className="
+                bg-primary text-white gap-2 text-md px-8 rounded shadow
+                ">
                     <ScanFace className="w-6 h-6" />
-                    TÌM ẢNH CÓ MẶT BẠN
+                    Tìm ảnh có mặt bạn
                 </Button>
             </DialogTrigger>
 
@@ -98,7 +100,9 @@ const FaceSearch = ({ eventId }) => {
                             {!previewUrl ? (
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="w-full h-64 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                                    className="w-full h-64 border-2 border-dashed border-gray-300 dark:border-gray-700
+                                     rounded-2xl flex flex-col items-center justify-center gap-4 cursor-pointer 
+                                     hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
                                 >
                                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                                         <UploadCloud className="w-10 h-10 text-blue-500" />
@@ -117,7 +121,8 @@ const FaceSearch = ({ eventId }) => {
                                     />
                                     <button
                                         onClick={() => setPreviewUrl(null)}
-                                        className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black text-white rounded-full backdrop-blur-sm transition-colors"
+                                        className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black 
+                                        text-white rounded-full backdrop-blur-sm transition-colors"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -146,19 +151,23 @@ const FaceSearch = ({ eventId }) => {
                         <div className="flex flex-col items-center gap-6 py-8">
                             <div className="relative">
                                 <div className="absolute inset-0 border-4 border-blue-500/30 rounded-full animate-ping"></div>
-                                <img src={previewUrl} className="w-24 h-24 object-cover rounded-full border-4 border-blue-500 relative z-10" />
+                                <img src={previewUrl} className="w-24 h-24 object-cover rounded-full border-4
+                                 border-blue-500 relative z-10" />
                             </div>
                             <div className="text-center space-y-2">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center justify-center gap-2">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center
+                                 justify-center gap-2">
                                     <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
                                     AI đang quét khuôn mặt...
                                 </h3>
-                                <p className="text-sm text-gray-500 animate-pulse">Đang đối chiếu với hàng ngàn bức ảnh tại sự kiện</p>
+                                <p className="text-sm text-gray-500 animate-pulse">Đang đối chiếu với hàng ngàn
+                                    bức ảnh tại sự kiện</p>
                             </div>
 
                             <div className="w-full columns-2 md:columns-3 gap-4 space-y-4 mt-4 opacity-50">
                                 {[...Array(5)].map((_, i) => (
-                                    <div key={i} className={`bg-gray-200 dark:bg-gray-800 rounded-xl animate-pulse ${i % 2 === 0 ? 'h-40' : 'h-60'}`}></div>
+                                    <div key={i} className={`bg-gray-200 dark:bg-gray-800 rounded-xl animate-pulse
+                                         ${i % 2 === 0 ? 'h-40' : 'h-60'}`}></div>
                                 ))}
                             </div>
                         </div>
@@ -167,7 +176,8 @@ const FaceSearch = ({ eventId }) => {
                     {/* Step 3: result */}
                     {!isSearching && results !== null && (
                         <div className="flex flex-col gap-6">
-                            <div className="flex flex-col sm:flex-row justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl gap-4">
+                            <div className="flex flex-col sm:flex-row justify-between items-center bg-gray-50 
+                            dark:bg-gray-800/50 p-4 rounded-xl gap-4">
                                 <div className="flex items-center gap-4">
                                     <img
                                         src={previewUrl}
@@ -194,7 +204,8 @@ const FaceSearch = ({ eventId }) => {
                                         <Dialog key={img.id}>
                                             <DialogTrigger asChild>
                                                 <div className="relative group break-inside-avoid rounded-xl
-                                                 overflow-hidden bg-gray-100 shadow-sm border border-gray-200 dark:border-gray-800 cursor-pointer">
+                                                 overflow-hidden bg-gray-100 shadow-sm border border-gray-200 
+                                                 dark:border-gray-800 cursor-pointer">
                                                     <img
                                                         src={img.imageUrl}
                                                         alt="Event photo"
@@ -202,7 +213,9 @@ const FaceSearch = ({ eventId }) => {
                                                         loading="lazy"
                                                     />
 
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 
+                                                    group-hover:opacity-100 transition-opacity flex items-center 
+                                                    justify-center gap-3">
                                                         {/* Icon xem trước cho rõ ràng */}
                                                         <div className="p-2 bg-white/20 rounded-full text-white">
                                                             <Maximize2 className="w-5 h-5" />
@@ -240,7 +253,8 @@ const FaceSearch = ({ eventId }) => {
                                         </div>
                                     </div>
                                     <h4 className="text-lg font-medium">Không tìm thấy khoảnh khắc nào</h4>
-                                    <p className="text-gray-500 mt-2 max-w-sm">AI không phát hiện thấy khuôn mặt này trong thư viện ảnh. Bạn thử chụp lại một bức selfie thẳng mặt và rõ nét hơn nhé.</p>
+                                    <p className="text-gray-500 mt-2 max-w-sm">AI không phát hiện thấy khuôn mặt
+                                        này trong thư viện ảnh. Bạn thử chụp lại một bức selfie thẳng mặt và rõ nét hơn nhé.</p>
                                 </div>
                             )}
                         </div>

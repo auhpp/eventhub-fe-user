@@ -194,7 +194,7 @@ const EditProfilePage = () => {
                                     <FormItem>
                                         <FormLabel>Số điện thoại</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="0912..." {...field} className={primaryRingClass} />
+                                            <Input placeholder="" {...field} className={primaryRingClass} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

@@ -181,10 +181,11 @@ const TicketSelectionPage = () => {
                     <p className="text-gray-500">Chọn hạng vé và số lượng bạn muốn đặt mua.</p>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-8">
+                <div className="flex flex-col lg:flex-row gap-6">
                     {/* LEFT COLUMN: Ticket List */}
                     <div className="flex-1 flex flex-col gap-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg
+                         border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
                             <h2 className="text-xl font-bold mb-6">Danh sách hạng vé</h2>
                             <div className="flex flex-col gap-4">
                                 {eventSession.tickets.map((ticket) => (

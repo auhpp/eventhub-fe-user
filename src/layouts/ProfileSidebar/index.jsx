@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 export default function ProfileSidebar() {
     const menuItems = [
         { icon: User, label: "Tài khoản", href: routes.profile },
-        { icon: IdCard, label: "Đăng ký BTC", href: routes.organizerRegistration },
+        { icon: IdCard, label: "Đăng ký thành nhà tổ chức", href: routes.organizerRegistration },
         { icon: Ticket, label: "Vé của tôi", href: routes.myTicket },
         { icon: ClipboardList, label: "Đơn hàng", href: routes.order },
         { icon: Gift, label: "Vé đã tặng", href: routes.ticketGifts },

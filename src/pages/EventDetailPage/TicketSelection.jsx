@@ -59,7 +59,8 @@ const TicketSelection = ({ sessions, event }) => {
     return (
         <div className="flex flex-col gap-3" id="ticket-section">
             {/* Header Section */}
-            <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-3 px-6 rounded-t-xl rounded-b-md shadow-sm border border-gray-200 ">
+            <div className="flex items-center justify-between 
+            bg-gray-100 dark:bg-gray-800 p-3 px-6 rounded-t-lg rounded-b-md shadow-sm border border-gray-200 ">
                 <div className="flex flex-col gap-4">
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                         <Ticket className="text-blue-600" /> Đặt vé

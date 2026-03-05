@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
     Calendar, MapPin, CheckCircle2, XCircle, AlertCircle, Loader2,
-    Ticket, User, ArrowRight, Flag,
+    Ticket, User, Flag,
     Ban,
     Timer
 } from "lucide-react";
@@ -21,7 +21,7 @@ import {
 import { formatCurrency, formatTime, displaySessionDate } from '@/utils/format';
 import AcceptInvitationDialog from '../../components/AcceptInvitationDialog';
 import RejectInvitationDialog from '../../components/RejectInvitationDialog';
-import { InvitationStatus } from '@/utils/constant';
+import { EventType, InvitationStatus, MeetingPlatform } from '@/utils/constant';
 
 
 const InvitationResponsePage = () => {
@@ -120,19 +120,20 @@ const InvitationResponsePage = () => {
         );
     }
 
-    const firstSession = event.eventSessions?.[0];
+    const sessionF = invitation.eventSession;
     const ticketInfo = invitation.ticket;
 
     return (
-        <div className="min-h-screen bg-[#f8f9fc] py-10 px-4 flex justify-center items-center">
-            <div className="w-full max-w-5xl bg-background rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 p-6 md:p-8">
+        <div className="min-h-screen bg-[#f8f9fc] px-4 flex justify-center items-center">
+            <div className="w-full max-w-5xl bg-background rounded-lg shadow
+             overflow-hidden border border-gray-100 p-4 md:p-6">
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                     {/* Image & Organizer */}
                     <div className="lg:col-span-5 flex flex-col gap-6">
                         {/* Event Thumbnail */}
-                        <div className="aspect-square w-full rounded-2xl overflow-hidden shadow-sm relative group">
+                        <div className="aspect-square w-full rounded-lg overflow-hidden shadow-sm relative group">
                             <img
                                 src={event.thumbnail}
                                 alt={event.name}
@@ -147,7 +148,8 @@ const InvitationResponsePage = () => {
 
                         {/* Organizer Info */}
                         <div className="space-y-3">
-                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Được tổ chức bởi</h3>
+                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                                Được tổ chức bởi</h3>
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
                                     <AvatarImage src={event.appUser?.avatar} />
@@ -155,7 +157,6 @@ const InvitationResponsePage = () => {
                                 </Avatar>
                                 <div>
                                     <p className="font-bold text-foreground text-lg">{event.appUser?.fullName}</p>
-                                    <p className="text-sm text-muted-foreground">Ban tổ chức</p>
                                 </div>
                             </div>
                         </div>
@@ -178,7 +179,7 @@ const InvitationResponsePage = () => {
 
                         {/* Event Details */}
                         <div className="space-y-6">
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
+                            <h1 className="text-xl md:text-2xl font-extrabold text-foreground leading-tight">
                                 {event.name}
                             </h1>
 
@@ -190,14 +191,14 @@ const InvitationResponsePage = () => {
                                     </div>
                                     <div>
                                         <p className="font-bold text-lg text-foreground">
-                                            {firstSession ? displaySessionDate({
-                                                startDateTime: firstSession.startDateTime,
-                                                endDateTime: firstSession.endDateTime
+                                            {sessionF ? displaySessionDate({
+                                                startDateTime: sessionF.startDateTime,
+                                                endDateTime: sessionF.endDateTime
                                             }) : 'Chưa cập nhật'}
                                         </p>
                                         <p className="text-muted-foreground">
-                                            {firstSession ? `${formatTime(firstSession.startDateTime)} - 
-                                            ${formatTime(firstSession.endDateTime)}` : ''}
+                                            {sessionF ? `${formatTime(sessionF.startDateTime)} - 
+                                            ${formatTime(sessionF.endDateTime)}` : ''}
                                         </p>
                                     </div>
                                 </div>
@@ -207,12 +208,25 @@ const InvitationResponsePage = () => {
                                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary shrink-0">
                                         <MapPin className="w-6 h-6" />
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-lg text-foreground">Địa điểm tổ chức</p>
-                                        <p className="text-muted-foreground leading-relaxed">
-                                            {event.location}
-                                        </p>
-                                    </div>
+                                    {
+                                        event.type == EventType.OFFLINE.key ?
+                                            <div>
+                                                <p className="font-bold text-lg text-foreground">Địa điểm tổ chức</p>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {event.address}
+                                                </p>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {event.location}
+                                                </p>
+                                            </div> :
+                                            <div>
+                                                <p className="font-bold text-lg text-foreground">Địa điểm tổ chức</p>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {event.meetingPlatform == MeetingPlatform.GOOGLE_MEET ? "Google meet" :
+                                                        "Zoom"}
+                                                </p>
+                                            </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -255,16 +269,18 @@ const InvitationResponsePage = () => {
                                 <div className="grid grid-cols-2 gap-3">
                                     <Button
                                         variant="outline"
-                                        className="h-12 text-base font-semibold border-gray-300 hover:bg-gray-100 hover:text-red-600"
+                                        className="h-12 text-base font-semibold 
+                                        border-gray-300 hover:bg-gray-100 hover:text-red-600"
                                         onClick={() => setIsRejectOpen(true)}
                                     >
                                         Từ chối
                                     </Button>
                                     <Button
-                                        className="h-12 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                        className="h-12 text-base font-semibold bg-primary
+                                         hover:bg-primary/90 shadow-lg shadow-primary/20"
                                         onClick={() => setIsAcceptOpen(true)}
                                     >
-                                        Xác nhận tham gia <ArrowRight className="ml-2 w-4 h-4" />
+                                        Xác nhận tham gia
                                     </Button>
                                 </div>
                             ) : (

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Clock, AlertCircle } from "lucide-react";
+import { Upload, Clock, AlertCircle, Download } from "lucide-react";
 import { toast } from "sonner";
 import { createEventStaff } from '@/services/eventStaffService';
 import { addHours, format, isAfter } from "date-fns";
@@ -15,6 +15,7 @@ import { vi } from "date-fns/locale";
 import { RoleName } from '@/utils/constant';
 import FailedEmailsDialog from './FailedEmailsDialog';
 import { isValidEmail } from '@/utils/validates';
+import DateTimePicker from '@/components/DateTimePicker';
 
 const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
     // --- STATE ---
@@ -90,6 +91,19 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
             e.target.value = null;
         };
         reader.readAsText(file);
+    };
+
+    const handleDownloadSample = () => {
+        const sampleContent = "nguyenvana@gmail.com\ntranthib@yahoo.com\nlecv@hotmail.com";
+        const blob = new Blob([sampleContent], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "danh_sach_email_mau.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleSubmit = async () => {
@@ -181,17 +195,18 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                             </Label>
                             <div className="col-span-3">
                                 <Select value={selectedRole} onValueChange={setSelectedRole}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-auto px-3">
                                         <SelectValue placeholder="Chọn vai trò" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {availableRoles.map((role) => (
-                                            <SelectItem key={role.key} value={role.key} >
-                                                <div className="flex flex-col text-left">
+                                            <SelectItem key={role.key} value={role.key}>
+                                                <div className="flex flex-col text-left py-1">
                                                     <span className="font-medium">{role.label}</span>
-                                                    <span className="text-[10px] text-muted-foreground">
+                                                    <span className="text-[10px] text-muted-foreground mt-0.5">
                                                         {role.key === 'EVENT_ADMIN' ? "Quyền quản trị cao nhất" :
-                                                            role.key === 'EVENT_MANAGER' ? "Quản lý sự kiện" : "Nhân viên hỗ trợ (Check-in)"}
+                                                            role.key === 'EVENT_MANAGER' ? "Quản lý sự kiện" :
+                                                             "Nhân viên hỗ trợ (Check-in)"}
                                                     </span>
                                                 </div>
                                             </SelectItem>
@@ -207,14 +222,27 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                             <div className="col-span-3 space-y-2">
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs text-muted-foreground">Mỗi email một dòng</span>
-                                    <div className="relative">
-                                        <Input
-                                            type="file" accept=".txt,.csv" className="hidden"
-                                            id="staff-file-upload" onChange={handleFileUpload}
-                                        />
-                                        <Label htmlFor="staff-file-upload" className="cursor-pointer flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                            <Upload size={12} /> Import file
-                                        </Label>
+                                    <div className="flex items-center gap-4">
+
+                                        <button
+                                            type="button"
+                                            onClick={handleDownloadSample}
+                                            className="flex items-center gap-1 text-xs text-green-600 
+                                            hover:underline cursor-pointer"
+                                        >
+                                            <Download size={12} /> Tải file mẫu
+                                        </button>
+
+                                        <div className="relative">
+                                            <Input
+                                                type="file" accept=".txt,.csv" className="hidden"
+                                                id="staff-file-upload" onChange={handleFileUpload}
+                                            />
+                                            <Label htmlFor="staff-file-upload" className="cursor-pointer
+                                             flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                                                <Upload size={12} /> Import file
+                                            </Label>
+                                        </div>
                                     </div>
                                 </div>
                                 <Textarea
@@ -226,7 +254,8 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                                 />
                                 {emails && (
                                     <p className="text-[10px] text-muted-foreground text-right">
-                                        Dự kiến gửi: {new Set(emails.split(/[\n,;]+/).map(e => e.trim()).filter(e => e)).size} người
+                                        Dự kiến gửi: {new Set(emails.split(/[\n,;]+/).map(e => 
+                                            e.trim()).filter(e => e)).size} người
                                     </p>
                                 )}
                             </div>
@@ -253,18 +282,19 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                                 </Select>
 
                                 {expireDuration === 'custom' && (
-                                    <Input
-                                        type="datetime-local"
+                                    <DateTimePicker
+                                        onChange={(val) => setCustomExpireDate(val)}
                                         value={customExpireDate}
-                                        onChange={(e) => setCustomExpireDate(e.target.value)}
-                                        className="mt-2"
                                     />
                                 )}
 
                                 {calculatedExpiredAt && (
-                                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 bg-muted/50 p-2 rounded">
+                                    <div className="text-xs text-muted-foreground flex items-center 
+                                    gap-1.5 bg-muted/50 p-2 rounded">
                                         <AlertCircle size={12} />
-                                        Link mời sẽ hết hạn lúc: <span className="font-semibold text-foreground">{format(calculatedExpiredAt, "HH:mm dd/MM/yyyy", { locale: vi })}</span>
+                                        Link mời sẽ hết hạn lúc: <span className="font-semibold
+                                         text-foreground">{format(calculatedExpiredAt, "HH:mm dd/MM/yyyy",
+                                          { locale: vi })}</span>
                                     </div>
                                 )}
                             </div>

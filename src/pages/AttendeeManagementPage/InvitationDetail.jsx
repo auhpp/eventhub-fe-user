@@ -4,7 +4,7 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
     Loader2, Ticket, CheckCircle2, XCircle, Send,
@@ -21,6 +21,7 @@ import InvitationStatusBadge from '@/components/InvitationStatusBadge';
 import { formatDateTime } from '@/utils/format';
 import TimelineItem from '@/features/attendee/TimelineItem';
 import { InvitationStatus } from '@/utils/constant';
+import DefaultAvatar from '@/components/DefaultAvatar';
 
 const InvitationDetail = ({ isOpen, onClose, token }) => {
     const [data, setData] = useState(null);
@@ -83,17 +84,15 @@ const InvitationDetail = ({ isOpen, onClose, token }) => {
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center gap-4">
                                     <Avatar className="h-14 w-14 border-2 border-primary/10">
-                                        <AvatarFallback className="bg-primary/5 text-primary text-lg font-bold">
-                                            {data?.email?.charAt(0).toUpperCase()}
-                                        </AvatarFallback>
+                                        <DefaultAvatar user={data?.appUser} />
                                     </Avatar>
                                     <div>
                                         <p className="text-sm text-muted-foreground font-medium">Người được mời</p>
                                         <p className="text-lg font-semibold">{data?.email}</p>
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                                        <div className="flex items-center gap-2 text-md text-muted-foreground mt-1">
                                             <Ticket size={14} />
                                             <span>Vé: {data?.ticket?.name}</span>
-                                            <Badge variant="secondary" className="text-[10px]">x{data?.initialQuantity}</Badge>
+                                            <Badge variant="secondary" className="text-sm">x{data?.initialQuantity}</Badge>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +106,7 @@ const InvitationDetail = ({ isOpen, onClose, token }) => {
                                         <Clock size={16} />
                                         <span className="font-medium">Thời hạn xác nhận:</span>
                                     </div>
-                                    <span className="font-mono font-bold">
+                                    <span className="font-bold">
                                         {formatDateTime(data?.expiredAt)}
                                     </span>
                                 </div>
@@ -117,7 +116,8 @@ const InvitationDetail = ({ isOpen, onClose, token }) => {
 
                             {/* Timeline */}
                             <div>
-                                <h4 className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground">Tiến trình</h4>
+                                <h4 className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground">
+                                    Tiến trình</h4>
                                 <div className="pl-2">
                                     {/* send */}
                                     <TimelineItem
@@ -138,15 +138,18 @@ const InvitationDetail = ({ isOpen, onClose, token }) => {
                                             title="Đang chờ phản hồi"
                                             description={
                                                 <div className="mt-2 space-y-3">
-                                                    <div className="flex items-center gap-2 text-xs text-orange-600 font-medium bg-orange-50 p-2 rounded w-fit">
+                                                    <div className="flex items-center gap-2 text-xs text-orange-600 
+                                                    font-medium bg-orange-50 p-2 rounded w-fit">
                                                         <AlertCircle size={12} />
                                                         Sẽ hết hạn lúc {formatDateTime(data?.expiredAt)}
                                                     </div>
 
                                                     <div className="p-3 bg-muted/50 rounded-md text-sm border border-dashed">
-                                                        <span className="italic text-muted-foreground">"{data?.message || 'Không có lời nhắn'}"</span>
+                                                        <span className="italic text-muted-foreground">"{data?.message
+                                                            || 'Không có lời nhắn'}"</span>
                                                         <div className="mt-3">
-                                                            <Button size="sm" variant="outline" className="h-7 gap-2 text-xs" onClick={copyLink}>
+                                                            <Button size="sm" variant="outline" className="h-7 gap-2 
+                                                            text-xs" onClick={copyLink}>
                                                                 <Copy size={12} /> Sao chép Link mời
                                                             </Button>
                                                         </div>
@@ -164,7 +167,8 @@ const InvitationDetail = ({ isOpen, onClose, token }) => {
                                             colorClass="text-gray-500 border-gray-300 bg-gray-100"
                                             title="Lời mời đã hết hạn"
                                             time={data?.expiredAt}
-                                            description="Khách mời chưa phản hồi trong thời gian quy định. Link mời đã bị vô hiệu hóa."
+                                            description="Khách mời chưa phản hồi trong thời gian quy định.
+                                             Link mời đã bị vô hiệu hóa."
                                             isLast={true}
                                         />
                                     )}
@@ -176,7 +180,8 @@ const InvitationDetail = ({ isOpen, onClose, token }) => {
                                             colorClass="text-green-600 border-green-200 bg-green-50"
                                             title="Đã chấp nhận"
                                             time={data?.updatedAt}
-                                            description={data?.booking ? `Đơn hàng #${data.booking.id}` : "Đã xác nhận tham gia."}
+                                            description={data?.booking ? `Đơn hàng #${data.booking.id}`
+                                                : "Đã xác nhận tham gia."}
                                             isLast={true}
                                         />
                                     )}

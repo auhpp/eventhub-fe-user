@@ -3,7 +3,7 @@ import { EventStatus } from "@/utils/constant";
 
 const EventStatusBadge = ({ eventSessions, status }) => {
     const isEventEnded = eventSessions.every((it) => new Date(it.endDateTime) < new Date())
-    if (isEventEnded) {
+    if (isEventEnded && status == EventStatus.APPROVED) {
         return <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-500/10 shadow-none">
             Đã kết thúc</Badge>;
     }

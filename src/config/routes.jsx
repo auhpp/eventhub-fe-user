@@ -30,7 +30,13 @@ export const routes = {
     ticketGiftConfirm: '/orders/:id/ticket-gift/confirm',
     ticketGifts: '/ticket-gift',
     ticketGiftDetail: '/ticket-gift/:id',
-    eventGallery: "/event/:id/gallery",
-
+    eventGallery: "/organizer/event/:id/gallery",
+    eventOrder: "/organizer/event/:id/order",
+    voucher: "/organizer/event/:id/voucher",
+    createVoucher: "/organizer/event/:id/voucher/create-voucher",
+    checkIn: "/organizer/event/:id/check-in",
+    search: "/search",
+    orderDetailOrganizer: "/organizer/event/:eventId/orders/:id",
+    editVoucher: "/organizer/event/:id/voucher/:voucherId"
 
 }

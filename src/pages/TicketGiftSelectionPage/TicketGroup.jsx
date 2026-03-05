@@ -17,12 +17,12 @@ const TicketGroup = ({ groupData, selectedIds, onToggleItem }) => {
                         <h3 className="font-semibold text-gray-800 text-sm md:text-base leading-tight">
                             {ticketInfo.name}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-sm text-gray-500 mt-0.5">
                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ticketInfo.price)}
                         </p>
                     </div>
                 </div>
-                <span className="text-xs font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                <span className="text-sm font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
                     SL: {items.length}
                 </span>
             </div>
