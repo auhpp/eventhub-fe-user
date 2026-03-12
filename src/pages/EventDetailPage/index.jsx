@@ -12,6 +12,7 @@ import { AuthContext } from "@/context/AuthContex";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PublicEventGallery from "./PublicEventGallery";
 import { isExpiredEventSession } from "@/utils/eventUtils";
+import EventReviewsTab from "./EventReviewsTab";
 
 const EventDetailPage = () => {
     const [event, setEvent] = useState(null);
@@ -51,7 +52,8 @@ const EventDetailPage = () => {
 
                 {/* Breadcrumb */}
                 <nav className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-                    <span>Trang chủ</span> / <span>Sự kiện</span> / <span className="text-gray-900 font-medium truncate max-w-[200px]">{event.name}</span>
+                    <span>Trang chủ</span> / <span>Sự kiện</span> / <span className="text-gray-900 font-medium 
+                    truncate max-w-[200px]">{event.name}</span>
                 </nav>
 
                 <EventHero event={event} />
@@ -59,10 +61,13 @@ const EventDetailPage = () => {
                 {/* TABS SECTION */}
                 <div className="mt-8">
                     <Tabs defaultValue="info" className="w-full">
-                        <TabsList className="w-full justify-start border-b border-gray-200 dark:border-gray-800 rounded-none h-auto bg-transparent p-0 gap-8 mb-6">
+                        <TabsList className="w-full justify-start border-b border-gray-200 dark:border-gray-800 
+                        rounded-none h-auto bg-transparent p-0 gap-8 mb-6">
                             <TabsTrigger
                                 value="info"
-                                className="pb-4 pt-2 px-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium"
+                                className="pb-4 pt-2 px-1 rounded-none border-b-2 border-transparent
+                                 data-[state=active]:border-primary data-[state=active]:bg-transparent 
+                                 data-[state=active]:shadow-none text-base font-medium"
                             >
                                 Thông tin sự kiện
                             </TabsTrigger>
@@ -70,11 +75,21 @@ const EventDetailPage = () => {
                             {!isOnline && event.hasPhotos && (
                                 <TabsTrigger
                                     value="photos"
-                                    className="pb-4 pt-2 px-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base font-medium"
+                                    className="pb-4 pt-2 px-1 rounded-none border-b-2 border-transparent 
+                                    data-[state=active]:border-primary data-[state=active]:bg-transparent 
+                                    data-[state=active]:shadow-none text-base font-medium"
                                 >
                                     Thư viện ảnh
                                 </TabsTrigger>
                             )}
+                            <TabsTrigger
+                                value="reviews"
+                                className="pb-4 pt-2 px-1 rounded-none border-b-2 border-transparent 
+                                data-[state=active]:border-primary data-[state=active]:bg-transparent 
+                                data-[state=active]:shadow-none text-base font-medium"
+                            >
+                                Đánh giá
+                            </TabsTrigger>
                         </TabsList>
 
                         {/* TAB 1: Event Info */}
@@ -82,7 +97,8 @@ const EventDetailPage = () => {
                             <EventOrganizer organizer={event.appUser} />
 
                             {/* Description */}
-                            <div className="flex flex-col gap-4 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800">
+                            <div className="flex flex-col gap-4 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm
+                             border border-gray-200 dark:border-gray-800">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <Info className="text-blue-600" /> Giới thiệu sự kiện
                                 </h3>
@@ -100,11 +116,13 @@ const EventDetailPage = () => {
 
                             {/* Map Section */}
                             {!isOnline && event.locationCoordinates && (
-                                <div className="flex flex-col gap-5 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
+                                <div className="flex flex-col gap-5 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm
+                                 border border-gray-100 dark:border-gray-800">
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <MapPin className="text-blue-600" /> Địa chỉ
                                     </h3>
-                                    <div className="relative w-full h-[400px] rounded-xl overflow-hidden bg-gray-200 border shadow-sm">
+                                    <div className="relative w-full h-[400px] rounded-xl overflow-hidden bg-gray-200 border 
+                                    shadow-sm">
                                         <Map
                                             lat={event.locationCoordinates.latitude}
                                             lng={event.locationCoordinates.longitude}
@@ -145,6 +163,9 @@ const EventDetailPage = () => {
                                 </div>
                             </TabsContent>
                         )}
+                        <TabsContent value="reviews" className="focus-visible:outline-none min-h-[400px]">
+                            <EventReviewsTab event={event} />
+                        </TabsContent>
                     </Tabs>
                 </div>
             </div>

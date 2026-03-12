@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Ticket, Edit2, CalendarClock, Save, Loader2, PlusCircle, Trash2, X, Video, Link as LinkIcon, KeyRound, ExternalLink, Clock, AlertTriangle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Accordion } from "@/components/ui/accordion";
+import { PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import DateTimePicker from '@/components/DateTimePicker';
 import { MeetingPlatform, EventType } from '@/utils/constant';
 import { HttpStatusCode } from 'axios';
 import TicketModal from '@/features/tickets/TicketModal';
-import { createTicket, deleteEventSession, updateEventSession } from '@/services/eventSessionService';
+import { cancelEventSession, createTicket, deleteEventSession, updateEventSession } from '@/services/eventSessionService';
 import { createEventSession } from '@/services/eventService';
 import { deleteTicket, updateTicket } from '@/services/ticketService';
-import { isExpiredEventSession } from '@/utils/eventUtils';
-import EventSessionStatusBadge from '@/components/EventSessionStatusBadge';
-import { displaySessionDate, formatDateForBE, formatTime } from '@/utils/format';
-import TicketEditItem from '@/features/tickets/TicketEditItem';
+import { formatDateForBE, formatTime } from '@/utils/format';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import EventSessionItem from './EventSessionItem';
+import CreateEventSessionForm from './CreateEventSessionForm';
 
 const EditEventSessions = ({ eventData, onRefresh }) => {
     // --- STATE for LIST SESSIONS ---
@@ -53,6 +48,20 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
         description: '',
         variant: 'default'
     });
+
+    const handleCancelSessionClick = (session) => {
+        setConfirmDialog({
+            open: true,
+            type: 'cancel_session',
+            id: session.id,
+            title: 'Hủy khung giờ này?',
+            description: `Bạn có chắc chắn muốn HỦY khung giờ 
+            ${formatTime(session.startTime)} - ${formatTime(session.endTime)}?
+             Trạng thái sẽ chuyển sang Đã hủy và toàn bộ vé đã đặt sẽ bị hủy. Hành động này không thể hoàn tác.`,
+            variant: 'destructive'
+        });
+    };
+
     const handleDeleteTicketClick = (session, ticket) => {
         if (session.isNewSession || String(ticket.id).startsWith('temp-')) {
             handleRemoveTempTicket(ticket.id);
@@ -125,14 +134,25 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
                     setLocalSessions(prev => prev.filter(s => s.id !== confirmDialog.id));
                     onRefresh();
                 }
+            } else if (confirmDialog.type === 'cancel_session') {
+                const response = await cancelEventSession({ eventSessionId: confirmDialog.id });
+                if (response.code === HttpStatusCode.Ok) {
+                    toast.success("Đã hủy khung giờ thành công");
+                    onRefresh();
+                }
             }
         } catch (error) {
             console.error(error);
             const errorCode = error.response?.data?.code;
-            if (errorCode === 1009) {
+
+            if (errorCode === 'EVENT_ON_GOING') {
+                toast.error("Không thể hủy: Sự kiện này đang diễn ra.");
+            } else if (errorCode === 1009) {
                 toast.error("Không thể xóa: Dữ liệu đang được sử dụng hoặc ràng buộc.");
+            } else if (errorCode === 'FORBIDDEN') {
+                toast.error("Bạn không có quyền thực hiện hành động này.");
             } else {
-                toast.error("Đã có lỗi xảy ra khi xóa.");
+                toast.error("Đã có lỗi xảy ra.");
             }
         } finally {
             setConfirmDialog(prev => ({ ...prev, open: false }));
@@ -151,7 +171,8 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
                 meetingPassword: s.meetingPassword || '',
                 tickets: s.tickets || [],
                 isDirty: false,
-                validationErrors: {}
+                validationErrors: {},
+                status: s.status
             }));
             setLocalSessions(mappedSessions);
         }
@@ -394,7 +415,8 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
                 <div className="flex justify-between items-center">
                     <div>
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <span className="size-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">4</span>
+                            <span className="size-7 rounded-lg bg-blue-600 text-white flex items-center 
+                            justify-center text-sm font-bold">4</span>
                             Quản lý khung giờ và vé
                         </CardTitle>
                         <CardDescription className="mt-1">
@@ -407,282 +429,39 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
             <CardContent className="pt-6 space-y-6">
                 {/* --- LIST EXISTING SESSIONS --- */}
                 <Accordion type="single" collapsible className="w-full space-y-4">
-                    {localSessions.map((session) => {
-                        const expiredEventSession = isExpiredEventSession({ eventSession: session });
-                        const hasError = Object.keys(session.validationErrors || {}).length > 0;
-
-                        return (
-                            <AccordionItem key={session.id} value={String(session.id)}
-                                className={cn(
-                                    "border rounded-xl px-4 bg-card transition-all hover:shadow-sm data-[state=open]:border-blue-200",
-                                    hasError && "border-red-500"
-                                )}>
-
-                                <AccordionTrigger className="hover:no-underline flex-1 py-2">
-                                    <div className="flex gap-3 text-left items-start">
-                                        <div className="mt-1 bg-blue-50 text-blue-600 p-1.5 rounded-lg">
-                                            <CalendarClock className="size-4" />
-                                        </div>
-                                        <div>
-                                            <div className='flex gap-4'>
-                                                <h4 className={cn("font-bold text-base text-slate-800", hasError && "text-red-500")}>
-                                                    {displaySessionDate({
-                                                        startDateTime: session.startTime,
-                                                        endDateTime: session.endTime
-                                                    })}
-                                                </h4>
-                                                <EventSessionStatusBadge eventSession={session} />
-                                            </div>
-                                            <h4 className="font-bold text-md text-slate-800">
-                                                {formatTime(session.startTime)} - {formatTime(session.endTime)}
-                                            </h4>
-                                            <p className="text-xs text-muted-foreground mt-0.5">
-                                                {session.tickets.length} loại vé - ID: {session.id}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </AccordionTrigger>
-
-                                <AccordionContent className="pb-4 pt-2 space-y-6">
-                                    {/* Form Update Session */}
-                                    <div className="space-y-4 border-b pb-6 border-dashed">
-                                        <div className="flex items-center justify-between">
-                                            <h5 className="font-bold text-sm text-slate-700 flex items-center gap-2">
-                                                <Clock className="size-4 text-blue-600" /> Thiết lập thời gian
-                                            </h5>
-                                            {!expiredEventSession && (
-                                                <Button size="sm" onClick={() => handleSaveSession(session)}
-                                                    disabled={updatingSessionId === session.id || !session.isDirty || hasError}
-                                                    className={cn("transition-all", session.isDirty && !hasError ? "bg-blue-600" : "bg-slate-200 text-slate-500")}>
-                                                    {updatingSessionId === session.id ? <Loader2 className="animate-spin size-4 mr-1" /> : <Save className="size-4 mr-1" />}
-                                                    {session.isDirty ? "Lưu thay đổi" : "Đã lưu"}
-                                                </Button>
-                                            )}
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <DateTimePicker
-                                                    label="Bắt đầu Check-in"
-                                                    value={session.checkinStartTime}
-                                                    onChange={(val) => handleSessionChange(session.id, 'checkinStartTime', val)}
-                                                    error={session.validationErrors?.checkinStartTime}
-                                                />
-                                                <p className="text-xs text-muted-foreground mt-1 ml-1">
-                                                    Thời gian bắt đầu cho phép người tham gia vào cổng/phòng chờ.</p>
-                                            </div>
-                                            <DateTimePicker
-                                                label="Bắt đầu sự kiện"
-                                                value={session.startTime}
-                                                onChange={(val) => handleSessionChange(session.id, 'startTime', val)}
-                                                error={session.validationErrors?.startTime}
-                                            />
-                                            <DateTimePicker
-                                                label="Kết thúc sự kiện"
-                                                value={session.endTime}
-                                                onChange={(val) => handleSessionChange(session.id, 'endTime', val)}
-                                                error={session.validationErrors?.endTime}
-                                            />
-                                        </div>
-
-                                        {/* Update Online Meeting Info */}
-                                        {eventData?.type === EventType.ONLINE.key && (
-                                            <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-4 mt-4">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2 text-blue-700 font-bold text-sm">
-                                                        <Video className="size-4" /> Thông tin phòng họp trực tuyến
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <Button type="button" variant="outline" size="sm" onClick={() => window.open('https://meet.google.com/', '_blank')} disabled={expiredEventSession} className="h-7 text-xs bg-white text-slate-600 border-slate-200 hover:text-blue-600">
-                                                            Tạo Google Meet <ExternalLink className="size-3 ml-1 opacity-50" />
-                                                        </Button>
-                                                        <Button type="button" variant="outline" size="sm" onClick={() => window.open('https://zoom.us/meeting/schedule', '_blank')} disabled={expiredEventSession} className="h-7 text-xs bg-white text-slate-600 border-slate-200 hover:text-blue-600">
-                                                            Tạo Zoom <ExternalLink className="size-3 ml-1 opacity-50" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-sm">Đường dẫn (Link) <span className="text-red-500">*</span></Label>
-                                                        <div className="relative">
-                                                            <LinkIcon className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                                                            <Input
-                                                                className={cn("pl-9 bg-white", session.validationErrors?.meetingUrl && "border-red-500 focus-visible:ring-red-500")}
-                                                                placeholder="https://meet.google.com/..."
-                                                                value={session.meetingUrl || ''}
-                                                                disabled={expiredEventSession}
-                                                                onChange={(e) => handleSessionChange(session.id, 'meetingUrl', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        {session.validationErrors?.meetingUrl && <p className="text-xs text-red-500">{session.validationErrors.meetingUrl}</p>}
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-sm">Mật khẩu (Optional)</Label>
-                                                        <div className="relative">
-                                                            <KeyRound className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                                                            <Input
-                                                                className="pl-9 bg-white"
-                                                                placeholder="VD: 123456"
-                                                                value={session.meetingPassword || ''}
-                                                                disabled={expiredEventSession}
-                                                                onChange={(e) => handleSessionChange(session.id, 'meetingPassword', e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Ticket Section */}
-                                    <div className="bg-slate-50 rounded-xl p-4 border space-y-3">
-                                        <div className="flex justify-between items-center">
-                                            <h5 className="font-bold text-sm text-slate-700 flex items-center gap-2">
-                                                <Ticket className="size-4 text-blue-600" /> Danh sách Vé ({session.tickets.length})
-                                            </h5>
-                                            {!expiredEventSession && (
-                                                <Button variant="ghost" size="sm" onClick={() => handleOpenCreateTicket(session, false)} className="text-blue-600 text-xs font-bold hover:bg-blue-50">
-                                                    <PlusCircle className="size-3 mr-1" /> Thêm vé mới
-                                                </Button>
-                                            )}
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-3">
-                                            {session.tickets.map(t => (
-                                                <TicketEditItem
-                                                    ticket={t}
-                                                    openEditTicketModal={() => handleEditTicket(session, t)}
-                                                    handleRemoveTicket={() => handleDeleteTicketClick(session, t)}
-                                                    expiredEventSession={expiredEventSession}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {!expiredEventSession && (
-                                        <div className="border-t border-red-100 pt-4 mt-6">
-                                            <div className="flex items-center justify-between p-4 bg-red-50/50 rounded-xl border border-red-100">
-                                                <div>
-                                                    <h6 className="text-sm font-bold text-red-700 flex items-center gap-2">
-                                                        <AlertTriangle className="size-4" /> Xóa khung giờ này
-                                                    </h6>
-                                                    <p className="text-xs text-red-600/80 mt-1">
-                                                        Hành động này sẽ xóa khung giờ và tất cả các vé bên trong.
-                                                    </p>
-                                                </div>
-                                                <Button
-                                                    variant="destructive"
-                                                    size="sm"
-                                                    className="bg-white border-2 border-red-200 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
-                                                    onClick={() => handleDeleteSessionClick(session)}
-                                                >
-                                                    <Trash2 className="size-4 mr-2" /> Xóa Session
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </AccordionContent>
-                            </AccordionItem>
-                        )
-                    })}
+                    {localSessions.map((session) => (
+                        <EventSessionItem
+                            key={session.id}
+                            session={session}
+                            eventData={eventData}
+                            updatingSessionId={updatingSessionId}
+                            onSessionChange={handleSessionChange}
+                            onSaveSession={handleSaveSession}
+                            onOpenCreateTicket={handleOpenCreateTicket}
+                            onEditTicket={handleEditTicket}
+                            onDeleteTicket={handleDeleteTicketClick}
+                            onDeleteSession={handleDeleteSessionClick}
+                            onCancelSession={handleCancelSessionClick}
+                        />
+                    ))}
                 </Accordion>
 
                 {/* --- FORM CREATE NEW SESSION --- */}
                 {isCreating ? (
-                    <div className="border-2 border-blue-100 bg-blue-50/30 rounded-xl p-4 space-y-5 animate-in fade-in slide-in-from-bottom-4">
-                        <div className="flex justify-between items-center border-b border-blue-100 pb-3">
-                            <h4 className="font-bold text-blue-700 flex items-center gap-2">
-                                <PlusCircle className="size-5" /> Tạo Khung Giờ Mới
-                            </h4>
-                            <Button variant="ghost" size="sm" onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-red-500">
-                                <X className="size-4" /> Hủy
-                            </Button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <DateTimePicker
-                                label="Bắt đầu Check-in"
-                                value={newSessionData.checkinStartTime}
-                                onChange={(val) => handleNewSessionChange('checkinStartTime', val)}
-                                error={newSessionData.validationErrors?.checkinStartTime}
-                            />
-                            <DateTimePicker
-                                label="Bắt đầu sự kiện"
-                                value={newSessionData.startTime}
-                                onChange={(val) => handleNewSessionChange('startTime', val)}
-                                error={newSessionData.validationErrors?.startTime}
-                            />
-                            <DateTimePicker
-                                label="Kết thúc sự kiện"
-                                value={newSessionData.endTime}
-                                onChange={(val) => handleNewSessionChange('endTime', val)}
-                                error={newSessionData.validationErrors?.endTime}
-                            />
-                        </div>
-
-                        {eventData?.type === EventType.ONLINE.key && (
-                            <div className="bg-white p-4 rounded-xl border space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h5 className="font-bold text-sm text-blue-700 flex items-center gap-2">
-                                        <Video className="size-4" /> Online Meeting Info
-                                    </h5>
-                                    <div className="flex gap-2">
-                                        <Button type="button" variant="outline" size="sm" onClick={() => window.open('https://meet.google.com/', '_blank')} className="h-7 text-xs">
-                                            Tạo Google Meet <ExternalLink className="size-3 ml-1 opacity-50" />
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Link phòng họp <span className="text-red-500">*</span></Label>
-                                        <Input
-                                            placeholder="https://..."
-                                            value={newSessionData.meetingUrl}
-                                            onChange={(e) => handleNewSessionChange('meetingUrl', e.target.value)}
-                                            className={cn(newSessionData.validationErrors?.meetingUrl && "border-red-500 focus-visible:ring-red-500")}
-                                        />
-                                        {newSessionData.validationErrors?.meetingUrl && <p className="text-xs text-red-500">{newSessionData.validationErrors.meetingUrl}</p>}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Mật khẩu (Optional)</Label>
-                                        <Input placeholder="123456" value={newSessionData.meetingPassword} onChange={(e) => handleNewSessionChange('meetingPassword', e.target.value)} />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Ticket Section for New Session */}
-                        <div className="bg-white p-4 rounded-lg border border-slate-200">
-                            <div className="flex justify-between items-center mb-3">
-                                <Label className="text-slate-700 font-bold">Vé bán trong khung giờ này <span className="text-red-500">*</span></Label>
-                                <Button size="sm" variant="outline"
-                                    onClick={() => handleOpenCreateTicket(newSessionData, true)} className="text-xs h-8">
-                                    <PlusCircle className="size-3 mr-1" /> Thêm loại vé
-                                </Button>
-                            </div>
-                            {newSessionData.tickets.length === 0 ? (
-                                <div className="text-center py-4 text-sm text-slate-400 border border-dashed rounded bg-slate-50">
-                                    Cần ít nhất 1 loại vé để tạo khung giờ
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {newSessionData.tickets.map((t) => (
-                                        <TicketEditItem
-                                            key={t.id}
-                                            ticket={t}
-                                            openEditTicketModal={() => handleEditTicket({ ...newSessionData, isNewSession: true }, t)}
-                                            handleRemoveTicket={() => handleRemoveTempTicket(t.id)}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleCreateSessionSubmit} disabled={isSubmittingNew}>
-                            {isSubmittingNew && <Loader2 className="animate-spin size-4 mr-2" />}
-                            Lưu Khung Giờ & Vé
-                        </Button>
-                    </div>
+                    <CreateEventSessionForm
+                        eventData={eventData}
+                        newSessionData={newSessionData}
+                        isSubmittingNew={isSubmittingNew}
+                        onCancel={() => setIsCreating(false)}
+                        onChange={handleNewSessionChange}
+                        onSubmit={handleCreateSessionSubmit}
+                        onOpenCreateTicket={handleOpenCreateTicket}
+                        onEditTicket={handleEditTicket}
+                        onRemoveTempTicket={handleRemoveTempTicket}
+                    />
                 ) : (
-                    <Button variant="outline" onClick={() => setIsCreating(true)} className="w-full border-dashed border-2 py-6 text-muted-foreground hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50">
+                    <Button variant="outline" onClick={() => setIsCreating(true)} className="w-full border-dashed border-2
+                     py-6 text-muted-foreground hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50">
                         <div className="bg-slate-200 rounded-full p-0.5 mr-2"><PlusCircle className="size-4" /></div>
                         Tạo khung giờ mới
                     </Button>
@@ -698,6 +477,7 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
                     onSubmit={handleTicketModalSubmit}
                 />
             )}
+
             <ConfirmDialog
                 open={confirmDialog.open}
                 onOpenChange={(val) => setConfirmDialog(prev => ({ ...prev, open: val }))}
@@ -705,10 +485,10 @@ const EditEventSessions = ({ eventData, onRefresh }) => {
                 title={confirmDialog.title}
                 description={confirmDialog.description}
                 variant={confirmDialog.variant}
-                confirmLabel="Xóa ngay"
+                confirmLabel="Xác nhận"
                 cancelLabel="Hủy"
             />
-        </Card >
+        </Card>
     );
 };
 

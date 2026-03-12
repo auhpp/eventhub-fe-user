@@ -15,7 +15,6 @@ const DefaultLayout = ({ children }) => {
                 toastOptions={{
                     classNames: {
                         error: "bg-red-100 text-white",
-
                     },
                 }}
             />

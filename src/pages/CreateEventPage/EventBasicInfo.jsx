@@ -8,26 +8,35 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { getCategoris } from '@/services/categoryService';
 import { HttpStatusCode } from 'axios';
 import { EventType } from '@/utils/constant';
+import { getAllEventSeries } from '@/services/eventSeriesService';
 
 const EventBasicInfo = ({ form, isEditing = false }) => {
     const [categories, setCategories] = useState(null);
-
+    const [eventSeries, setEventSeries] = useState(null);
     // Fetch categories
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchData = async () => {
             try {
-                const response = await getCategoris();
-                if (response.code === HttpStatusCode.Ok) {
-                    setCategories(response.result);
+                const [categoryRes, eventSeriesRes] = await Promise.all([
+                    getCategoris(),
+                    getAllEventSeries()
+                ]);
+
+                if (categoryRes.code === HttpStatusCode.Ok) {
+                    setCategories(categoryRes.result);
                 }
+
+                setEventSeries(eventSeriesRes.result || []);
+
             } catch (error) {
                 console.log(error);
+                setEventSeries([]); 
             }
         }
-        fetchCategories();
+        fetchData();
     }, []);
 
-    if (!categories) {
+    if (!categories || eventSeries === null) {
         return (
             <div className="flex justify-center items-center h-40 w-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -67,9 +76,10 @@ const EventBasicInfo = ({ form, isEditing = false }) => {
                         name="categoryId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Danh mục <span className="text-red-500">*</span></FormLabel>
-                                <Select onValueChange={field.onChange}
-                                    defaultValue={field.value} value={field.value}>
+                                <FormLabel className="flex items-center min-h-[28px]">
+                                    Danh mục <span className="text-red-500 ml-1">*</span>
+                                </FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                                     <FormControl>
                                         <SelectTrigger className="h-11 rounded-xl">
                                             <SelectValue placeholder="Chọn danh mục" />
@@ -92,14 +102,15 @@ const EventBasicInfo = ({ form, isEditing = false }) => {
                         name="type"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex items-center gap-2">
-                                    <FormLabel>Loại sự kiện <span className="text-red-500">*</span></FormLabel>
+                                <FormLabel className="flex items-center gap-2 min-h-[28px]">
+                                    <span>Loại sự kiện <span className="text-red-500">*</span></span>
                                     {isEditing && (
-                                        <span className="text-xs text-muted-foreground flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full">
+                                        <span className="text-xs text-muted-foreground flex items-center gap-1 
+                                        bg-slate-100 px-2 py-0.5 rounded-full font-normal">
                                             <Lock className="size-3" /> Không thể thay đổi
                                         </span>
                                     )}
-                                </div>
+                                </FormLabel>
                                 <Select
                                     disabled={isEditing}
                                     onValueChange={field.onChange} defaultValue={field.value}>
@@ -118,7 +129,50 @@ const EventBasicInfo = ({ form, isEditing = false }) => {
                         )}
                     />
                 </div>
+                <FormField
+                    control={form.control}
+                    name="eventSeriesId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>
+                                Chuỗi sự kiện <span className="text-muted-foreground font-normal text-xs ml-1">(Tùy chọn)</span>
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                <FormControl>
+                                    <SelectTrigger className="h-11 rounded-xl">
+                                        <SelectValue placeholder="Chọn chuỗi sự kiện" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="none">
+                                        <span className="text-muted-foreground italic">Không thuộc chuỗi nào</span>
+                                    </SelectItem>
 
+                                    {eventSeries.map((item) => (
+                                        <SelectItem key={item.id} value={String(item.id)}>
+                                            <div className="flex items-center gap-2">
+                                                {item.avatar ? (
+                                                    <img
+                                                        src={item.avatar}
+                                                        alt={item.name}
+                                                        className="size-6 rounded-full object-cover shadow-sm border"
+                                                    />
+                                                ) : (
+                                                    <div className="size-6 rounded-full bg-slate-200 flex items-center
+                                                     justify-center text-[10px] font-bold text-slate-500 border">
+                                                        {item.name.charAt(0)}
+                                                    </div>
+                                                )}
+                                                <span className="font-medium text-sm">{item.name}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 {/* description */}
                 <FormField
                     control={form.control}

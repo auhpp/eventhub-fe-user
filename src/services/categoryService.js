@@ -6,3 +6,10 @@ export const getCategoris = async () => {
     });
     return response.data;
 };
+
+export const getCategoryById = async ({ categoryId }) => {
+    const response = await API.get(`/api/v1/category/${categoryId}`, {
+        requiresAuth: false
+    });
+    return response.data;
+};

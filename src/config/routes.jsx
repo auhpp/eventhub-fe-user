@@ -37,6 +37,14 @@ export const routes = {
     checkIn: "/organizer/event/:id/check-in",
     search: "/search",
     orderDetailOrganizer: "/organizer/event/:eventId/orders/:id",
-    editVoucher: "/organizer/event/:id/voucher/:voucherId"
+    editVoucher: "/organizer/event/:id/voucher/:voucherId",
+    categoryDetail: "/category/:categoryId",
+    eventSeriesManagement: "/organizer/series",
+    createEventSeries: "/organizer/series/create",
+    eventsInEventSeries: "/organizer/series/:id/events",
+    editEventSeries: "/organizer/series/:id/edit",
+    eventSeriesDetail: "/event-series/:id",
+    eventSeries: "/event-series",
+    notification: "/notification"
 
 }

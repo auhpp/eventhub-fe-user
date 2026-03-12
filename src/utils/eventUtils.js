@@ -9,8 +9,8 @@ export const isExpiredEvent = ({ event }) => {
     return valid;
 }
 
-export const isExpiredEventSession = ({ eventSession }) => {
-    return (new Date(eventSession.endDateTime) < (new Date()))
+export const isExpiredEventSession = ({ endDateTime }) => {
+    return (new Date(endDateTime) < (new Date()))
 }
 
 export const isExpiredEventSessionStartDate = ({ startDateTime }) => {

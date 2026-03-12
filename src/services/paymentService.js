@@ -4,15 +4,15 @@ import API from "@/config/api";
 export const createPaymentUrl = async ({ bookingId, bookingPaymentRequest }) => {
     const response = await API.post(`/api/v1/payment/create-payment-url/${bookingId}`,
         bookingPaymentRequest, {
-        requiresAuth: false
+        requiresAuth: true
     });
     return response.data;
 };
 
-export const confirmPaymentBooking = async ({ vnpTxnRef }) => {
+export const confirmPaymentBooking = async ({ vnpTxnRef, vnpPayDate }) => {
     const response = await API.post(`/api/v1/payment/confirm-payment-order`,
-        { vnpTxnRef }, {
-        requiresAuth: false
+        { vnpTxnRef, vnpPayDate }, {
+        requiresAuth: true
     });
     return response.data;
 };

@@ -126,3 +126,18 @@ export const SortType = {
     NEWEST: 'NEWEST',
     OLDEST: 'OLDEST',
 }
+
+
+export const EventSessionStatus = {
+    PENDING: 'PENDING',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED',
+    CANCELLED: 'CANCELLED'
+}
+
+export const NotificationType = {
+    CREATE_EVENT_SESSION: 'CREATE_EVENT_SESSION',
+    CATEGORY_EVENT: 'CATEGORY_EVENT',
+    INVITE_EVENT: 'INVITE_EVENT',
+    GIFT_TICKET:'GIFT_TICKET'
+}

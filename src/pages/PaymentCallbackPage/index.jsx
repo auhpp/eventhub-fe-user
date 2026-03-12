@@ -41,6 +41,7 @@ const PaymentCallbackPage = () => {
     const searchParams = new URLSearchParams(location.search);
     const vnpTxnRef = searchParams.get("vnp_TxnRef")
     const bookingId = searchParams.get("bookingId")
+    const vnpPayDate = searchParams.get("vnp_PayDate")
     const navigate = useNavigate()
     const [bookingData, setBookingData] = useState(null)
     const [eventSession, setEventSession] = useState(null)
@@ -57,7 +58,7 @@ const PaymentCallbackPage = () => {
                     setEventSession(eventSessionRes)
                 }
                 else {
-                    const response = await confirmPaymentBooking({ vnpTxnRef: vnpTxnRef })
+                    const response = await confirmPaymentBooking({ vnpTxnRef: vnpTxnRef, vnpPayDate: vnpPayDate })
                     if (response.code == HttpStatusCode.Ok) {
                         if (response.result != null) {
                             const booking = response.result.booking

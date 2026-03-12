@@ -6,6 +6,7 @@ import FeaturedEvents from '@/pages/HomePage/FeaturedEvents';
 import CTASection from '@/features/event/CTASection';
 import bannerImage from '../../assets/images/banner.jpg';
 import CategertEvents from '@/features/event/CategeryEvents';
+import EventSeriesSection from './EventSeriesSection';
 
 const HomePage = () => {
     return (
@@ -33,6 +34,7 @@ const HomePage = () => {
             </div>
 
             <CategorySection />
+            <EventSeriesSection />
             <FeaturedEvents />
             <CategertEvents categoryId={2} />
             <CategertEvents categoryId={3} />

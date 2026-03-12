@@ -46,3 +46,11 @@ export const reportCheckin = async ({ eventSessionId }) => {
     });
     return response.data;
 };
+
+
+export const cancelEventSession = async ({ eventSessionId }) => {
+    const response = await API.post(`/api/v1/event-session/cancel/${eventSessionId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};

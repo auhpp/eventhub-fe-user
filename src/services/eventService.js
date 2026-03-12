@@ -44,7 +44,8 @@ export const createEventApi = async ({ eventData, sessions }) => {
         categoryId: eventData.categoryId,
         description: eventData.description,
         address: eventData.address,
-        eventSessionCreateRequests: sesstionFormated
+        eventSessionCreateRequests: sesstionFormated,
+        eventSeriesId: eventData.eventSeriesId
     };
 
     if (eventData.type === EventType.OFFLINE.key) {
@@ -90,6 +91,7 @@ export const updateEvent = async ({ id, eventData }) => {
         categoryId: eventData.categoryId,
         description: eventData.description,
         address: eventData.address,
+        eventSeriesId: eventData.eventSeriesId
     };
 
     if (eventData.type === EventType.OFFLINE.key) {
@@ -127,6 +129,13 @@ export const createEventSession = async ({ id, data }) => {
 export const cancelEvent = async ({ id }) => {
     const response = await API.post(`/api/v1/event/cancel/${id}`, {
         requiresAuth: true
+    });
+    return response.data;
+};
+
+export const countEvent = async (payload) => {
+    const response = await API.post(`/api/v1/event/count`, payload, {
+        requiresAuth: false
     });
     return response.data;
 };

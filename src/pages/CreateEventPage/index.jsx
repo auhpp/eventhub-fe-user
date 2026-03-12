@@ -25,7 +25,9 @@ const createEventSchema = z.object({
     categoryId: z.string().min(1, { message: "Vui lòng chọn danh mục" }),
     type: z.string().min(1, { message: "Vui lòng chọn loại sự kiện" }),
     description: z.string().min(10, { message: "Mô tả cần ít nhất 10 ký tự" }),
+    eventSeriesId: z.string().nullable().optional(),
     poster: z.instanceof(File, { message: "Vui lòng chọn ảnh poster" }),
+
     thumbnail: z
         .instanceof(File, { message: "Vui lòng chọn ảnh bìa sự kiện" })
         .refine((file) => file.size <= MAX_FILE_SIZE, {
@@ -95,6 +97,7 @@ const CreateEventPage = () => {
             poster: undefined,
             location: "",
             coordinates: null,
+            eventSeriesId: "none",
         },
         mode: "onChange",
     });
@@ -105,7 +108,6 @@ const CreateEventPage = () => {
     };
 
     const createEvent = async (data) => {
-
         const hasSessionError = sessions.some(s => s.error);
 
         if (hasSessionError) {
@@ -113,11 +115,16 @@ const CreateEventPage = () => {
             return;
         }
 
-        console.log("Form Data Submitted:", data);
+        const payloadData = { ...data };
+        if (payloadData.eventSeriesId === "none" || !payloadData.eventSeriesId) {
+            payloadData.eventSeriesId = null;
+        }
+
+        console.log("Form Data Submitted:", payloadData);
         console.log("sessions:", sessions);
 
         try {
-            const response = await createEventApi({ eventData: data, sessions: sessions })
+            const response = await createEventApi({ eventData: payloadData, sessions: sessions })
             if (response.code == HttpStatusCode.Ok) {
                 toast.info("Tạo sự kiện thành công")
                 navigate(routes.eventManagement)
@@ -126,6 +133,7 @@ const CreateEventPage = () => {
             console.log(error)
         }
     }
+
     const handleLocationChange = (text) => {
         form.setValue("location", text);
         form.setValue("coordinates", null);

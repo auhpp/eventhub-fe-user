@@ -37,7 +37,8 @@ const EventCard = ({ event, showActionManage, onClick, userMode }) => {
     return (
         <Card
             onClick={!showActionManage && onClick}
-            className={`${!showActionManage ? 'cursor-pointer' : ''} flex flex-col rounded-xl overflow-hidden border-border/60
+            className={`${!showActionManage ? 'cursor-pointer' : ''}
+                flex flex-col rounded-xl overflow-hidden border-border/60
          shadow-sm hover:shadow-md transition-all duration-300 group`}>
             <div className="relative h-43 w-full bg-muted overflow-hidden">
                 <img src={event.thumbnail} alt="" />
@@ -53,7 +54,7 @@ const EventCard = ({ event, showActionManage, onClick, userMode }) => {
                 }
             </div>
 
-            <div className="flex flex-col flex-1 p-2 gap-4">
+            <div className="flex flex-col flex-1 p-3 gap-4">
                 <div>
                     <h3 className="text-md font-bold line-clamp-1">{event.name}</h3>
                     <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">

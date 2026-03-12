@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Save, ArrowLeft } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,7 +16,7 @@ import ImageUploadSession from '../CreateEventPage/ImageUploadSession';
 import EventBasicInfo from '../CreateEventPage/EventBasicInfo';
 import EventLocation from '../CreateEventPage/EventLocation';
 import EditEventSessions from './EditEventSessions';
-import { isExpiredEvent } from '@/utils/eventUtils';
+// import { isExpiredEvent } from '@/utils/eventUtils';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -26,6 +26,7 @@ const updateEventSchema = z.object({
     categoryId: z.string().min(1, { message: "Vui lòng chọn danh mục" }),
     type: z.string().min(1, { message: "Vui lòng chọn loại sự kiện" }),
     description: z.string().min(10, { message: "Mô tả cần ít nhất 10 ký tự" }),
+    eventSeriesId: z.string().nullable().optional(),
     poster: z.union([
         z.instanceof(File).refine((file) => file.size <= MAX_FILE_SIZE, "Kích thước tối đa 5MB")
             .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Định dạng không hỗ trợ"),
@@ -91,6 +92,8 @@ const EditEventPage = () => {
             thumbnail: undefined,
             poster: undefined,
             coordinates: null,
+            eventSeriesId: "none",
+
         },
         mode: "onChange",
     });
@@ -113,6 +116,7 @@ const EditEventPage = () => {
                     location: eventDataRes.location || "",
                     poster: eventDataRes.posterUrl || eventDataRes.poster || null,
                     thumbnail: eventDataRes.thumbnailUrl || eventDataRes.thumbnail || null,
+                    eventSeriesId: eventDataRes.eventSeries ? String(eventDataRes.eventSeries.id || "") : "none",
                     coordinates: (eventDataRes?.locationCoordinates?.latitude
                         && eventDataRes?.locationCoordinates?.longitude) ? {
                         lat: eventDataRes.locationCoordinates.latitude,
@@ -173,17 +177,14 @@ const EditEventPage = () => {
         );
     }
 
-    const isExpired = isExpiredEvent({ event: eventData })
+    // const isExpired = isExpiredEvent({ event: eventData })
 
     return (
         <div className="max-w">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
-                        <ArrowLeft className="size-5" />
-                    </Button>
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-black leading-tight">Chỉnh sửa sự kiện</h1>
+                        <h1 className="text-xl md:text-2xl font-black leading-tight">Chỉnh sửa sự kiện</h1>
                         <p className="text-muted-foreground mt-1">Cập nhật thông tin, hình ảnh và thời gian tổ chức.</p>
                     </div>
                 </div>
@@ -234,7 +235,7 @@ const EditEventPage = () => {
                                     Hủy bỏ
                                 </Button>
                                 {
-                                    !isExpired &&
+                                    // !isExpired &&
                                     <Button
                                         type="submit"
                                         className="h-11 px-8 rounded-xl
@@ -265,7 +266,7 @@ const EditEventPage = () => {
                         {eventData ? (
                             <EditEventSessions
                                 eventData={eventData}
-                                onRefresh={fetchEventData} 
+                                onRefresh={fetchEventData}
                             />
                         ) : (
                             <Loader2 className="animate-spin mx-auto mt-10" />

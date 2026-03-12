@@ -3,12 +3,15 @@ import AuthLayout from "@/layouts/AuthLayout"
 import DefaultLayout from "@/layouts/DefaultLayout"
 import DefaultNoneFooterLayout from "@/layouts/DefaultNoneFooterLayout"
 import EventManagementLayout from "@/layouts/EventManagementLayout"
+import EventSeriesManagementLayout from "@/layouts/EventSeriesManagementLayout"
 import OrganizerLayout from "@/layouts/OrganizerLayout"
 import ProfileLayout from "@/layouts/ProfileLayout"
 import AttendeeManagementPage from "@/pages/AttendeeManagementPage"
+import CategoryDetail from "@/pages/CategoryDetail"
 import ChangePasswordPage from "@/pages/ChangePasswordPage"
 import CheckInReportPage from "@/pages/CheckInReportPage"
 import CreateEventPage from "@/pages/CreateEventPage"
+import CreateEventSeriesPage from "@/pages/CreateEventSeriesPage"
 import CreateOrganizerRequestPage from "@/pages/CreateOrganizerRequestPage"
 import CreateVoucherPage from "@/pages/CreateVoucherPage"
 import EditEventPage from "@/pages/EditEventPage"
@@ -18,10 +21,16 @@ import EventDetailPage from "@/pages/EventDetailPage"
 import EventGalleryPage from "@/pages/EventGalleryPage"
 import EventManagementPage from "@/pages/EventManagementPage"
 import EventOverviewPage from "@/pages/EventOverviewPage"
+import EditEventSeriesPage from "@/pages/eventSeries/EditEventSeriesPage"
+import EventsInEventSeriesPage from "@/pages/eventSeries/EventsInEventSeriesPage"
+import EventSeriesDetailPage from "@/pages/EventSeriesDetailPage"
+import EvenSeriesManagementPage from "@/pages/EventSeriesManagementPage"
+import EventSeriesPage from "@/pages/EventSeriesPage"
 import EventStaffManagementPage from "@/pages/EventStaffManagementPage"
 import HomePage from "@/pages/HomePage"
 import InvitationResponsePage from "@/pages/InvitationResponsePage"
 import MyTicketPage from "@/pages/MyTicketPage"
+import NotificationPage from "@/pages/NotificationPage"
 import OrderDetailPage from "@/pages/OrderDetailPage"
 import OrderHistoryPage from "@/pages/OrderHistoryPage"
 import OrderManagement from "@/pages/OrderManagementPage"
@@ -50,6 +59,9 @@ export const publicRoutes = [
     { path: routes.invitationResponse, page: InvitationResponsePage, layout: DefaultLayout },
     { path: routes.staffInvitationResponse, page: StaffInvitationResponsePage, layout: DefaultLayout },
     { path: routes.search, page: SearchEventPage, layout: DefaultLayout },
+    { path: routes.categoryDetail, page: CategoryDetail, layout: DefaultLayout },
+    { path: routes.eventSeriesDetail, page: EventSeriesDetailPage, layout: DefaultLayout },
+    { path: routes.eventSeries, page: EventSeriesPage, layout: DefaultLayout },
 
 ]
 
@@ -73,6 +85,7 @@ export const privateRoutes = [
     { path: routes.ticketGiftConfirm, page: TicketGiftConfirmPage, layout: ProfileLayout },
     { path: routes.ticketGifts, page: TicketGiftsPage, layout: ProfileLayout },
     { path: routes.ticketGiftDetail, page: TicketGiftDetailPage, layout: ProfileLayout },
+    { path: routes.notification, page: NotificationPage, layout: DefaultLayout },
 
 ]
 export const organizerRoutes = [
@@ -89,6 +102,10 @@ export const organizerRoutes = [
     { path: routes.checkIn, page: CheckInReportPage, layout: EventManagementLayout },
     { path: routes.orderDetailOrganizer, page: OrderDetailPage, layout: EventManagementLayout },
     { path: routes.editVoucher, page: EditVoucherPage, layout: EventManagementLayout },
+    { path: routes.createEventSeries, page: CreateEventSeriesPage, layout: OrganizerLayout },
+    { path: routes.eventSeriesManagement, page: EvenSeriesManagementPage, layout: OrganizerLayout },
+    { path: routes.eventsInEventSeries, page: EventsInEventSeriesPage, layout: EventSeriesManagementLayout },
+    { path: routes.editEventSeries, page: EditEventSeriesPage, layout: EventSeriesManagementLayout },
 
 
 ]
