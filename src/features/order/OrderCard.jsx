@@ -1,7 +1,6 @@
 import React from 'react';
-import { MapPin, Ticket, ArrowRight, Video } from 'lucide-react';
+import { MapPin, Video } from 'lucide-react';
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency, formatDateTime } from '@/utils/format';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +8,8 @@ import { routes } from '@/config/routes';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
 import { EventType, MeetingPlatform } from '@/utils/constant';
 import AttendeeTypeBadges from '@/components/AttendeeTypeBadges';
+import DetailButton from '@/components/DetailButton';
+import TicketCountBadge from '@/components/TicketCountBadge';
 
 
 const OrderCard = ({ booking }) => {
@@ -64,10 +65,7 @@ const OrderCard = ({ booking }) => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-y-2 gap-x-6 text-sm text-gray-600 mt-1">
-                            <div className="flex items-center gap-1.5">
-                                <Ticket className="w-4 h-4 text-primary" />
-                                <span>{ticketCount} vé</span>
-                            </div>
+                            <TicketCountBadge ticketCount={ticketCount} />
                             <div className="flex items-center gap-1.5">
                                 {
                                     isOnline ? (
@@ -106,11 +104,9 @@ const OrderCard = ({ booking }) => {
                                 </p>
                             </div>
 
-                            <Button variant="outline" size="sm" className="group/btn gap-2"
-                                onClick={() => navigate(routes.orderDetail.replace(':id', id))}>
-                                Chi tiết
-                                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                            </Button>
+                            <DetailButton
+                                onClick={() => navigate(routes.orderDetail.replace(':id', id))}
+                            />
                         </div>
                     </div>
                 </div>

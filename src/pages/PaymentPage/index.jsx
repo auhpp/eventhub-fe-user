@@ -522,28 +522,32 @@ const PaymentPage = () => {
                                             slide-in-from-top-1">{errors.phone}</p>}
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="note">Ghi chú (Tùy chọn)</Label>
-                                        <div className="relative">
-                                            <div className="absolute top-3 left-0 pl-3 flex items-start
+                                    {
+                                        booking.type != "RESALE" &&
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="note">Ghi chú (Tùy chọn)</Label>
+                                            <div className="relative">
+                                                <div className="absolute top-3 left-0 pl-3 flex items-start
                                              pointer-events-none text-gray-400">
-                                                <FileText className="w-5 h-5" />
-                                            </div>
-                                            <textarea
-                                                id="note"
-                                                name="note"
-                                                value={formData.note}
-                                                onChange={handleInputChange}
-                                                rows={3}
-                                                className="flex w-full rounded-md border border-input 
+                                                    <FileText className="w-5 h-5" />
+                                                </div>
+                                                <textarea
+                                                    id="note"
+                                                    name="note"
+                                                    value={formData.note}
+                                                    onChange={handleInputChange}
+                                                    rows={3}
+                                                    className="flex w-full rounded-md border border-input 
                                                 bg-background px-3 py-2 text-sm ring-offset-background 
                                                 placeholder:text-muted-foreground focus-visible:outline-none
                                                  focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                                                   disabled:cursor-not-allowed disabled:opacity-50 pl-10 resize-none"
-                                                placeholder="Nhập ghi chú thêm cho ban tổ chức..."
-                                            />
+                                                    placeholder="Nhập ghi chú thêm cho ban tổ chức..."
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -611,35 +615,38 @@ const PaymentPage = () => {
                                         <div className="h-px bg-gray-100 dark:bg-gray-700"></div>
 
                                         {/* Voucher Input */}
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between p-4 bg-white 
+                                        {
+                                            booking.type != "RESALE" &&
+                                            <div className="space-y-4">
+                                                <div className="flex items-center justify-between p-4 bg-white 
                                             dark:bg-gray-800 rounded-lg border border-gray-200 shadow-sm cursor-pointer 
                                             hover:border-red-200 transition-colors"
-                                                onClick={!isFetchingVouchers ? handleOpenVoucherModal : undefined}>
-                                                <div className="flex items-center gap-3">
-                                                    <Ticket className="w-6 h-6 text-red-500" />
-                                                    <span className="font-semibold text-gray-900 dark:text-white text-base">
-                                                        Voucher của Shop</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {selectedCoupon && !isFetchingVouchers && (
-                                                        <span className="text-sm font-semibold px-2 py-1 bg-red-50 
+                                                    onClick={!isFetchingVouchers ? handleOpenVoucherModal : undefined}>
+                                                    <div className="flex items-center gap-3">
+                                                        <Ticket className="w-6 h-6 text-red-500" />
+                                                        <span className="font-semibold text-gray-900 dark:text-white text-base">
+                                                            Voucher của Shop</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {selectedCoupon && !isFetchingVouchers && (
+                                                            <span className="text-sm font-semibold px-2 py-1 bg-red-50 
                                                         text-red-600 rounded">
-                                                            -{(currentDiscountAmount / 1000)}k
-                                                        </span>
-                                                    )}
-                                                    {isFetchingVouchers ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                                                    ) : (
-                                                        <span className="text-blue-600 font-medium text-sm hover:underline">
-                                                            {selectedCoupon ? 'Thay đổi' : 'Chọn Voucher'}
-                                                        </span>
-                                                    )}
+                                                                -{(currentDiscountAmount / 1000)}k
+                                                            </span>
+                                                        )}
+                                                        {isFetchingVouchers ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                                                        ) : (
+                                                            <span className="text-blue-600 font-medium text-sm hover:underline">
+                                                                {selectedCoupon ? 'Thay đổi' : 'Chọn Voucher'}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {/* {voucherError && <p className="text-red-500 text-sm animate-in slide-in-from-top-1">{voucherError}</p>} */}
-                                        </div>
+                                                {/* {voucherError && <p className="text-red-500 text-sm animate-in slide-in-from-top-1">{voucherError}</p>} */}
+                                            </div>
+                                        }
 
                                         {/* Terms */}
                                         <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100
@@ -683,8 +690,8 @@ const PaymentPage = () => {
                 onClose={() => setIsVoucherModalOpen(false)}
                 coupons={publicCoupons}
                 totalTicketsQuantity={totalTicketsQuantity}
-                selectedTickets={selectedTickets} 
-                couponUsages={couponUsages}       
+                selectedTickets={selectedTickets}
+                couponUsages={couponUsages}
                 onApply={validateAndApplyCoupon}
                 currentSelectedCoupon={selectedCoupon}
                 totalAmount={totalAmount}

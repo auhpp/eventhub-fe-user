@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatTime, formatCurrency, displaySessionDate } from '@/utils/format';
 
-const EventHero = ({ event }) => {
+const EventHero = ({ event, isResale = false }) => {
     const firstSession = event.eventSessions?.[0];
     const [displayPrice, setDisplayPrice] = useState();
     const isOnline = event.type === 'ONLINE';
@@ -175,31 +175,34 @@ const EventHero = ({ event }) => {
                     </div>
 
                     {/* Bottom Action Area */}
-                    <div className="mt-8 space-y-4 pt-6 border-t border-gray-200">
-                        <div className="flex items-center gap-2 group">
-                            <span className="text-gray-500 font-medium">Giá từ</span>
-                            <span className="text-2xl font-bold text-blue-600">
-                                {displayPrice}
-                            </span>
-                        </div>
+                    {
+                        !isResale &&
+                        <div className="mt-8 space-y-4 pt-6 border-t border-gray-200">
+                            <div className="flex items-center gap-2 group">
+                                <span className="text-gray-500 font-medium">Giá từ</span>
+                                <span className="text-2xl font-bold text-blue-600">
+                                    {displayPrice}
+                                </span>
+                            </div>
 
-                        <Button
-                            disabled={eventStatus.disabled}
-                            className={`w-full font-bold h-12 text-lg rounded-xl shadow-md transition-all
+                            <Button
+                                disabled={eventStatus.disabled}
+                                className={`w-full font-bold h-12 text-lg rounded-xl shadow-md transition-all
                                 ${eventStatus.disabled
-                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none hover:bg-gray-200'
-                                    : 'bg-primary hover:bg-primary/90 text-white shadow-primary/20'
-                                }
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none hover:bg-gray-200'
+                                        : 'bg-primary hover:bg-primary/90 text-white shadow-primary/20'
+                                    }
                             `}
-                            onClick={() => {
-                                if (!eventStatus.disabled) {
-                                    document.getElementById('ticket-section')?.scrollIntoView({ behavior: 'smooth' });
-                                }
-                            }}
-                        >
-                            {eventStatus.label}
-                        </Button>
-                    </div>
+                                onClick={() => {
+                                    if (!eventStatus.disabled) {
+                                        document.getElementById('ticket-section')?.scrollIntoView({ behavior: 'smooth' });
+                                    }
+                                }}
+                            >
+                                {eventStatus.label}
+                            </Button>
+                        </div>
+                    }
                 </div>
 
                 {/* Right Side: Image  */}
@@ -224,6 +227,11 @@ const EventHero = ({ event }) => {
                         {eventStatus.label === "Sự kiện đã kết thúc" && (
                             <Badge variant="destructive" className="shadow-sm">
                                 Đã kết thúc
+                            </Badge>
+                        )}
+                        {isResale && (
+                            <Badge variant="" className="shadow-sm">
+                                Bán lại vé
                             </Badge>
                         )}
                     </div>

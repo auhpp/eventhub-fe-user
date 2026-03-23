@@ -38,3 +38,10 @@ export const getUserSummaryAttendees = async ({ eventSessionId, status, page, si
     });
     return response.data;
 }
+
+export const getTicketCode = async ({ id }) => {
+    const response = await API.get(`/api/v1/attendee/ticket-code/${id}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};

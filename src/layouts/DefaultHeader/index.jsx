@@ -70,6 +70,8 @@ const DefaultHeader = () => {
                             <Link to={routes.eventSeries} className="text-sm font-medium hover:text-brand 
                             transition-colors">Chuỗi sự kiện</Link>
                         }
+                        <Link to={routes.resale} className="text-sm font-medium hover:text-brand 
+                        transition-colors">Vé bán lại</Link>
                     </nav>
                     <div className="flex gap-3">
                         {isLoading ? (

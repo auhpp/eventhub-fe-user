@@ -54,3 +54,18 @@ export const cancelEventSession = async ({ eventSessionId }) => {
     });
     return response.data;
 };
+
+export const getEventStats = async ({ eventSessionId }) => {
+    const response = await API.get(`/api/v1/event-session/${eventSessionId}/stats/overview`, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const getEventChartStats = async ({ eventSessionId, timeFilter }) => {
+    const response = await API.get(`/api/v1/event-session/${eventSessionId}/stats/chart`, {
+        params: { timeFilter },
+        requiresAuth: true
+    });
+    return response.data;
+};

@@ -2,72 +2,77 @@ import React, { useState, useEffect, useContext } from "react";
 import { Loader2 } from "lucide-react";
 import DefaultPagination from "@/components/DefaultPagination";
 import { useSearchParams } from "react-router-dom";
-import { getBookings } from "@/services/bookingService";
 import { HttpStatusCode } from "axios";
 import TabsLayout from "@/components/TabsLayout";
 import { AuthContext } from "@/context/AuthContex";
-import TicketBookingCard from "@/features/tickets/TicketBookingCard";
+import ResaleTicketCard from "@/features/resale/ResaleCard";
+import { filterResalePosts } from "@/services/resalePostService";
+import { ResalePostStatus } from "@/utils/constant";
 
-const MyTicketPage = () => {
+const ResaleTicketPage = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [bookings, setBookings] = useState([]);
+    const [resalePosts, setResalePosts] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
     const [searchParams, setSearchParams] = useSearchParams();
-    const { user } = useContext(AuthContext)
-    const activeTab = searchParams.get("tab") || "COMING";
+    const { user } = useContext(AuthContext);
+
+    const activeTab = searchParams.get("tab") || "SELLING";
     const currentPage = parseInt(searchParams.get("page") || "1");
     const pageSize = 5;
 
     const tabs = [
-        { value: "COMING", label: "Sắp diễn ra" },
-        { value: "PAST", label: "Đã qua" },
+        { value: "SELLING", label: "Đang bán" },
+        { value: "SOLD", label: "Đã bán" },
         { value: "CANCELLED", label: "Đã hủy" },
     ];
 
     // Fetch data 
     useEffect(() => {
-        const fetchBookings = async () => {
+        const fetchResalePosts = async () => {
+            if (!user?.id) return;
+
             try {
                 setIsLoading(true);
 
-                let upcomingParam = null;
-                let statusParam = null;
 
-                if (activeTab === "COMING") upcomingParam = true;
-                if (activeTab === "PAST") upcomingParam = false;
-                if (activeTab === "CANCELLED") {
-                    upcomingParam = null;
-                    statusParam = "CANCELLED";
+                let statusParams = [];
+                if (activeTab === "SELLING") {
+                    statusParams = [ResalePostStatus.PENDING, ResalePostStatus.APPROVED];
+                } else if (activeTab === "SOLD") {
+                    statusParams = [ResalePostStatus.SOLD];
+                } else if (activeTab === "CANCELLED") {
+                    statusParams = [ResalePostStatus.CANCELLED_BY_USER, ResalePostStatus.REJECTED,
+                    ResalePostStatus.CANCELLED_BY_ADMIN
+                    ];
                 }
 
-                const response = await getBookings({
+                const response = await filterResalePosts({
                     userId: user.id,
-                    status: statusParam,
-                    upcoming: upcomingParam,
+                    statuses: statusParams,
                     page: currentPage,
                     size: pageSize
                 });
 
                 if (response.code === HttpStatusCode.Ok) {
                     const resData = response.result;
-                    setBookings(resData.data);
-                    setTotalPages(resData.totalPage);
-                    setTotalElements(resData.totalElements);
+                    setResalePosts(resData.data || []);
+                    setTotalPages(resData.totalPage || 1);
+                    setTotalElements(resData.totalElements || 0);
                 }
             } catch (error) {
-                console.log("Error fetching bookings:", error);
+                console.log("Error fetching resale posts:", error);
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchBookings();
+        fetchResalePosts();
     }, [activeTab, currentPage, user]);
 
     const handleChangeTab = (tab) => {
         setSearchParams((prev) => {
             prev.set("tab", tab);
-            prev.set("page", 1); 
+            prev.set("page", 1);
             return prev;
         });
     };
@@ -78,15 +83,15 @@ const MyTicketPage = () => {
             <div className="mb-8 flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        Vé của tôi
+                        Vé bán lại
                     </h1>
                     <p className="text-muted-foreground mt-1 text-sm">
-                        Quản lý và theo dõi các giao dịch mua vé của bạn.
+                        Quản lý các bài đăng bán lại vé, theo dõi trạng thái và doanh thu.
                     </p>
                 </div>
             </div>
 
-            {/* Filters */}
+            {/* Filters & List */}
             <TabsLayout
                 activeTab={activeTab}
                 setActiveTab={handleChangeTab}
@@ -97,13 +102,14 @@ const MyTicketPage = () => {
                             <div className="flex h-64 items-center justify-center">
                                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                             </div>
-                        ) : bookings.length > 0 ? (
-                            bookings.map((booking) => (
-                                <TicketBookingCard key={booking.id} data={booking} currentUser={user} />
+                        ) : resalePosts.length > 0 ? (
+                            resalePosts.map((post) => (
+                                <ResaleTicketCard key={post.id} data={post} currentUser={user} />
                             ))
                         ) : (
-                            <div className="text-center py-20 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                                <p className="text-slate-500">Chưa có đơn hàng nào trong mục này.</p>
+                            <div className="text-center py-20 bg-slate-50 rounded-lg border border-dashed border-slate-200
+                             flex flex-col items-center justify-center">
+                                <p className="text-slate-500 mb-4">Không có bài đăng bán vé nào trong mục này.</p>
                             </div>
                         )}
                     </div>
@@ -111,7 +117,7 @@ const MyTicketPage = () => {
             />
 
             {/* Pagination */}
-            {bookings.length > 0 && (
+            {resalePosts.length > 0 && (
                 <div className="mt-6">
                     <DefaultPagination
                         currentPage={currentPage}
@@ -126,4 +132,4 @@ const MyTicketPage = () => {
     );
 };
 
-export default MyTicketPage;
+export default ResaleTicketPage;

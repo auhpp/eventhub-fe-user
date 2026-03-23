@@ -71,13 +71,15 @@ export const BookingStatus = {
 }
 
 export const AttendeeStatus = {
-    INACTIVE: { label: "Chờ thanh toán", color: "bg-yellow-100 text-yellow-700", key: 'INACTIVE' },
-    VALID: { label: "Chưa check-in", color: "bg-gray-100 text-gray-700", key: 'VALID' },
-    CHECKED_IN: { label: "Đã check-in", color: "bg-blue-100 text-blue-700", key: 'CHECKED_IN' },
-    CANCELLED_BY_EVENT: { label: "Đã hủy bởi sự kiện", color: "bg-red-100 text-red-700", key: 'CANCELLED_BY_EVENT' },
-    CANCELLED_BY_USER: { label: "Đã hủy bởi bạn", color: "bg-red-100 text-red-700", key: 'CANCELLED_BY_USER' },
+    INACTIVE: { label: "Chờ thanh toán", key: 'INACTIVE' },
+    VALID: { label: "Chưa check-in", key: 'VALID' },
+    CHECKED_IN: { label: "Đã check-in", key: 'CHECKED_IN' },
+    CANCELLED_BY_EVENT: { label: "Đã hủy bởi sự kiện", key: 'CANCELLED_BY_EVENT' },
+    CANCELLED_BY_USER: { label: "Đã hủy bởi bạn", key: 'CANCELLED_BY_USER' },
     COMING: { label: "Sắp đến", key: 'COMING' },
     PAST: { label: "Đã qua", key: 'PAST' },
+    ON_RESALE: { label: "Đang bán", key: 'ON_RESALE' },
+    RESOLD: { label: "Đã bán lại", key: 'RESOLD' },
 
 };
 
@@ -125,6 +127,8 @@ export const DiscountType = {
 export const SortType = {
     NEWEST: 'NEWEST',
     OLDEST: 'OLDEST',
+    PRICE_LOWEST: 'PRICE_LOWEST',
+    PRICE_HIGHEST: 'PRICE_HIGHEST'
 }
 
 
@@ -139,5 +143,18 @@ export const NotificationType = {
     CREATE_EVENT_SESSION: 'CREATE_EVENT_SESSION',
     CATEGORY_EVENT: 'CATEGORY_EVENT',
     INVITE_EVENT: 'INVITE_EVENT',
-    GIFT_TICKET:'GIFT_TICKET'
+    GIFT_TICKET: 'GIFT_TICKET'
+}
+
+export const ResalePostStatus = {
+    PENDING: 'PENDING',
+    APPROVED: 'APPROVED',
+    SOLD: 'SOLD',
+    REJECTED: 'REJECTED',
+    CANCELLED_BY_ADMIN: 'CANCELLED_BY_ADMIN',
+    CANCELLED_BY_USER: 'CANCELLED_BY_USER',
+}
+
+export const BookingType = {
+    BUY: "BUY", INVITE: "INVITE", RESALE: "RESALE"
 }

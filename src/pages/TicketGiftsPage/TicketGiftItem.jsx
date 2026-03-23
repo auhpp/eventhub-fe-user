@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
-    ArrowRight,
     ArrowUpRight,
     ArrowDownLeft,
     Ticket
@@ -14,6 +12,7 @@ import { routes } from '@/config/routes';
 import DefaultAvatar from '@/components/DefaultAvatar';
 import TicketGiftStatusBadge from '@/components/TicketGiftStatusBadge';
 import { formatDateTime } from '@/utils/format';
+import DetailButton from '@/components/DetailButton';
 
 
 const TicketGiftItem = ({ data, isSentType }) => {
@@ -103,15 +102,9 @@ const TicketGiftItem = ({ data, isSentType }) => {
                     )}
 
                     <div className='flex items-center gap-4'>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="group/btn gap-2"
+                        <DetailButton
                             onClick={() => navigate(routes.ticketGiftDetail.replace(':id', id))}
-                        >
-                            Chi tiết
-                            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Button>
+                        />
                     </div>
                 </div>
             </div>

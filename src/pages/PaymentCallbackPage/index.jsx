@@ -62,7 +62,7 @@ const PaymentCallbackPage = () => {
                     if (response.code == HttpStatusCode.Ok) {
                         if (response.result != null) {
                             const booking = response.result.booking
-                            const eventSessionId = booking.attendees[0].ticket.eventSessionId
+                            const eventSessionId = booking.attendees[0].eventSession.id
                             const eventSessionRes = booking.event.eventSessions.find(it => it.id == eventSessionId)
                             if (response.result.transactionCode == "00") {
                                 setBookingData(booking)

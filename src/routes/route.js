@@ -20,13 +20,13 @@ import EditVoucherPage from "@/pages/EditVoucherPage"
 import EventDetailPage from "@/pages/EventDetailPage"
 import EventGalleryPage from "@/pages/EventGalleryPage"
 import EventManagementPage from "@/pages/EventManagementPage"
-import EventOverviewPage from "@/pages/EventOverviewPage"
 import EditEventSeriesPage from "@/pages/eventSeries/EditEventSeriesPage"
 import EventsInEventSeriesPage from "@/pages/eventSeries/EventsInEventSeriesPage"
 import EventSeriesDetailPage from "@/pages/EventSeriesDetailPage"
 import EvenSeriesManagementPage from "@/pages/EventSeriesManagementPage"
 import EventSeriesPage from "@/pages/EventSeriesPage"
 import EventStaffManagementPage from "@/pages/EventStaffManagementPage"
+import EventStatisticsPage from "@/pages/EventStatisticsPage"
 import HomePage from "@/pages/HomePage"
 import InvitationResponsePage from "@/pages/InvitationResponsePage"
 import MyTicketPage from "@/pages/MyTicketPage"
@@ -50,6 +50,13 @@ import TicketGiftsPage from "@/pages/TicketGiftsPage"
 import TicketRecipientPage from "@/pages/TicketRecipientPage"
 import TicketSelectionPage from "@/pages/TicketSelectionPage"
 import VoucherManagementPage from "@/pages/VoucherManagementPage"
+import CreateResaleTicketPage from "@/pages/CreateResaleTicketPage"
+import ResaleTicketPage from "@/pages/ResaleTicketPage"
+import ResaleDetailPage from "@/pages/ResaleDetailPage"
+import ResalePage from "@/pages/ResalePage"
+import EventResalePage from "@/pages/EventResalePage"
+import ResaleTicketSelectionPage from "@/pages/ResaleTicketSelectionPage"
+import EditResaleTicketPage from "@/pages/EditResaleTicketPage"
 
 export const publicRoutes = [
     { path: routes.signin, page: SigninPage, layout: AuthLayout },
@@ -86,12 +93,20 @@ export const privateRoutes = [
     { path: routes.ticketGifts, page: TicketGiftsPage, layout: ProfileLayout },
     { path: routes.ticketGiftDetail, page: TicketGiftDetailPage, layout: ProfileLayout },
     { path: routes.notification, page: NotificationPage, layout: DefaultLayout },
+    { path: routes.createResale, page: CreateResaleTicketPage, layout: DefaultLayout },
+    { path: routes.resaleProfile, page: ResaleTicketPage, layout: ProfileLayout },
+    { path: routes.resaleDetailProfile, page: ResaleDetailPage, layout: ProfileLayout },
+    { path: routes.resale, page: ResalePage, layout: DefaultLayout },
+    { path: routes.resaleEvent, page: EventResalePage, layout: DefaultLayout },
+    { path: routes.attendeeSelection, page: ResaleTicketSelectionPage, layout: DefaultLayout },
+    { path: routes.editResalePost, page: EditResaleTicketPage, layout: DefaultLayout },
+
 
 ]
 export const organizerRoutes = [
     { path: routes.eventManagement, page: EventManagementPage, layout: OrganizerLayout },
     { path: routes.createEvent, page: CreateEventPage, layout: OrganizerLayout },
-    { path: routes.eventOverview, page: EventOverviewPage, layout: EventManagementLayout },
+    { path: routes.eventOverview, page: EventStatisticsPage, layout: EventManagementLayout },
     { path: routes.eventAttendee, page: AttendeeManagementPage, layout: EventManagementLayout },
     { path: routes.editEvent, page: EditEventPage, layout: EventManagementLayout },
     { path: routes.eventStaffManagement, page: EventStaffManagementPage, layout: EventManagementLayout },

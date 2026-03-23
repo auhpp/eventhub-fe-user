@@ -6,7 +6,14 @@ import API from "@/config/api";
 //}
 export const createPendingBooking = async ({ bookingTicketRequests, type }) => {
     const response = await API.post('/api/v1/booking/pending', { bookingTicketRequests, type }, {
-        requiresAuth: false
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const createResalePendingBooking = async ({ attendeeIds, type, resalePostId }) => {
+    const response = await API.post('/api/v1/booking/resale/pending', { attendeeIds, type, resalePostId }, {
+        requiresAuth: true
     });
     return response.data;
 };
@@ -33,11 +40,12 @@ export const getExistsPendingBooking = async ({ eventSessionId }) => {
     return response.data;
 };
 
-export const getBookings = async ({ userId, eventSessionId, status, page, size }) => {
+export const getBookings = async ({ userId, eventSessionId, status, upcoming, page, size }) => {
     const reqStatus = status === "ALL" ? null : status;
     const response = await API.post(`/api/v1/booking/filter?page=${page}&size=${size}`, {
         status: reqStatus,
-        userId, eventSessionId
+        userId, eventSessionId,
+        upcoming: upcoming
     }, {
         requiresAuth: true
     });
@@ -65,4 +73,11 @@ export const groupAttendeesByTicket = (attendees = []) => {
         acc[ticketId].items.push(attendee);
         return acc;
     }, {});
+};
+
+export const getExistsPendingResaleBooking = async ({ resalePostId }) => {
+    const response = await API.get(`/api/v1/booking/resale/${resalePostId}`, {
+        requiresAuth: true
+    });
+    return response.data;
 };

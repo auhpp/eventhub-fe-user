@@ -45,6 +45,14 @@ export const routes = {
     editEventSeries: "/organizer/series/:id/edit",
     eventSeriesDetail: "/event-series/:id",
     eventSeries: "/event-series",
-    notification: "/notification"
+    notification: "/notification",
+    createResale: "/resale/create/:bookingId",
+    resaleProfile: "/resale-ticket",
+    resaleDetailProfile: "/resale-ticket/:id",
+    resale: "/resale",
+    resaleDetail: "/resale-ticket/:id",
+    resaleEvent: "/resale/event/:eventId",
+    attendeeSelection: "/resale/:resalePostId/event/:eventId/selection",
+    editResalePost: "/resale-ticket/:id/edit"
 
 }
