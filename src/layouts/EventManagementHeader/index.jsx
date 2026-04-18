@@ -7,11 +7,11 @@ import { cancelEvent } from "@/services/eventService";
 import { HttpStatusCode } from "axios";
 import { toast } from "sonner";
 import { ConfirmCancelModal } from "@/components/ConfirmCancelModal";
-import { EventStatus } from "@/utils/constant";
+import { EventStatus, RoleName } from "@/utils/constant";
 
 const EventMangementHeader = () => {
     const { user, isLoading } = useContext(AuthContext);
-    const { event, getEventInit } = useContext(EventContext);
+    const { event, getEventInit, eventStaff } = useContext(EventContext);
 
     // State of Modal for cancel event
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -49,16 +49,17 @@ const EventMangementHeader = () => {
         }
     };
 
-    if (!event) {
+    if (!event || !eventStaff) {
         return (
             <div className="flex justify-center items-center h-screen w-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         )
     }
-
-    const canCancel = event.status !== EventStatus.CANCELLED && event.status !== EventStatus.REJECTED;
-
+    const isEventOwner = eventStaff?.role?.name == RoleName.EVENT_OWNER.key
+    const isEventAdmin = eventStaff?.role?.name == RoleName.EVENT_ADMIN.key
+    const allPermission = isEventAdmin || isEventOwner
+    const canCancel = event.status !== EventStatus.CANCELLED && event.status !== EventStatus.REJECTED && allPermission;
     return (
         <>
             <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 
@@ -135,8 +136,7 @@ const EventMangementHeader = () => {
                 isLoading={isCanceling}
                 itemLabel={event.name}
                 title="Cảnh báo: Hủy sự kiện"
-                note="Việc hủy sự kiện sẽ tự động gửi thông báo đến các khách hàng đã mua vé 
-                và hệ thống sẽ tiến hành quy trình hoàn tiền (nếu có)."
+                note="Việc hủy sự kiện sẽ tự động gửi thông báo đến các khách hàng đã mua vé"
             />
         </>
     );

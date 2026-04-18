@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { getCategoris } from '@/services/categoryService';
 import { HttpStatusCode } from 'axios';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
@@ -7,30 +7,38 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
 
 const CategorySection = () => {
-    const [categories, setCategories] = useState(null)
-    const navigate = useNavigate()
-    useEffect(
-        () => {
-            const fetchCategory = async () => {
-                try {
-                    const response = await getCategoris()
-                    if (response.code == HttpStatusCode.Ok) {
-                        setCategories(response.result)
-                    }
-                } catch (error) {
-                    console.log(error)
+    const [categories, setCategories] = useState(null);
+    const [isExpanded, setIsExpanded] = useState(false); 
+    const navigate = useNavigate();
+
+    const INITIAL_LIMIT = 12;
+
+    useEffect(() => {
+        const fetchCategory = async () => {
+            try {
+                const response = await getCategoris();
+                if (response.code == HttpStatusCode.Ok) {
+                    setCategories(response.result);
                 }
+            } catch (error) {
+                console.log(error);
             }
-            fetchCategory()
-        }, []
-    )
+        };
+        fetchCategory();
+    }, []);
+
     if (!categories) {
         return (
             <div className="flex justify-center items-center h-screen w-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-        )
+        );
     }
+
+    const hasMore = categories.length > INITIAL_LIMIT;
+    const visibleCategories = isExpanded ? categories : categories.slice(0, INITIAL_LIMIT);
+    const hiddenCount = categories.length - INITIAL_LIMIT;
+
     return (
         <section className="mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
             {/* Header Section */}
@@ -43,7 +51,7 @@ const CategorySection = () => {
 
             {/* Grid Items */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-                {categories.map((cat) => (
+                {visibleCategories.map((cat) => (
                     <div
                         key={cat.id}
                         className={`group flex items-start gap-4 rounded-xl border p-4 
@@ -66,6 +74,26 @@ const CategorySection = () => {
                     </div>
                 ))}
             </div>
+
+            {/* expanded button */}
+            {hasMore && (
+                <div className="mt-6 flex justify-start md:justify-center">
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium transition-colors text-sm"
+                    >
+                        {isExpanded ? (
+                            <>
+                                Thu gọn <ChevronUp className="h-4 w-4" />
+                            </>
+                        ) : (
+                            <>
+                                Xem thêm ({hiddenCount}) <ChevronDown className="h-4 w-4" />
+                            </>
+                        )}
+                    </button>
+                </div>
+            )}
         </section>
     );
 };

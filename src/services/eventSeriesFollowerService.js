@@ -23,7 +23,7 @@ export const getEventSeriesFollowers = async ({ eventSeriesId, userId, page = 1,
 };
 
 export const countEventSeriesFollowers = async ({ eventSeriesId, userId }) => {
-    const response = await API.pos(`/api/v1/event-series-follower/count`, { eventSeriesId, userId }, {
+    const response = await API.post(`/api/v1/event-series-follower/count`, { eventSeriesId, userId }, {
         requiresAuth: false
     });
     return response.data;

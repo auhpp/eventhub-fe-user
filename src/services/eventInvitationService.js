@@ -8,9 +8,10 @@ export const createEventInvitation = async (eventInvitationCreateRequest) => {
     return response.data;
 };
 
-export const getEventInvitations = async ({ status, eventSessionId, page, size }) => {
+export const getEventInvitations = async ({ email, status, eventSessionId, page, size }) => {
     const reqStatus = status === "ALL" ? null : status;
-    const response = await API.post(`/api/v1/event-invitation/filter?page=${page}&size=${size}`, { status: reqStatus, eventSessionId }, {
+    const response = await API.post(`/api/v1/event-invitation/filter?page=${page}&size=${size}`,
+        { email, status: reqStatus, eventSessionId }, {
         requiresAuth: true
     });
     return response.data;

@@ -1,32 +1,35 @@
 import React from "react";
 import {
     ArrowLeft,
+    ChartBar,
     Edit,
     PanelsTopLeft,
+    Ticket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { Link, useParams, useLocation } from "react-router-dom";
 const EventSeriesManagementSidebar = () => {
-    const { id } = useParams();
+    const { eventSeriesId } = useParams();
     const location = useLocation();
 
     const navItems = [
-        { label: "Sự kiện", icon: PanelsTopLeft, href: routes.eventsInEventSeries.replace(":id", id) },
-        { label: "Chỉnh sửa", icon: Edit, href: routes.editEventSeries.replace(":id", id) },
+        { label: "Sự kiện", icon: PanelsTopLeft, href: routes.eventsInEventSeries.replace(":eventSeriesId", eventSeriesId) },
+        { label: "Chỉnh sửa", icon: Edit, href: routes.editEventSeries.replace(":eventSeriesId", eventSeriesId) },
+        { label: "Thống kê", icon: ChartBar, href: routes.eventSeriesStats.replace(":eventSeriesId", eventSeriesId) },
+
     ];
     return (
         <aside className="w-60 bg-card border-r border-border hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0">
             <div className="flex flex-col h-full p-4">
                 {/* Logo Section */}
                 <div className="flex items-center gap-3 px-2 mb-2 mt-2">
-                    <div className="bg-primary rounded-xl size-10 shadow-sm
-                     flex items-center justify-center text-primary-foreground font-bold text-xl">
-                        EA
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white">
+                        <Ticket className="h-5 w-5" />
                     </div>
                     <h1 className="text-lg font-bold tracking-tight text-foreground">
-                        EventAdmin
+                        Organizer Center
                     </h1>
                 </div>
 

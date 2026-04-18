@@ -10,8 +10,8 @@ export const createReview = async (formData) => {
     return response.data;
 };
 
-export const getReviews = async ({ eventSessionId, userId, attendeeId, page = 1, size = 10 }) => {
-    const response = await API.post(`/api/v1/review/filter?page=${page}&size=${size}`, { eventSessionId, userId, attendeeId },
+export const getReviews = async ({ eventSessionId, userId, attendeeId, rating, email, page = 1, size = 10 }) => {
+    const response = await API.post(`/api/v1/review/filter?page=${page}&size=${size}`, { email, rating, eventSessionId, userId, attendeeId },
         {
             requiresAuth: false
         }

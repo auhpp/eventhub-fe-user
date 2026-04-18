@@ -16,3 +16,7 @@ export const isExpiredEventSession = ({ endDateTime }) => {
 export const isExpiredEventSessionStartDate = ({ startDateTime }) => {
     return (new Date(startDateTime) < (new Date()))
 }
+
+export const isToTimeCheckIn = ({ checkinStartTime }) => {
+    return (new Date(checkinStartTime) < (new Date()))
+}

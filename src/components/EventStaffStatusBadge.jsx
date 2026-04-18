@@ -7,9 +7,13 @@ const EventStaffStatusBadge = ({ status }) => {
         REJECTED: "bg-red-100 text-red-700 hover:bg-red-100 border-red-200",
         EXPIRED: "bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200",
         REVOKED: "bg-rose-100 text-rose-700 hover:bg-rose-100 border-rose-200",
+        INACTIVE: "bg-orange-100 text-orange-700 hover:bg-orange-100 border-orange-200",
 
     };
-    const labels = { PENDING: "Đang chờ", ACTIVE: "Đã chấp nhận", REJECTED: "Từ chối", EXPIRED: "Hết hạn", REVOKED: 'Đã thu hồi' };
+    const labels = {
+        PENDING: "Đang chờ", ACTIVE: "Đã chấp nhận", REJECTED: "Từ chối", EXPIRED: "Hết hạn", REVOKED: 'Đã thu hồi',
+        INACTIVE: 'Ngừng hoạt động'
+    };
     return <Badge variant="outline" className={styles[status] || "bg-gray-100"}>{labels[status] || status}</Badge>;
 };
 

@@ -7,12 +7,14 @@ export const updateTicket = async ({ id, data }) => {
         name: data.name,
         price: data.price,
         quantity: data.quantity,
-        maxPerOrder: data.maximumPerPurchase,
+        
+        maximumPerPurchase: data.maximumPerPurchase,
+        maximumPerUser: data.maximumPerUser,
+
         invitationQuota: data.invitationQuota,
         description: data.description,
         openAt: formatDateForBE(data.openAt), // Map startDate -> openAt
         endAt: formatDateForBE(data.endAt),     // Map endDate -> endAt
-        maximumPerPurchase: data.maxPerOrder
     };
 
     const response = await API.put(`/api/v1/ticket/${id}`, payload, {

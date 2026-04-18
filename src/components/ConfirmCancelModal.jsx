@@ -54,7 +54,7 @@ export function ConfirmCancelModal({
 
                         {/* Note Box */}
                         <div className="p-4 rounded-xl bg-red-50/50 border border-red-100 dark:bg-red-900/10 dark:border-red-800/50">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                 <span className="font-bold text-red-600 dark:text-red-400">
                                     Lưu ý:{" "}
                                 </span>

@@ -19,7 +19,7 @@ const SearchEventPage = () => {
     const navigate = useNavigate();
 
     const currentPage = parseInt(searchParams.get("page") || "1");
-    const pageSize = 8;
+    const pageSize = 9;
 
     useEffect(() => {
         const fetchSearchResults = async () => {

@@ -6,9 +6,9 @@ import { displaySessionDate, formatCurrency, formatTime } from '@/utils/format';
 import { EventType, MeetingPlatform } from '@/utils/constant';
 
 const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onSubmit,
-    discountAmount = 0,       
+    discountAmount = 0,
     finalAmount = totalAmount,
-    messageButton
+    messageButton, disabled
 }) => {
     const isOnline = event.type == EventType.ONLINE.key;
     return (
@@ -132,7 +132,7 @@ const BookingSummary = ({ event, selectedTickets, totalAmount, eventSession, onS
                 {/* Submit Button */}
                 <Button
                     className="w-full py-6 text-base font-bold shadow-lg shadow-blue-500/20 mt-2"
-                    disabled={selectedTickets.length === 0}
+                    disabled={selectedTickets.length === 0 || disabled}
                     onClick={onSubmit}
                 >
                     {messageButton}

@@ -24,7 +24,10 @@ export const createEventApi = async ({ eventData, sessions }) => {
             checkinStartTime: it.checkinStartTime,
             startDateTime: it.startTime,
             endDateTime: it.endTime,
-            ticketCreateRequests: ticketRequest
+            ticketCreateRequests: ticketRequest,
+            qaStatus: it.qaStatus || 'DISABLED',
+            allowAnonymous: it.allowAnonymous || false,
+            requireModerationQuestion: it.requireModerationQuestion || false,
         };
 
         if (eventData.type === EventType.ONLINE.key) {
@@ -45,7 +48,9 @@ export const createEventApi = async ({ eventData, sessions }) => {
         description: eventData.description,
         address: eventData.address,
         eventSessionCreateRequests: sesstionFormated,
-        eventSeriesId: eventData.eventSeriesId
+        eventSeriesId: eventData.eventSeriesId,
+        hasResalable: eventData.hasResalable,
+        tags: eventData.tags
     };
 
     if (eventData.type === EventType.OFFLINE.key) {
@@ -91,7 +96,9 @@ export const updateEvent = async ({ id, eventData }) => {
         categoryId: eventData.categoryId,
         description: eventData.description,
         address: eventData.address,
-        eventSeriesId: eventData.eventSeriesId
+        eventSeriesId: eventData.eventSeriesId == "none" ? null : eventData.eventSeriesId,
+        hasResalable: eventData.hasResalable,
+        tags: eventData.tags
     };
 
     if (eventData.type === EventType.OFFLINE.key) {
@@ -136,6 +143,13 @@ export const cancelEvent = async ({ id }) => {
 export const countEvent = async (payload) => {
     const response = await API.post(`/api/v1/event/count`, payload, {
         requiresAuth: false
+    });
+    return response.data;
+};
+
+export const eventHasResalable = async ({ id }) => {
+    const response = await API.get(`/api/v1/event/has-resalable/${id}`, {
+        requiresAuth: true
     });
     return response.data;
 };

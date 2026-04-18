@@ -19,21 +19,25 @@ const TicketEditItem = ({ ticket, openEditTicketModal, handleRemoveTicket, expir
             </div>
             <div className="flex gap-1">
                 <div className="flex gap-1">
-                    <Button
-                        variant="ghost" size="icon" type="button"
-                        className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
-                        onClick={openEditTicketModal}
-                    >
-                        <Edit2 className="size-4" />
-                    </Button>
                     {
-                        !expiredEventSession &&
-                        <Button
-                            variant="ghost" size="icon" type="button"
-                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                            onClick={handleRemoveTicket}                                                    >
-                            <Trash2 className="size-4" />
-                        </Button>
+                        !expiredEventSession && (
+                            <>
+                                <Button
+                                    variant="ghost" size="icon" type="button"
+                                    className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
+                                    onClick={openEditTicketModal}
+                                >
+                                    <Edit2 className="size-4" />
+                                </Button>
+
+                                <Button
+                                    variant="ghost" size="icon" type="button"
+                                    className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                                    onClick={handleRemoveTicket}                                                    >
+                                    <Trash2 className="size-4" />
+                                </Button>
+                            </>
+                        )
                     }
                 </div>
             </div>

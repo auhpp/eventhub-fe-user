@@ -13,8 +13,8 @@ export const createCoupon = async (requestData) => {
     return response.data;
 };
 
-export const getCoupons = async ({ eventId, hasPublic, page, size }) => {
-    const response = await API.post(`/api/v1/coupon?page=${page}&size=${size}`, { eventId, hasPublic },
+export const getCoupons = async ({ status, keyword, eventId, hasPublic, page, size }) => {
+    const response = await API.post(`/api/v1/coupon?page=${page}&size=${size}`, { status, keyword, eventId, hasPublic },
         {
             requiresAuth: true
         }
@@ -69,6 +69,13 @@ export const getCouponById = async (id) => {
 
 export const countBookingByUserId = async ({ userId, couponId }) => {
     const response = await API.get(`/api/v1/coupon/${couponId}/count-booking/${userId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const disableCoupon = async ({ id }) => {
+    const response = await API.post(`/api/v1/coupon/disable/${id}`, {
         requiresAuth: true
     });
     return response.data;

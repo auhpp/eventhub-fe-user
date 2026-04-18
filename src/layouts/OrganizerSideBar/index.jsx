@@ -1,35 +1,41 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
     Plus,
     CalendarDays,
     ArrowLeft,
-    Ticket
+    Ticket,
+    ChartBar,
+    Wallet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "@/context/AuthContex";
+import { RoleName } from "@/utils/constant";
 
 const OrganizerSidebar = () => {
+    const { user } = useContext(AuthContext)
+    const isOgranizer = user.role.name == RoleName.ORGANIZER.key
     const navItems = [
         { label: "Sự kiện của tôi", icon: Ticket, href: routes.eventManagement },
-        { label: "Chuỗi sự kiện", icon: CalendarDays, href: routes.eventSeriesManagement },
-
-    ];
+        isOgranizer && { label: "Chuỗi sự kiện", icon: CalendarDays, href: routes.eventSeriesManagement },
+        isOgranizer && { label: "Thống kê", icon: ChartBar, href: routes.organizerStats },
+        isOgranizer && { icon: Wallet, label: "Ví tiền", href: routes.organzierRevenue },
+    ].filter(Boolean);
     const navigate = useNavigate()
     const location = useLocation();
-    
+
     return (
         <aside className="w-60 bg-card border-r border-border hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0">
             <div className="flex flex-col h-full p-4">
                 {/* Logo Section */}
                 <div className="flex items-center gap-3 px-2 mb-2 mt-2">
-                    <div className="bg-primary rounded-xl size-10 shadow-sm flex items-center justify-center
-                     text-primary-foreground font-bold text-xl">
-                        EA
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white">
+                        <Ticket className="h-5 w-5" />
                     </div>
                     <h1 className="text-lg font-bold tracking-tight text-foreground">
-                        EventAdmin
+                        Organizer Center
                     </h1>
                 </div>
                 <div className="py-2 mb-2">

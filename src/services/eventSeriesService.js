@@ -28,7 +28,7 @@ export const updateEventSeries = async ({ id, formData }) => {
 };
 
 export const getEventSeries = async ({ searchData, page = 1, size = 10 }) => {
-    const response = await API.post('/api/v1/event-series/filter', searchData, {
+    const response = await API.post('/api/v1/event-series/filter',  searchData, {
         params: { page, size },
         requiresAuth: false
     });

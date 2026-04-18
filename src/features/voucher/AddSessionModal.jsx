@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { isExpiredEventSession } from "@/utils/eventUtils"
 
 const AddSessionModal = ({ open, onOpenChange, value, onValueChange, selectedSessionIds, onCancel, onSubmit, event }) => {
+    const eventSessions = event?.eventSessions?.filter(s => !selectedSessionIds.includes(s.id) && (
+        !isExpiredEventSession({ endDateTime: s.endDateTime })
+    ))
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
@@ -15,7 +19,7 @@ const AddSessionModal = ({ open, onOpenChange, value, onValueChange, selectedSes
                             <SelectValue placeholder="Chọn khung giờ" />
                         </SelectTrigger>
                         <SelectContent>
-                            {event?.eventSessions?.filter(s => !selectedSessionIds.includes(s.id)).map(session => (
+                            {eventSessions.map(session => (
                                 <SelectItem key={session.id} value={session.id.toString()}>
                                     {new Date(session.startDateTime).toLocaleString('vi-VN')}
                                 </SelectItem>
@@ -24,7 +28,7 @@ const AddSessionModal = ({ open, onOpenChange, value, onValueChange, selectedSes
                     </Select>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={onCancel}>Cancel</Button>
+                    <Button variant="outline" onClick={onCancel}>Hủy</Button>
                     <Button onClick={onSubmit}>OK</Button>
                 </DialogFooter>
             </DialogContent>

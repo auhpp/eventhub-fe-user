@@ -1,49 +1,64 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
     ArrowLeft,
     CheckCircle,
     Edit,
+    FileQuestion,
     GalleryHorizontalEnd,
     ListOrdered,
     PanelsTopLeft,
     PercentSquare,
     PersonStanding,
+    Star,
+    Ticket,
     User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { Link, useParams, useLocation } from "react-router-dom";
+import { RoleName } from "@/utils/constant";
+import { EventContext } from "@/context/EventContext";
 const EventManagementSidebar = () => {
-    const { id } = useParams();
+    const { id: eventId } = useParams();
     const location = useLocation();
+    const { eventStaff } = useContext(EventContext);
+    if (!eventStaff) {
+        return null;
+    }
+    const isEventManger = eventStaff.role.name == RoleName.EVENT_MANAGER.key
+    const isEventOwner = eventStaff.role.name == RoleName.EVENT_OWNER.key
+    const isEventAdmin = eventStaff.role.name == RoleName.EVENT_ADMIN.key
+    const allPermission = isEventAdmin || isEventOwner
 
     const navItems = [
-        { label: "Tổng quan", icon: PanelsTopLeft, href: routes.eventOverview.replace(":id", id) },
-        { label: "Người tham gia", icon: PersonStanding, href: routes.eventAttendee.replace(":id", id) },
-        { label: "Danh sách đơn hàng", icon: ListOrdered, href: routes.eventOrder.replace(":id", id) },
-        { label: "Check-in", icon: CheckCircle, href: routes.checkIn.replace(":id", id) },
+        allPermission && { label: "Tổng quan", icon: PanelsTopLeft, href: routes.eventOverview.replace(":id", eventId) },
+        { label: "Người tham gia", icon: PersonStanding, href: routes.eventAttendee.replace(":id", eventId) },
+        (allPermission || isEventManger) && { label: "Danh sách đơn hàng", icon: ListOrdered, href: routes.eventOrder.replace(":id", eventId) },
+        { label: "Check-in", icon: CheckCircle, href: routes.checkIn.replace(":id", eventId) },
+        (allPermission || isEventManger) && { label: "Đánh giá", icon: Star, href: routes.reviewManager.replace(":id", eventId) },
 
-    ];
+
+    ].filter(Boolean);
     const eventSettingnavItems = [
-        { label: "Chỉnh sửa", icon: Edit, href: routes.editEvent.replace(":id", id) },
-        { label: "Thành viên", icon: User, href: routes.eventStaffManagement.replace(":id", id) },
-        { label: "Ảnh", icon: GalleryHorizontalEnd, href: routes.eventGallery.replace(":id", id) },
-    ];
+        allPermission && { label: "Chỉnh sửa", icon: Edit, href: routes.editEvent.replace(":id", eventId) },
+        (allPermission || isEventManger) && { label: "Thành viên", icon: User, href: routes.eventStaffManagement.replace(":id", eventId) },
+        (allPermission || isEventManger) && { label: "Ảnh", icon: GalleryHorizontalEnd, href: routes.eventGallery.replace(":id", eventId) },
+        (allPermission || isEventManger) && { label: "Hỏi & Đáp (Q&A)", icon: FileQuestion, href: routes.organizerQA.replace(":id", eventId) },
+    ].filter(Boolean);
     const marketing = [
-        { label: "Voucher", icon: PercentSquare, href: routes.voucher.replace(":id", id) },
-    ];
+        allPermission && { label: "Voucher", icon: PercentSquare, href: routes.voucher.replace(":id", eventId) },
+    ].filter(Boolean);
     return (
         <aside className="w-60 bg-card border-r border-border hidden lg:flex flex-col flex-shrink-0 h-screen sticky top-0">
             <div className="flex flex-col h-full p-4">
                 {/* Logo Section */}
                 <div className="flex items-center gap-3 px-2 mb-2 mt-2">
-                    <div className="bg-primary rounded-xl size-10 shadow-sm
-                     flex items-center justify-center text-primary-foreground font-bold text-xl">
-                        EA
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white">
+                        <Ticket className="h-5 w-5" />
                     </div>
                     <h1 className="text-lg font-bold tracking-tight text-foreground">
-                        EventAdmin
+                        Organizer Center
                     </h1>
                 </div>
 
@@ -74,56 +89,71 @@ const EventManagementSidebar = () => {
                             </Button>
                         )
                     })}
-                    <div className="px-2 mb-2 text-sm font-medium text-muted-foreground">
-                        Cài đặt sự kiện
-                    </div>
-                    {eventSettingnavItems.map((item, index) => {
-                        const isActive = location.pathname.startsWith(item.href);
+                    {
+                        (allPermission || isEventManger) && (
+                            <>
 
-                        return (
-                            <Button
-                                key={index}
-                                variant={isActive ? "secondary" : "ghost"}
-                                className={cn(
-                                    "w-full justify-start gap-3 h-10 font-medium",
-                                    isActive
-                                        ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary font-bold"
-                                        : "text-muted-foreground hover:text-foreground"
-                                )}
-                                asChild
-                            >
-                                <Link to={item.href}>
-                                    <item.icon className={cn("size-5", isActive && "stroke-[2.5px]")} />
-                                    {item.label}
-                                </Link>
-                            </Button>
-                        )
-                    })}
-                    <div className="px-2 mb-2 text-sm font-medium text-muted-foreground">
-                        Marketing
-                    </div>
-                    {marketing.map((item, index) => {
-                        const isActive = location.pathname.startsWith(item.href);
+                                <div className="px-2 mb-2 text-sm font-medium text-muted-foreground">
+                                    Cài đặt sự kiện
+                                </div>
+                                {eventSettingnavItems.map((item, index) => {
+                                    const isActive = location.pathname.startsWith(item.href);
 
-                        return (
-                            <Button
-                                key={index}
-                                variant={isActive ? "secondary" : "ghost"}
-                                className={cn(
-                                    "w-full justify-start gap-3 h-10 font-medium",
-                                    isActive
-                                        ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary font-bold"
-                                        : "text-muted-foreground hover:text-foreground"
-                                )}
-                                asChild
-                            >
-                                <Link to={item.href}>
-                                    <item.icon className={cn("size-5", isActive && "stroke-[2.5px]")} />
-                                    {item.label}
-                                </Link>
-                            </Button>
+                                    return (
+                                        <Button
+                                            key={index}
+                                            variant={isActive ? "secondary" : "ghost"}
+                                            className={cn(
+                                                "w-full justify-start gap-3 h-10 font-medium",
+                                                isActive
+                                                    ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary font-bold"
+                                                    : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                            asChild
+                                        >
+                                            <Link to={item.href}>
+                                                <item.icon className={cn("size-5", isActive && "stroke-[2.5px]")} />
+                                                {item.label}
+                                            </Link>
+                                        </Button>
+                                    )
+                                })}
+                            </>
                         )
-                    })}
+                    }
+                    {
+                        allPermission &&
+                        (
+                            <>
+
+                                <div className="px-2 mb-2 text-sm font-medium text-muted-foreground">
+                                    Marketing
+                                </div>
+                                {marketing.map((item, index) => {
+                                    const isActive = location.pathname.startsWith(item.href);
+
+                                    return (
+                                        <Button
+                                            key={index}
+                                            variant={isActive ? "secondary" : "ghost"}
+                                            className={cn(
+                                                "w-full justify-start gap-3 h-10 font-medium",
+                                                isActive
+                                                    ? "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary font-bold"
+                                                    : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                            asChild
+                                        >
+                                            <Link to={item.href}>
+                                                <item.icon className={cn("size-5", isActive && "stroke-[2.5px]")} />
+                                                {item.label}
+                                            </Link>
+                                        </Button>
+                                    )
+                                })}
+                            </>
+                        )
+                    }
                 </nav>
 
                 {/* Bottom Actions */}

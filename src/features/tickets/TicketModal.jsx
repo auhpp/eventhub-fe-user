@@ -19,6 +19,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import DateTimePicker from "@/components/DateTimePicker";
 import { format } from "date-fns/format";
 import { isExpiredEventSession } from "@/utils/eventUtils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Schema Validation
 const getTicketSchema = (eventStart, eventEnd) => {
@@ -27,9 +28,11 @@ const getTicketSchema = (eventStart, eventEnd) => {
         price: z.coerce.number().min(0, { message: "Giá vé không được âm" }),
         quantity: z.coerce.number().min(1, { message: "Số lượng vé phải ít nhất là 1" }),
         maximumPerPurchase: z.coerce.number().min(1, { message: "Tối thiểu 1 vé/đơn" }),
+        maximumPerUser: z.preprocess(
+            (val) => (val === null || val === "" ? null : Number(val)),
+            z.union([z.number().min(1, { message: "Tối thiểu 1 vé/người" }), z.null()])
+        ),
         invitationQuota: z.coerce.number().min(0, { message: "Số lượng không hợp lệ" }),
-        cancelValue: z.coerce.number().min(0, { message: "Không được âm" }),
-        cancelUnit: z.enum(["minutes", "hours", "days"]),
         openAt: z.coerce.date({ required_error: "Vui lòng chọn ngày bắt đầu" }),
         endAt: z.coerce.date({ required_error: "Vui lòng chọn ngày kết thúc" }),
         description: z.string().max(500, { message: "Mô tả quá dài (tối đa 500 ký tự)" }).optional(),
@@ -44,6 +47,20 @@ const getTicketSchema = (eventStart, eventEnd) => {
         .refine((data) => data.endAt > data.openAt, {
             message: "Ngày kết thúc phải sau ngày bắt đầu",
             path: ["endAt"],
+        })
+        .refine((data) => {
+            if (data.maximumPerUser === null) return true;
+            return data.maximumPerPurchase <= data.maximumPerUser;
+        }, {
+            message: "Max/Đơn không được vượt quá Max/Người",
+            path: ["maximumPerPurchase"],
+        })
+        .refine((data) => {
+            if (data.maximumPerUser === null) return true;
+            return data.maximumPerUser <= data.quantity;
+        }, {
+            message: "Max/Người không vượt quá tổng số lượng",
+            path: ["maximumPerUser"],
         });
 };
 
@@ -51,18 +68,6 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
     const isEditing = !!ticketToEdit;
     const isExpired = isExpiredEventSession({ eventSession: session })
 
-    const parseCancelTime = (totalMinutes = 0) => {
-        if (totalMinutes === 0) return { value: 0, unit: 'hours' };
-        if (totalMinutes % (24 * 60) === 0) return { value: totalMinutes / (24 * 60), unit: 'days' };
-        if (totalMinutes % 60 === 0) return { value: totalMinutes / 60, unit: 'hours' };
-        return { value: totalMinutes, unit: 'minutes' };
-    };
-    const calculateTotalMinutes = (value, unit) => {
-        const val = Number(value) || 0;
-        if (unit === 'days') return val * 24 * 60;
-        if (unit === 'hours') return val * 60;
-        return val; // minutes
-    };
     const ticketSchema = useMemo(() =>
         getTicketSchema(
             session?.startTime ? new Date(session.startTime) : null,
@@ -77,9 +82,8 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
             price: 0,
             quantity: 100,
             maximumPerPurchase: 5,
+            maximumPerUser: 5,
             invitationQuota: 0,
-            cancelValue: 0,
-            cancelUnit: "hours",
             openAt: new Date(),
             endAt: session?.startTime ? new Date(session.startTime) :
                 new Date(new Date().setHours(new Date().getHours() + 2)),
@@ -93,15 +97,13 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
         if (isOpen) {
             if (ticketToEdit) {
                 // Map fields from BE (openAt) to Form (openAt)
-                const cancelConfig = parseCancelTime(ticketToEdit.cancelBeforeMinutes);
                 ticketForm.reset({
                     id: ticketToEdit.id,
                     name: ticketToEdit.name,
                     price: ticketToEdit.price,
                     quantity: ticketToEdit.quantity,
-                    cancelValue: cancelConfig.value,
-                    cancelUnit: cancelConfig.unit,
                     maximumPerPurchase: ticketToEdit.maximumPerPurchase || ticketToEdit.maximumPerPurchase || 5,
+                    maximumPerUser: ticketToEdit.maximumPerUser || ticketToEdit.maximumPerPurchase || 5,
                     invitationQuota: ticketToEdit.invitationQuota || 0,
                     openAt: ticketToEdit.openAt ? new Date(ticketToEdit.openAt) : new Date(),
                     endAt: ticketToEdit.endAt ? new Date(ticketToEdit.endAt) : new Date(),
@@ -109,10 +111,10 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
                 });
             } else {
                 ticketForm.reset({
-                    name: '', price: 0, quantity: 100, maximumPerPurchase: 5, invitationQuota: 0,
+                    name: '', price: 0, quantity: 100, maximumPerPurchase: 5,
+                    maximumPerUser: 5,
+                    invitationQuota: 0,
                     openAt: new Date(),
-                    cancelValue: 0,
-                    cancelUnit: "hours",
                     endAt: session?.endTime ? new Date(session.endTime) : new Date(),
                     description: ''
                 });
@@ -129,7 +131,6 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
             id: ticketToEdit?.id,
             openAt: format(values.openAt, "yyyy-MM-dd'T'HH:mm:ss"),
             endAt: format(values.endAt, "yyyy-MM-dd'T'HH:mm:ss"),
-            cancelBeforeMinutes: calculateTotalMinutes(values.cancelValue, values.cancelUnit)
         };
 
         console.log("Dữ liệu gửi đi:", payload);
@@ -151,7 +152,7 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
                             <div className="flex flex-col gap-1 text-left">
                                 <DialogTitle>{isEditing ? "Cập nhật hạng vé" : "Tạo hạng vé mới"}</DialogTitle>
                                 <DialogDescription className="text-gray-500 text-sm">
-                                    T{isEditing ? "Chỉnh sửa thông tin, giá và số lượng vé." : "Thiết lập vé cho phiên này."}
+                                    {isEditing ? "Chỉnh sửa thông tin, giá và số lượng vé." : "Thiết lập vé cho phiên này."}
                                 </DialogDescription>
                             </div>
                         </DialogHeader>
@@ -179,7 +180,7 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
                                 )}
                             />
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
                                 {/* Price */}
                                 <FormField
                                     name="price"
@@ -239,6 +240,53 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
                                         </FormItem>
                                     )}
                                 />
+                                {/* Max per user */}
+                                <FormField
+                                    name="maximumPerUser"
+                                    control={ticketForm.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="font-bold text-gray-700">
+                                                Max/Người <span className="text-red-500">*</span>
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    {...field}
+                                                    value={field.value === null ? "" : field.value}
+                                                    type="number"
+                                                    className="h-11 disabled:opacity-50 disabled:bg-slate-100"
+                                                    min={1}
+                                                    disabled={field.value === null}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        field.onChange(val === "" ? null : Number(val));
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <div className="flex items-center space-x-2 pt-1">
+                                                <Checkbox
+                                                    id="unlimitedUser"
+                                                    checked={field.value === null}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            ticketForm.setValue("maximumPerUser", null, { shouldValidate: true });
+                                                        } else {
+                                                            const maxPerPurchase = ticketForm.getValues("maximumPerPurchase");
+                                                            ticketForm.setValue("maximumPerUser", maxPerPurchase || 1, { shouldValidate: true });
+                                                        }
+                                                    }}
+                                                />
+                                                <label
+                                                    htmlFor="unlimitedUser"
+                                                    className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-600 cursor-pointer"
+                                                >
+                                                    Không giới hạn
+                                                </label>
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
                                 {/* Invitation Quota */}
                                 <FormField
@@ -257,43 +305,7 @@ export default function TicketModal({ isOpen, onClose, ticketToEdit, session, on
                                         </FormItem>
                                     )}
                                 />
-                                <div className="col-span-1 sm:col-span-2 space-y-2">
-                                    <Label className="font-bold text-gray-700">
-                                        Hủy vé trước (0 = Không cho hủy) <span className="text-red-500">*</span>
-                                    </Label>
-                                    <div className="flex gap-2">
-                                        <FormField
-                                            name="cancelValue"
-                                            control={ticketForm.control}
-                                            render={({ field }) => (
-                                                <FormItem className="flex-1">
-                                                    <FormControl>
-                                                        <Input {...field} type="number" className="h-11" min={0} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            name="cancelUnit"
-                                            control={ticketForm.control}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <select
-                                                            {...field}
-                                                            className="h-11 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer hover:bg-slate-50"
-                                                        >
-                                                            <option value="minutes">Phút</option>
-                                                            <option value="hours">Giờ</option>
-                                                            <option value="days">Ngày</option>
-                                                        </select>
-                                                    </FormControl>
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
+
                             </div>
 
                             {/* Time */}

@@ -11,7 +11,6 @@ import {
 } from '@/services/eventSeriesFollowerService';
 import { getEvents } from '@/services/eventService';
 import { AuthContext } from '@/context/AuthContex';
-import { toast } from 'sonner';
 import { formatDateTime } from '@/utils/format';
 
 const EventSeriesCard = ({ series, showActionManage, showUpcomingEvents = false }) => {
@@ -82,7 +81,7 @@ const EventSeriesCard = ({ series, showActionManage, showUpcomingEvents = false 
     const handleToggleFollow = async (e) => {
         e.stopPropagation();
         if (!user) {
-            toast.warning("Vui lòng đăng nhập để theo dõi chuỗi sự kiện này.");
+            navigate(routes.signin)
             return;
         }
 
@@ -116,16 +115,18 @@ const EventSeriesCard = ({ series, showActionManage, showUpcomingEvents = false 
             }}
             className={`p-4 flex ${showUpcomingEvents ? 'flex-col sm:flex-row gap-6 sm:gap-12' : 'flex-col gap-4'} 
                  rounded-xl border-border/60 shadow-sm transition-all duration-300 
-                 ${!isManagerView && !showUpcomingEvents ? 'cursor-pointer group bg-white/50 hover:bg-white hover:shadow-md' : 'bg-white'}`}
+                 ${!isManagerView && !showUpcomingEvents ? 'cursor-pointer group bg-white/50 hover:bg-white hover:shadow-md'
+                    : 'bg-white'}`}
         >
             <div className={`flex flex-col gap-4 ${showUpcomingEvents ? 'w-full sm:w-[100px] shrink-0' : 'w-full'}`}>
                 <div className="flex justify-between items-start">
                     {/* Avatar */}
-                    <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0 shadow-sm p-2">
+                    <div className="w-14 h-14 rounded-lg overflow-hidden border
+                     border-gray-100 flex-shrink-0 shadow-sm">
                         <img
                             src={series.avatar || '/default-series-avatar.png'}
                             alt={series.name}
-                            className="w-full h-full object-contain mix-blend-multiply"
+                            className="w-full h-full object-cover"
                         />
                     </div>
 
@@ -185,13 +186,19 @@ const EventSeriesCard = ({ series, showActionManage, showUpcomingEvents = false 
                             <Button
                                 variant="outline"
                                 className="flex-1 h-9 font-semibold"
-                                onClick={(e) => { e.stopPropagation(); navigate(routes.editEventSeries?.replace(":id", series.id)); }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(routes.editEventSeries?.replace(":eventSeriesId", series.id));
+                                }}
                             >
                                 Chỉnh sửa
                             </Button>
                             <Button
                                 className="flex-1 h-9 bg-brand/10 text-brand hover:bg-brand/20 font-semibold shadow-none"
-                                onClick={(e) => { e.stopPropagation(); navigate(routes.eventsInEventSeries?.replace(":id", series.id)); }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(routes.eventsInEventSeries?.replace(":eventSeriesId", series.id));
+                                }}
                             >
                                 Quản lý
                             </Button>
@@ -225,20 +232,23 @@ const EventSeriesCard = ({ series, showActionManage, showUpcomingEvents = false 
                                         futureSessions.sort((a, b) => new Date(a.startDateTime) - new Date(b.startDateTime));
                                         displayTime = futureSessions[0].startDateTime;
                                     } else {
-                                        const pastSessions = [...ev.eventSessions].sort((a, b) => new Date(b.startDateTime) - new Date(a.startDateTime));
+                                        const pastSessions = [...ev.eventSessions].sort((a, b) =>
+                                            new Date(b.startDateTime) - new Date(a.startDateTime));
                                         displayTime = pastSessions[0].startDateTime;
                                     }
                                 }
                                 // ---------------------------------------
 
                                 return (
-                                    <div key={ev.id} className="flex flex-col gap-1 cursor-pointer hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors"
+                                    <div key={ev.id} className="flex flex-col gap-1 cursor-pointer hover:bg-slate-50 
+                                    p-2 -mx-2 rounded-lg transition-colors"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             navigate(routes.eventDetail?.replace(":id", ev.id));
                                         }}
                                     >
-                                        <h5 className="font-medium text-gray-900 text-[15px] hover:text-primary transition-colors">
+                                        <h5 className="font-medium text-gray-900 text-[15px] hover:text-primary
+                                         transition-colors">
                                             {ev.name}
                                         </h5>
                                         <span className="text-sm text-gray-400 font-medium tracking-wide">

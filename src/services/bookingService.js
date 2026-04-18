@@ -40,12 +40,16 @@ export const getExistsPendingBooking = async ({ eventSessionId }) => {
     return response.data;
 };
 
-export const getBookings = async ({ userId, eventSessionId, status, upcoming, page, size }) => {
+export const getBookings = async ({ types, email, bookingId, userId, eventSessionId, status, upcoming, page, size,
+    startDateTime, endDateTime }) => {
     const reqStatus = status === "ALL" ? null : status;
     const response = await API.post(`/api/v1/booking/filter?page=${page}&size=${size}`, {
+        email,
+        bookingId,
         status: reqStatus,
         userId, eventSessionId,
-        upcoming: upcoming
+        upcoming: upcoming,
+        types, startDateTime, endDateTime
     }, {
         requiresAuth: true
     });
@@ -66,7 +70,7 @@ export const groupAttendeesByTicket = (attendees = []) => {
 
         if (!acc[ticketId]) {
             acc[ticketId] = {
-                ticketInfo: attendee.ticket, // Lưu thông tin loại vé (Tên, giá...)
+                ticketInfo: attendee.ticket, 
                 items: []
             };
         }
@@ -81,3 +85,20 @@ export const getExistsPendingResaleBooking = async ({ resalePostId }) => {
     });
     return response.data;
 };
+
+export const exportReportBookings = async ({ types, email,
+    bookingId, userId, eventSessionId, status, startDateTime, endDateTime, eventName
+}) => {
+    const reqStatus = status === "ALL" ? null : status;
+    const response = await API.post(`/api/v1/booking/reports/export?eventName=${eventName}`, {
+        email,
+        bookingId,
+        status: reqStatus,
+        userId, eventSessionId,
+        types, startDateTime, endDateTime
+    }, {
+        responseType: 'blob',
+        requiresAuth: true
+    });
+    return response.data;
+}

@@ -57,25 +57,26 @@ const ScopeSection = ({ event, errors, setErrors, isAllSessions, setIsAllSession
             <RadioGroup
                 className="flex gap-6 mb-6"
                 value={isAllSessions ? "all" : "specific"}
-                onValueChange={(val) => { setIsAllSessions(val === 'all'); setErrors(prev => ({ ...prev, scope: undefined })); }}
+                onValueChange={(val) => { setIsAllSessions(val === 'all'); 
+                    setErrors(prev => ({ ...prev, scope: undefined })); }}
             >
                 <div className="flex items-center gap-2">
                     <RadioGroupItem value="all" id="all" />
-                    <Label htmlFor="all" className="cursor-pointer">Toàn bộ suất diễn</Label>
+                    <Label htmlFor="all" className="cursor-pointer">Toàn bộ khung giờ</Label>
                 </div>
                 <div className="flex items-center gap-2">
                     <RadioGroupItem value="specific" id="specific" />
-                    <Label htmlFor="specific" className="cursor-pointer">Giới hạn suất diễn</Label>
+                    <Label htmlFor="specific" className="cursor-pointer">Giới hạn khung giờ</Label>
                 </div>
             </RadioGroup>
 
             {!isAllSessions && (
                 <div>
                     <div className="flex items-center justify-between mb-4">
-                        <span className="font-semibold text-sm">Các suất diễn áp dụng</span>
+                        <span className="font-semibold text-sm">Các khung giờ áp dụng</span>
                         <Button size="sm" className="bg-[#10b981] hover:bg-[#059669]" onClick={() => 
                             setIsAddSessionModalOpen(true)}>
-                            Thêm suất diễn
+                            Thêm khung giờ
                         </Button>
                     </div>
 
@@ -90,7 +91,7 @@ const ScopeSection = ({ event, errors, setErrors, isAllSessions, setIsAllSession
                                 <div key={session.id} className="border rounded-md overflow-hidden">
                                     <div className="bg-slate-50 p-3 flex justify-between items-center border-b">
                                         <span className="font-semibold text-sm">
-                                            {index + 1} | Suất diễn: {new Date(session.startDateTime).toLocaleString('vi-VN')}
+                                            {index + 1} | khung giờ: {new Date(session.startDateTime).toLocaleString('vi-VN')}
                                         </span>
                                         <Button variant="ghost" size="icon" className="text-red-500 h-8 w-8 hover:bg-red-50" 
                                         onClick={() => handleRemoveSession(session.id)}>

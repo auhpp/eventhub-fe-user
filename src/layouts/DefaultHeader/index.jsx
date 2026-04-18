@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Search, Calendar, Menu, Bell, LayoutDashboard, PlusCircle, Ticket, User, LogOut } from 'lucide-react';
+import { Search, Menu, Bell, MessageCircle, LayoutDashboard, PlusCircle, Ticket, User, LogOut, Heart } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContex';
 import { routes } from '@/config/routes';
@@ -9,14 +9,13 @@ import DefaultAvatar from '@/components/DefaultAvatar';
 import { useNotifications } from '@/hooks/useNotifications';
 
 const DefaultHeader = () => {
-    const { user, isLoading, logoutAuth } = useContext(AuthContext);
+    const { user, isLoading, logoutAuth, isEventStaff } = useContext(AuthContext);
     const navigate = useNavigate();
     const isOrganizer = user?.role.name === Role.ORGANIZER;
     const [searchParams] = useSearchParams();
     const defaultSearch = searchParams.get("name") || "";
 
     const { unreadCount, fetchUnreadCount } = useNotifications();
-
     useEffect(() => {
         if (user) {
             fetchUnreadCount();
@@ -32,7 +31,7 @@ const DefaultHeader = () => {
     const handleLogout = () => {
         if (logoutAuth) logoutAuth();
     };
-    console.log(unreadCount)
+
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -40,7 +39,7 @@ const DefaultHeader = () => {
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white">
-                            <Calendar className="h-5 w-5" />
+                            <Ticket className="h-5 w-5" />
                         </div>
                         <h2 className="text-xl font-bold tracking-tight text-foreground">EventHub</h2>
                     </Link>
@@ -67,11 +66,13 @@ const DefaultHeader = () => {
                         <Link to={routes.search} className="text-sm font-medium hover:text-brand 
                         transition-colors">Khám phá</Link>
                         {user &&
-                            <Link to={routes.eventSeries} className="text-sm font-medium hover:text-brand 
-                            transition-colors">Chuỗi sự kiện</Link>
+                            <>
+                                <Link to={routes.eventSeries} className="text-sm font-medium hover:text-brand 
+                        transition-colors">Chuỗi sự kiện</Link>
+                                <Link to={routes.resale} className="text-sm font-medium hover:text-brand 
+                    transition-colors">Vé bán lại</Link>
+                            </>
                         }
-                        <Link to={routes.resale} className="text-sm font-medium hover:text-brand 
-                        transition-colors">Vé bán lại</Link>
                     </nav>
                     <div className="flex gap-3">
                         {isLoading ? (
@@ -93,15 +94,15 @@ const DefaultHeader = () => {
                             </>
                         ) : (
                             <div className="flex items-center gap-4">
-                                {isOrganizer ? (
+                                {(isOrganizer || isEventStaff) ? (
                                     <button
                                         onClick={() => navigate(routes.eventManagement)}
                                         className="hidden sm:flex items-center gap-2 rounded-full border 
-                                        border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 
+                                        border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 
                                         hover:border-brand hover:text-brand transition-all shadow-sm"
                                     >
                                         <LayoutDashboard className="h-4 w-4" />
-                                        <span>Ban Tổ Chức</span>
+                                        <span>Nhà Tổ Chức</span>
                                     </button>
                                 ) : (
                                     <button
@@ -113,6 +114,13 @@ const DefaultHeader = () => {
                                         <span>Tạo sự kiện</span>
                                     </button>
                                 )}
+
+                                {/* chat */}
+                                <button className="relative p-1 text-gray-600 hover:text-brand transition-colors group"
+                                    onClick={() => navigate(routes.chat)} 
+                                >
+                                    <MessageCircle className="h-5 w-5" />
+                                </button>
 
                                 {/* Notification */}
                                 <button className="relative p-1 text-gray-600 hover:text-brand transition-colors group"
@@ -154,7 +162,11 @@ const DefaultHeader = () => {
                                             <Ticket className="h-4 w-4" />
                                             Vé của tôi
                                         </Link>
-
+                                        <Link to={routes.favorite} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm 
+                                        font-medium text-gray-700 hover:bg-gray-100 hover:text-brand transition-colors">
+                                            <Heart className="h-4 w-4" />
+                                            Yêu thích
+                                        </Link>
                                         <div className="my-1 border-t border-gray-100"></div>
 
                                         <button

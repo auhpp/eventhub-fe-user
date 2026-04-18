@@ -1,15 +1,15 @@
 import React from 'react';
-import { MapPin, Video } from 'lucide-react';
+import { Gift, MapPin, Video } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency, formatDateTime } from '@/utils/format';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/config/routes';
 import BookingStatusBadge from '@/components/BookingStatusBadge';
-import { EventType, MeetingPlatform } from '@/utils/constant';
-import AttendeeTypeBadges from '@/components/AttendeeTypeBadges';
+import { BookingType, EventType, MeetingPlatform } from '@/utils/constant';
 import DetailButton from '@/components/DetailButton';
 import TicketCountBadge from '@/components/TicketCountBadge';
+import { Badge } from '@/components/ui/badge';
 
 
 const OrderCard = ({ booking }) => {
@@ -30,6 +30,7 @@ const OrderCard = ({ booking }) => {
     const eventLocation = event?.location || "Online / Chưa cập nhật";
 
     const isOnline = event.type == EventType.ONLINE.key
+    const isInvited = booking.type == BookingType.INVITE
 
     return (
         <Card className="overflow-hidden hover:shadow-md
@@ -50,8 +51,8 @@ const OrderCard = ({ booking }) => {
                     <div>
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-xs text-muted-foreground font-medium mb-1">
-                                    Mã đơn: #{id} - Đặt lúc: {formatDateTime(createdAt)}
+                                <p className="text-sm text-muted-foreground font-medium mb-1">
+                                    Mã đơn: {id} - Đặt lúc: {formatDateTime(createdAt)}
                                 </p>
                                 <h3 className="text-lg font-bold text-gray-900 line-clamp-2 mb-2">
                                     {eventName}
@@ -59,7 +60,6 @@ const OrderCard = ({ booking }) => {
                             </div>
                             {/* Badge status */}
                             <div className='gap-2 flex'>
-                                <AttendeeTypeBadges attendees={attendees} />
                                 <BookingStatusBadge status={status} />
                             </div>
                         </div>
@@ -97,15 +97,26 @@ const OrderCard = ({ booking }) => {
                     <div className="mt-4 md:mt-2">
                         <Separator className="my-3 md:hidden" />
                         <div className="flex justify-between items-end">
-                            <div>
-                                <p className="text-xs text-muted-foreground">Tổng thanh toán</p>
-                                <p className="text-xl font-bold text-red-500">
-                                    {formatCurrency(finalAmount)}
-                                </p>
-                            </div>
+                            {
+                                isInvited ?
+                                    <div className="flex flex-col gap-1">
+                                        <p className="text-xs text-slate-500">Loại đơn hàng</p>
+                                        <Badge variant="secondary" className="bg-orange-100 text-orange-700 
+                                        hover:bg-green-100 border-none font-medium text-sm flex items-center gap-1.5 py-1">
+                                            <Gift className="w-4 h-4" />
+                                            Được mời
+                                        </Badge>
+                                    </div> :
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Tổng thanh toán</p>
+                                        <p className="text-xl font-bold text-red-500">
+                                            {formatCurrency(finalAmount)}
+                                        </p>
+                                    </div>
+                            }
 
                             <DetailButton
-                                onClick={() => navigate(routes.orderDetail.replace(':id', id))}
+                                onClick={() => navigate(routes.orderDetail.replace(':orderId', id))}
                             />
                         </div>
                     </div>

@@ -1,11 +1,12 @@
 import { getEventById } from "@/services/eventService";
+import { getAllTags } from "@/services/tagService";
 import { HttpStatusCode } from "axios";
 import { useContext, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TicketSelection from "./TicketSelection";
 import EventHero from "./EventHero";
 import EventOrganizer from "./EventOrganizer";
-import { Info, Loader2, MapPin } from "lucide-react";
+import { Info, Loader2, MapPin, Tags } from "lucide-react"; 
 import Map from "@/components/Map";
 import FaceSearch from "./FaceSearch";
 import { AuthContext } from "@/context/AuthContex";
@@ -13,25 +14,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PublicEventGallery from "./PublicEventGallery";
 import { isExpiredEventSession } from "@/utils/eventUtils";
 import EventReviewsTab from "./EventReviewsTab";
+import 'react-quill-new/dist/quill.snow.css';
+import { routes } from "@/config/routes";
 
 const EventDetailPage = () => {
     const [event, setEvent] = useState(null);
+    const [tags, setTags] = useState([]); 
     const location = useLocation();
     const eventId = location.pathname.substring(location.pathname.lastIndexOf("/") + 1);
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate()
 
     useEffect(() => {
-        const fetchEventById = async () => {
+        const fetchEventDetails = async () => {
             try {
-                const response = await getEventById({ id: eventId });
-                if (response.code === HttpStatusCode.Ok) {
-                    setEvent(response.result);
+                const eventResponse = await getEventById({ id: eventId });
+                if (eventResponse.code === HttpStatusCode.Ok) {
+                    setEvent(eventResponse.result);
+                }
+
+                const tagsResponse = await getAllTags({ eventId: Number(eventId) });
+                if (tagsResponse.code === HttpStatusCode.Ok || tagsResponse.result) {
+                    setTags(tagsResponse.result || tagsResponse);
                 }
             } catch (error) {
                 console.log(error);
             }
-        }
-        fetchEventById();
+        };
+        fetchEventDetails();
     }, [eventId]);
 
     if (!event) {
@@ -43,19 +53,11 @@ const EventDetailPage = () => {
     }
 
     const isOnline = event.type === 'ONLINE';
-
     const someEventSessionExpired = event.eventSessions.some(es => isExpiredEventSession({ eventSession: es }));
 
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-black pb-20">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
-                {/* Breadcrumb */}
-                <nav className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-                    <span>Trang chủ</span> / <span>Sự kiện</span> / <span className="text-gray-900 font-medium 
-                    truncate max-w-[200px]">{event.name}</span>
-                </nav>
-
                 <EventHero event={event} />
 
                 {/* TABS SECTION */}
@@ -97,16 +99,45 @@ const EventDetailPage = () => {
                             <EventOrganizer organizer={event.appUser} />
 
                             {/* Description */}
-                            <div className="flex flex-col gap-4 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm
-                             border border-gray-200 dark:border-gray-800">
+                            <div className="flex flex-col gap-4 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 w-full overflow-hidden">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <Info className="text-blue-600" /> Giới thiệu sự kiện
                                 </h3>
-                                <div
-                                    className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
-                                    dangerouslySetInnerHTML={{ __html: event.description }}
-                                />
+
+                                <div className="ql-snow w-full">
+                                    <div
+                                        className="ql-editor text-gray-600 dark:text-gray-300 !p-0 [&_img]:inline-block [&_img]:max-w-full [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_li]:pl-1 whitespace-pre-line"
+                                        dangerouslySetInnerHTML={{
+                                            __html: event.description ? event.description.replace(/&nbsp;/g, ' ') : ''
+                                        }}
+                                    />
+                                </div>
                             </div>
+
+                            {/* Tags Section */}
+                            {tags && tags.length > 0 && (
+                                <div className="flex flex-col gap-4 bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 w-full">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <Tags className="text-blue-600 w-5 h-5" /> Tags
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {tags.map((tag) => (
+                                            <span
+                                                onClick={() => {
+                                                    navigate(routes.eventTagSearch.replace(":slug", tag.slug), { state: { name: tag.name } })
+                                                }}
+                                                key={tag.id}
+                                                className="px-3 py-1 bg-slate-100 dark:bg-slate-800 
+                                                hover:bg-blue-50 dark:hover:bg-blue-900/40 text-slate-700 dark:text-slate-300 hover:text-blue-600
+                                                 dark:hover:text-blue-400 text-sm font-medium rounded-md transition-colors
+                                                 cursor-pointer border border-slate-200 dark:border-slate-700 hover:border-blue-200"
+                                            >
+                                                #{tag.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Ticket Section */}
                             <TicketSelection

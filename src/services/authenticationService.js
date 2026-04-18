@@ -1,14 +1,14 @@
 import API from "@/config/api";
 
-export const sendOtpCreateUser = async ({ email, password }) => {
-    const response = await API.post('/api/v1/auth/register', { email, password }, {
+export const sendOtpCreateUser = async ({ email, password, fullName, phoneNumber }) => {
+    const response = await API.post('/api/v1/auth/register', { email, password, fullName, phoneNumber, }, {
         requiresAuth: false
     });
     return response.data;
 };
 
-export const verifyAndCreateUser = async ({ email, password, otp }) => {
-    const response = await API.post('/api/v1/auth/register/verify-otp', { email, password, otp }, {
+export const verifyAndCreateUser = async ({ email, password, fullName, phoneNumber, otp }) => {
+    const response = await API.post('/api/v1/auth/register/verify-otp', { email, password, otp, fullName, phoneNumber, }, {
         requiresAuth: false
     });
     return response.data;

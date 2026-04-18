@@ -24,14 +24,14 @@ const AttendeeTypeBadges = ({ attendees }) => {
                         </Badge>
                     );
                 }
-                if (type === AttendeeType.BUY) {
+                if (type === AttendeeType.BUY || type == AttendeeType.RESALE || type === AttendeeType.GIFT) {
                     return (
                         <Badge key="buyer" variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 gap-1 px-2">
-                            <User size={10} /> Người mua
+                            <User size={10} /> Người tham gia
                         </Badge>
                     );
                 }
-                return null;
+             
             })}
         </div>
     );

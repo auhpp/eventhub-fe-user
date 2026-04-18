@@ -3,7 +3,7 @@ import API from "@/config/api";
 export const createOrganizerRegistrationRequest = async ({
     businessName, businessAvatar,
     representativeFullName, phoneNumber,
-    email, biography, contactAddress
+    email, biography, contactAddress, type, taxCode
 }) => {
 
     const formData = new FormData();
@@ -15,6 +15,9 @@ export const createOrganizerRegistrationRequest = async ({
     formData.append('contactAddress', contactAddress);
     formData.append('biography', biography);
     formData.append('businessAvatar', businessAvatar);
+    formData.append('type', type);
+    formData.append('taxCode', taxCode);
+
 
     const response = await API.post('/api/v1/organizer-registration',
         formData
@@ -28,8 +31,9 @@ export const createOrganizerRegistrationRequest = async ({
 };
 
 
-export const getOrganizerRegistrations = async ({ page, size }) => {
-    const response = await API.get(`/api/v1/organizer-registration/current-user?page=${page}&size=${size}`, {
+export const getOrganizerRegistrations = async ({ userId, status, page, size }) => {
+    const response = await API.post(`/api/v1/organizer-registration/filter?page=${page}&size=${size}`,
+        { userId, status }, {
         requiresAuth: true
     });
     return response.data;
@@ -59,6 +63,8 @@ export const updateOrganizerRegistrationRequest = async ({ id, data }) => {
     formData.append("phoneNumber", data.phoneNumber);
     formData.append("biography", data.biography);
     formData.append("contactAddress", data.contactAddress);
+    formData.append('type', data.type);
+    formData.append('taxCode', data.taxCode);
 
     if (data.businessAvatar instanceof File) {
         formData.append("businessAvatar", data.businessAvatar);

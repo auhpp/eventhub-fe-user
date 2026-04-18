@@ -1,13 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Mail, Timer, ArrowLeft, Loader2 } from "lucide-react";
+import { Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { routes } from "@/config/routes";
 import { sendOtpCreateUser, verifyAndCreateUser } from "@/services/authenticationService";
 import { HttpStatusCode } from "axios";
 import * as z from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSeparator,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const otpSchema = z.object({
     otp: z
@@ -17,15 +23,12 @@ const otpSchema = z.object({
         .regex(/^\d+$/, "Mã OTP chỉ được chứa số"),
 });
 
-export default function OtpForm({ email, password }) {
-    const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
+export default function OtpForm({ email, password, phoneNumber, fullName }) {
     const [timeLeft, setTimeLeft] = useState(60);
     const navigate = useNavigate();
-    const inputRefs = useRef([]);
 
     const {
-        register,
-        setValue,
+        control,
         handleSubmit,
         setError,
         formState: { errors, isSubmitting },
@@ -37,10 +40,6 @@ export default function OtpForm({ email, password }) {
     });
 
     useEffect(() => {
-        register("otp");
-    }, [register]);
-
-    useEffect(() => {
         if (timeLeft <= 0) return;
         const timerId = setInterval(() => {
             setTimeLeft((prev) => prev - 1);
@@ -48,66 +47,24 @@ export default function OtpForm({ email, password }) {
         return () => clearInterval(timerId);
     }, [timeLeft]);
 
-    const handleChange = (index, value) => {
-        if (isNaN(value)) return;
-
-        const newOtpValues = [...otpValues];
-        newOtpValues[index] = value;
-        setOtpValues(newOtpValues);
-
-        const otpString = newOtpValues.join("");
-        setValue("otp", otpString, { shouldValidate: true });
-
-        if (value && index < 5) {
-            inputRefs.current[index + 1].focus();
-        }
-    };
-
-    const handleKeyDown = (index, e) => {
-        if (e.key === "Backspace" && !otpValues[index] && index > 0) {
-            inputRefs.current[index - 1].focus();
-        }
-    };
-
     const handleResendOtp = async () => {
         if (timeLeft > 0) return;
 
         try {
-            await sendOtpCreateUser({ email: email, password: password })
+            await sendOtpCreateUser({ email: email, password: password });
             setTimeLeft(60);
         } catch (error) {
             console.error("Lỗi gửi lại OTP", error);
         }
     };
 
-    const handlePaste = (e) => {
-        e.preventDefault();
-        const pasteData = e.clipboardData.getData("text");
-        const pasteDigits = pasteData.replace(/\D/g, "").split("").slice(0, 6);
-        if (pasteDigits.length === 0) return;
-        const newOtpValues = [...otpValues];
-
-        pasteDigits.forEach((digit, i) => {
-            newOtpValues[i] = digit;
-        });
-
-        setOtpValues(newOtpValues);
-
-        const otpString = newOtpValues.join("");
-        setValue("otp", otpString, { shouldValidate: true });
-
-        const nextIndex = Math.min(pasteDigits.length, 5);
-        inputRefs.current[nextIndex]?.focus();
-
-        if (pasteDigits.length === 6) {
-            inputRefs.current[5].blur();
-        }
-    };
-
     const onSubmit = async (data) => {
         console.log("Submitting OTP:", data.otp);
         try {
-            const result = await verifyAndCreateUser({ email: email, password: password, otp: data.otp });
+            const result = await verifyAndCreateUser({
+                email: email, password: password, otp: data.otp,
+                phoneNumber, fullName
+            });
 
             if (result.code === HttpStatusCode.Ok || result.status === 200) {
                 navigate(routes.signin, { replace: true });
@@ -121,18 +78,16 @@ export default function OtpForm({ email, password }) {
         }
     };
 
+    const slotClassName = `w-10 h-12 sm:w-12 sm:h-14 text-xl font-bold ${errors.otp
+        ? "border-red-500 text-red-500 animate-shake"
+        : "border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white"
+        }`;
+
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col items-center w-full"
         >
-            {/* Icon */}
-            <div className="mb-6 flex justify-center">
-                <div className="h-16 w-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-brand">
-                    <Mail className="h-8 w-8" />
-                </div>
-            </div>
-
             {/* Title & Description */}
             <div className="text-center mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
@@ -147,35 +102,29 @@ export default function OtpForm({ email, password }) {
                 </p>
             </div>
 
-            {/* OTP Inputs */}
-            <div className="w-full px-4 mb-4">
-                <div className="flex justify-center gap-2 sm:gap-3">
-                    {otpValues.map((digit, index) => (
-                        <React.Fragment key={index}>
-                            <input
-                                ref={(el) => (inputRefs.current[index] = el)}
-                                type="text"
-                                maxLength={1}
-                                value={digit}
-                                autoComplete="off"
-                                onPaste={handlePaste}
-                                onChange={(e) => handleChange(index, e.target.value)}
-                                onKeyDown={(e) => handleKeyDown(index, e)}
-                                className={`w-10 h-12 sm:w-12 sm:h-14 text-center bg-transparent 
-                                border-b-2 outline-none text-xl font-bold transition-all placeholder-transparent
-                                ${errors.otp
-                                        ? "border-red-500 text-red-500 animate-shake"
-                                        : "border-gray-200 dark:border-gray-700 focus:border-brand text-slate-900 dark:text-white"
-                                    }`}
-                            />
-                            {index === 2 && (
-                                <div className="flex items-center justify-center w-2 text-gray-300 dark:text-gray-600">
-                                    -
-                                </div>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
+            {/* OTP Inputs  */}
+            <div className="w-full px-4 mb-4 flex justify-center">
+                <Controller
+                    control={control}
+                    name="otp"
+                    render={({ field }) => (
+                        <InputOTP maxLength={6} {...field}>
+                            <InputOTPGroup>
+                                <InputOTPSlot index={0} className={slotClassName} />
+                                <InputOTPSlot index={1} className={slotClassName} />
+                                <InputOTPSlot index={2} className={slotClassName} />
+                            </InputOTPGroup>
+
+                            <InputOTPSeparator />
+
+                            <InputOTPGroup>
+                                <InputOTPSlot index={3} className={slotClassName} />
+                                <InputOTPSlot index={4} className={slotClassName} />
+                                <InputOTPSlot index={5} className={slotClassName} />
+                            </InputOTPGroup>
+                        </InputOTP>
+                    )}
+                />
             </div>
 
             {/* ERROR MESSAGE SECTION */}
@@ -207,7 +156,7 @@ export default function OtpForm({ email, password }) {
             </div>
 
             {/* Footer Actions */}
-            <div className="text-center space-y-4 mt-2">
+            <div className="text-center space-y-4 mt-4">
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                     Bạn không nhận được mã?{" "}
                     <button
@@ -225,7 +174,7 @@ export default function OtpForm({ email, password }) {
 
                 <Link
                     to={routes.signin}
-                    className="inline-flex items-center gap-1 text-xs text-slate-400 
+                    className="inline-flex items-center gap-1 text-sm text-slate-400 
                     hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
                     <ArrowLeft className="w-3 h-3" />
@@ -234,4 +183,4 @@ export default function OtpForm({ email, password }) {
             </div>
         </form>
     );
-};
+}

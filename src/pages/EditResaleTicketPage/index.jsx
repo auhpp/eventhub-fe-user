@@ -7,7 +7,7 @@ import { HttpStatusCode } from 'axios';
 import { getResalePostById, updateResalePost } from '@/services/resalePostService';
 import { getSystemConfigByKey } from '@/services/systemConfigurationService';
 import ButtonBack from '@/components/ButtonBack';
-import Step2ConfigurePrice from '../CreateResaleTicketPage/Step2ConfigurePrice';
+import Step2ConfigurePrice from '../resale/CreateResaleTicketPage/Step2ConfigurePrice';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { formatCurrency } from '@/utils/format';
 import { ResalePostStatus } from '@/utils/constant';

@@ -15,7 +15,10 @@ const TicketCard = ({ attendee, event, eventSession, booking, currentUser }) => 
 
     const isOnline = event?.type === EventType.ONLINE.key;
     const [isJoining, setIsJoining] = useState(false);
-    const isInvalid = status !== AttendeeStatus.VALID.key;
+
+    const isInvalid = status !== AttendeeStatus.VALID.key &&
+        status !== AttendeeStatus.CHECKED_IN.key &&
+        status != AttendeeStatus.OUTSIDE.key;
 
     const isGiftedAway = currentUser && owner && currentUser.id !== owner.id;
 

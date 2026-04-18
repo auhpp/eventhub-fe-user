@@ -212,7 +212,6 @@ const EventSeriesForm = ({
                                     <SelectContent>
                                         <SelectItem value="ACTIVE">Active</SelectItem>
                                         <SelectItem value="INACTIVE">Inactive</SelectItem>
-                                        <SelectItem value="UPCOMING">Upcoming</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

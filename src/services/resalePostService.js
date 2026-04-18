@@ -55,7 +55,7 @@ export const cancelResalePost = async ({ id }) => {
     return response.data;
 }
 
-export const filterResalePosts = async ({ sortType, quantity, eventSessionId, ticketId, hasRetail, 
+export const filterResalePosts = async ({ sortType, quantity, eventSessionId, ticketId, hasRetail, eventId,
     userId, statuses, page = 1, size = 10 }) => {
     const reqStatuses = statuses?.includes("ALL") ? null : statuses;
 
@@ -63,12 +63,13 @@ export const filterResalePosts = async ({ sortType, quantity, eventSessionId, ti
         sortType,
         quantity,
         eventSessionId,
+        eventId,
         ticketId,
         hasRetail,
         userId,
         statuses: reqStatuses
     }, {
-        requiresAuth: true 
+        requiresAuth: true
     });
     return response.data;
 }

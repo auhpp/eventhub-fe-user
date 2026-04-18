@@ -1,10 +1,12 @@
 import { Fragment } from "react";
-import { organizerRoutes, privateRoutes, publicRoutes } from "./routes/route.js";
+import { checkInStaffRoutes, eventManagerRoutes, organizerRoutes, privateRoutes, publicRoutes } from "./routes/route.js";
 import { Route, Routes } from "react-router-dom";
 import LoggedInRoute from "./routes/LoggedInRoute.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import OrganizerRoute from "./routes/OrganizerRoute.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import CheckInStaffRoute from "./routes/CheckInStaffRoute.jsx";
+import EventManagerRoute from "./routes/EventMangerRoute.jsx";
 
 function App() {
 
@@ -58,6 +60,40 @@ function App() {
             }
             return (
               <Route key={index} element={<OrganizerRoute path={item.path} />}>
+                <Route path={item.path} element={<Layout><Page /></Layout>} />
+              </Route>
+            );
+          }
+        )}
+        {checkInStaffRoutes.map(
+          (item, index) => {
+            var Page = item.page;
+            var Layout = Fragment;
+            if (item.layout) {
+              Layout = item.layout;
+            }
+            else if (item.layout === null) {
+              Layout = Fragment;
+            }
+            return (
+              <Route key={index} element={<CheckInStaffRoute path={item.path} />}>
+                <Route path={item.path} element={<Layout><Page /></Layout>} />
+              </Route>
+            );
+          }
+        )}
+        {eventManagerRoutes.map(
+          (item, index) => {
+            var Page = item.page;
+            var Layout = Fragment;
+            if (item.layout) {
+              Layout = item.layout;
+            }
+            else if (item.layout === null) {
+              Layout = Fragment;
+            }
+            return (
+              <Route key={index} element={<EventManagerRoute path={item.path} />}>
                 <Route path={item.path} element={<Layout><Page /></Layout>} />
               </Route>
             );

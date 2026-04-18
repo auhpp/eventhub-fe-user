@@ -115,7 +115,7 @@ const PaymentPage = () => {
 
     // Form State
     const [formData, setFormData] = useState({
-        fullname: user?.fullname || "",
+        fullname: user?.fullName || "",
         email: user.email,
         phone: user?.phoneNumber || "",
         note: ""
@@ -178,7 +178,7 @@ const PaymentPage = () => {
     useEffect(() => {
         if (useProfile) {
             setFormData({
-                fullname: user?.fullname || "",
+                fullname: user?.fullName || "",
                 email: user.email,
                 phone: user?.phoneNumber || ""
             });

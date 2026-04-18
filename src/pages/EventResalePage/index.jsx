@@ -17,7 +17,7 @@ import { filterResalePosts } from "@/services/resalePostService";
 import DefaultPagination from "@/components/DefaultPagination";
 import EventHero from "../EventDetailPage/EventHero";
 import EventResaleTicketCard from "@/features/resale/EventResaleTicketCard";
-import { SortType } from "@/utils/constant";
+import { ResalePostStatus, SortType } from "@/utils/constant";
 import { HttpStatusCode } from "axios";
 
 
@@ -65,9 +65,10 @@ const EventResalePage = () => {
                 sortType: filterSort !== SortType.NEWEST ? filterSort : null,
                 quantity: filterQuantity ? parseInt(filterQuantity) : null,
                 eventSessionId: filterSession === "ALL" ? null : filterSession,
+                eventId: filterSession === "ALL" ? eventId : null,
                 ticketId: filterTicket === "ALL" ? null : filterTicket,
                 hasRetail: filterRetail === "ALL" ? null : (filterRetail === "RETAIL"),
-                statuses: ["APPROVED"],
+                statuses: [ResalePostStatus.APPROVED],
                 page: currentPage,
                 size: pageSize
             });

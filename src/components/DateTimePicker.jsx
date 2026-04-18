@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 
-const DateTimePicker = ({ value, onChange, error, label, require }) => {
+const DateTimePicker = ({ value, onChange, error, label, require, disabled }) => {
     const dateValue = value ? new Date(value) : undefined;
 
     const handleDateSelect = (selectedDate) => {
@@ -48,6 +48,7 @@ const DateTimePicker = ({ value, onChange, error, label, require }) => {
                             !value && "text-muted-foreground",
                             error && "border-red-500 text-red-500 focus:ring-red-500"
                         )}
+                        disabled={disabled}
                     >
                         {value ? (
                             // Format display dd/MM/yyyy - HH:mm

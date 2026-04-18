@@ -10,10 +10,10 @@ export const EventSeriesContext = createContext();
 export const EventSeriesProvider = ({ children }) => {
 
     const [eventSeries, setEventSeries] = useState(null);
-    const { id } = useParams()
+    const { eventSeriesId } = useParams()
     const getEventSeriesInit = async () => {
         try {
-            const data = await getEventSeriesById({ id: id });
+            const data = await getEventSeriesById({ id: eventSeriesId });
             if (data.code === HttpStatusCode.Ok) {
                 setEventSeries(data.result);
             } else {
@@ -26,9 +26,11 @@ export const EventSeriesProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        getEventSeriesInit();
-    }, []);
+        if (eventSeriesId) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            getEventSeriesInit();
+        }
+    }, [eventSeriesId]);
 
     if (!eventSeries) {
         return (

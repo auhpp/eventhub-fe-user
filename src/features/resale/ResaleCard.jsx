@@ -6,7 +6,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
-import { formatDate, formatCurrency, formatDateTime } from "@/utils/format";
+import { formatCurrency, formatDateTime } from "@/utils/format";
 import { getEventById } from "@/services/eventService";
 import { getEventSessionById } from "@/services/eventSessionService";
 import { routes } from "@/config/routes";
@@ -91,7 +91,7 @@ const ResaleCard = ({ data }) => {
                         <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                             <div className="text-sm text-slate-500">
                                 Mã bài đăng: <span className="font-medium text-slate-700">
-                                    #{id}</span> - Tạo lúc: {formatDate(createdAt)}
+                                    {id}</span> - Tạo lúc: {formatDateTime(createdAt)}
                             </div>
                         </div>
 

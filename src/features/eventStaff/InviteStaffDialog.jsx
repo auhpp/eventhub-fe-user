@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import {
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import { RoleName } from '@/utils/constant';
 import FailedEmailsDialog from './FailedEmailsDialog';
 import { isValidEmail } from '@/utils/validates';
 import DateTimePicker from '@/components/DateTimePicker';
+import { EventContext } from '@/context/EventContext';
 
 const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
     // --- STATE ---
@@ -25,7 +26,7 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [failedEmails, setFailedEmails] = useState([]);
     const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
-
+    const { eventStaff } = useContext(EventContext)
     // Expire logic
     const [expireDuration, setExpireDuration] = useState("48");
     const [customExpireDate, setCustomExpireDate] = useState("");
@@ -170,16 +171,22 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
         }
     };
 
+
+
+    const isEventOwner = eventStaff?.role?.name == RoleName.EVENT_OWNER.key
+    const isEventAdmin = eventStaff?.role?.name == RoleName.EVENT_ADMIN.key
+    const allPermission = isEventAdmin || isEventOwner
+
     const availableRoles = [
-        RoleName.EVENT_ADMIN,
-        RoleName.EVENT_MANAGER,
+        allPermission && RoleName.EVENT_ADMIN,
+        allPermission && RoleName.EVENT_MANAGER,
         RoleName.EVENT_STAFF
-    ];
+    ].filter(Boolean);
 
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[700px]">
                     <DialogHeader>
                         <DialogTitle>Mời nhân sự tham gia</DialogTitle>
                         <DialogDescription>
@@ -189,11 +196,11 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
 
                     <div className="grid gap-5 py-4">
                         {/* Role Selection */}
-                        <div className="grid grid-cols-4 items-center gap-4">
+                        <div className="grid grid-cols-6 items-center gap-4">
                             <Label className="text-right flex items-center justify-end gap-2">
                                 Vai trò <span className="text-red-500">*</span>
                             </Label>
-                            <div className="col-span-3">
+                            <div className="col-span-5">
                                 <Select value={selectedRole} onValueChange={setSelectedRole}>
                                     <SelectTrigger className="h-auto px-3">
                                         <SelectValue placeholder="Chọn vai trò" />
@@ -203,10 +210,10 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                                             <SelectItem key={role.key} value={role.key}>
                                                 <div className="flex flex-col text-left py-1">
                                                     <span className="font-medium">{role.label}</span>
-                                                    <span className="text-[10px] text-muted-foreground mt-0.5">
+                                                    <span className=" text-muted-foreground mt-0.5">
                                                         {role.key === 'EVENT_ADMIN' ? "Quyền quản trị cao nhất" :
                                                             role.key === 'EVENT_MANAGER' ? "Quản lý sự kiện" :
-                                                             "Nhân viên hỗ trợ (Check-in)"}
+                                                                "Nhân viên hỗ trợ (Check-in)"}
                                                     </span>
                                                 </div>
                                             </SelectItem>
@@ -217,11 +224,11 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                         </div>
 
                         {/* Email Input */}
-                        <div className="grid grid-cols-4 items-start gap-4">
+                        <div className="grid grid-cols-6 items-start gap-4">
                             <Label className="text-right pt-2">Email <span className="text-red-500">*</span></Label>
-                            <div className="col-span-3 space-y-2">
+                            <div className="col-span-5 space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-xs text-muted-foreground">Mỗi email một dòng</span>
+                                    <span className="text-sm text-muted-foreground">Mỗi email một dòng</span>
                                     <div className="flex items-center gap-4">
 
                                         <button
@@ -254,7 +261,7 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                                 />
                                 {emails && (
                                     <p className="text-[10px] text-muted-foreground text-right">
-                                        Dự kiến gửi: {new Set(emails.split(/[\n,;]+/).map(e => 
+                                        Dự kiến gửi: {new Set(emails.split(/[\n,;]+/).map(e =>
                                             e.trim()).filter(e => e)).size} người
                                     </p>
                                 )}
@@ -262,9 +269,9 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                         </div>
 
                         {/* Expired Time */}
-                        <div className="grid grid-cols-4 items-start gap-4">
+                        <div className="grid grid-cols-6 items-start gap-4">
                             <Label className="text-right pt-2">Hạn xác nhận</Label>
-                            <div className="col-span-3 space-y-2">
+                            <div className="col-span-5 space-y-2">
                                 <Select value={expireDuration} onValueChange={setExpireDuration}>
                                     <SelectTrigger className="w-full">
                                         <div className="flex items-center gap-2">
@@ -294,16 +301,16 @@ const InviteStaffDialog = ({ isOpen, onClose, eventId, onSuccess }) => {
                                         <AlertCircle size={12} />
                                         Link mời sẽ hết hạn lúc: <span className="font-semibold
                                          text-foreground">{format(calculatedExpiredAt, "HH:mm dd/MM/yyyy",
-                                          { locale: vi })}</span>
+                                            { locale: vi })}</span>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         {/* Message */}
-                        <div className="grid grid-cols-4 items-start gap-4">
+                        <div className="grid grid-cols-6 items-start gap-4">
                             <Label className="text-right pt-2">Lời nhắn</Label>
-                            <div className="col-span-3">
+                            <div className="col-span-5">
                                 <Textarea
                                     placeholder="Gửi lời nhắn riêng cho nhân viên..."
                                     value={message}

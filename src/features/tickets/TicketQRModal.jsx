@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import {
     Dialog,
@@ -6,13 +6,40 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { displaySessionDate, formatTime } from "@/utils/format";
+import { Loader2 } from "lucide-react"; 
+import { displaySessionDate, formatDateTime, formatTime } from "@/utils/format";
 import { isExpiredEventSession } from "@/utils/eventUtils";
 import { AttendeeStatus } from "@/utils/constant";
+import { getTicketCode } from "@/services/attendeeService"; 
+import { toast } from "sonner";
 
 const TicketQRModal = ({ isOpen, onClose, ticketData }) => {
+    const [ticketCode, setTicketCode] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchTicketCode = async () => {
+            if (!isOpen || !ticketData?.id) return;
+
+            setIsLoading(true);
+            setTicketCode(null); 
+
+            try {
+                const code = await getTicketCode({ id: ticketData.id });
+                setTicketCode(code.result);
+            } catch (error) {
+                console.error("Lỗi khi lấy mã QR:", error);
+                toast.error("Không thể tải mã QR. Vui lòng thử lại!");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTicketCode();
+    }, [isOpen, ticketData?.id]);
+
     if (!ticketData) return null;
-    const { ticketCode, status, event, booking, eventSession } = ticketData;
+    const { status, event, booking, eventSession } = ticketData;
 
     const eventName = event?.name || "Tên sự kiện";
     const userName = booking?.customerName || "Tên khách hàng";
@@ -21,56 +48,66 @@ const TicketQRModal = ({ isOpen, onClose, ticketData }) => {
     // 1. Check condition to disable ticket
     const isPastEvent = isExpiredEventSession({ eventSession: eventSession });
     const isCancelled = status === AttendeeStatus.CANCELLED_BY_EVENT.key ||
-        status === AttendeeStatus.CANCELLED_BY_USER.key; 
-    const isCheckedIn = status === AttendeeStatus.CHECKED_IN.key; 
+        status === AttendeeStatus.CANCELLED_BY_USER.key;
+    const isCheckedIn = status === AttendeeStatus.CHECKED_IN.key;
 
-    const isUnusable = isPastEvent || isCancelled || isCheckedIn;
+    const isUnusable = isPastEvent || isCancelled;
 
     // 2. Define content display
     let overlayText = "";
     if (isCancelled) overlayText = "ĐÃ HỦY";
-    else if (isCheckedIn) overlayText = "ĐÃ CHECK-IN";
     else if (isPastEvent) overlayText = "ĐÃ KẾT THÚC";
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-sm p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900 border-none shadow-2xl rounded-3xl">
                 <DialogHeader className="sr-only">
-                    <DialogTitle>Mã vé {ticketCode}</DialogTitle>
+                    <DialogTitle>Mã vé sự kiện</DialogTitle>
                 </DialogHeader>
 
                 {/* QR Code Section */}
-                <div className="flex flex-col items-center justify-center pt-8 pb-6 bg-white dark:bg-slate-900">
-                    <div className="relative p-2 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white shadow-sm overflow-hidden">
-
-                        <div
-                            className={`transition-all duration-300 ${isUnusable ? 'blur-[4px] opacity-40' : ''}`}
-                            style={{ height: "auto", margin: "0 auto", maxWidth: 200, width: "100%" }}
-                        >
-                            <QRCode
-                                size={256}
-                                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                value={ticketCode}
-                                viewBox={`0 0 256 256`}
-                                fgColor="#000000"
-                                bgColor="#FFFFFF"
-                            />
+                <div className="flex flex-col items-center justify-center pt-8 pb-6 bg-white dark:bg-slate-900 min-h-[280px]">
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                            <span className="text-sm font-medium text-slate-500">Đang tải mã bảo mật...</span>
                         </div>
-
-                        {/* Overlay */}
-                        {isUnusable && (
-                            <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 dark:bg-slate-900/30">
-                                <div className="px-4 py-2 bg-slate-900/90 text-white font-bold rounded-lg transform -rotate-12 shadow-lg border border-white/20 tracking-wider text-sm backdrop-blur-sm">
-                                    {overlayText}
+                    ) : ticketCode ? (
+                        <>
+                            <div className="relative p-2 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white shadow-sm overflow-hidden">
+                                <div
+                                    className={`transition-all duration-300 ${isUnusable ? 'blur-[4px] opacity-40' : ''}`}
+                                    style={{ height: "auto", margin: "0 auto", maxWidth: 200, width: "100%" }}
+                                >
+                                    <QRCode
+                                        size={256}
+                                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                        value={ticketCode}
+                                        viewBox={`0 0 256 256`}
+                                        fgColor="#000000"
+                                        bgColor="#FFFFFF"
+                                    />
                                 </div>
-                            </div>
-                        )}
-                    </div>
 
-                    <p className={`mt-4 text-sm font-mono
-                         font-bold tracking-widest ${isUnusable ? 'text-slate-300 line-through' : 'text-slate-500'}`}>
-                        {ticketCode}
-                    </p>
+                                {/* Overlay */}
+                                {isUnusable && (
+                                    <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/30 dark:bg-slate-900/30">
+                                        <div className="px-4 py-2 bg-slate-900/90 text-white font-bold rounded-lg transform -rotate-12 shadow-lg border border-white/20 tracking-wider text-sm backdrop-blur-sm">
+                                            {overlayText}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <p className={`mt-4 text-sm font-mono font-bold tracking-widest ${isUnusable ? 'text-slate-300 line-through' : 'text-slate-500'}`}>
+                                {ticketCode}
+                            </p>
+                        </>
+                    ) : (
+                        <div className="text-red-500 text-sm font-medium">
+                            Không tìm thấy mã vé
+                        </div>
+                    )}
                 </div>
 
                 {/* Dashed line */}
@@ -113,12 +150,20 @@ const TicketQRModal = ({ isOpen, onClose, ticketData }) => {
                             </div>
                         </div>
                     </div>
+                    <div className=" flex flex-col mt-4">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Thời gian bắt đầu check-in</span>
+                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-200">
+                            {formatDateTime(eventSession?.checkinStartTime)}
+                        </div>
+                    </div>
 
                     <div className="mt-6 text-center">
                         <p className="text-xs text-slate-400">
                             {isUnusable
                                 ? "Vé này không còn khả dụng để quét"
-                                : "Đưa mã này cho nhân viên soát vé tại sự kiện"}
+                                : isCheckedIn
+                                    ? "Đưa mã này cho nhân viên soát vé để Check-out"
+                                    : "Đưa mã này cho nhân viên soát vé tại sự kiện"}
                         </p>
                     </div>
                 </div>

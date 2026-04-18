@@ -36,9 +36,9 @@ const HomePage = () => {
             <CategorySection />
             <EventSeriesSection />
             <FeaturedEvents />
+            <CategertEvents categoryId={1} />
             <CategertEvents categoryId={2} />
             <CategertEvents categoryId={3} />
-            <CategertEvents categoryId={52} />
             <CTASection />
         </>
 

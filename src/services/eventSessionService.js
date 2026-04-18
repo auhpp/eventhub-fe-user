@@ -16,7 +16,10 @@ export const updateEventSession = async ({ id, data }) => {
         endDateTime: formatDateForBE(data.endTime),
         meetingUrl: data.meetingUrl,
         meetingPlatform: data.meetingPlatform != "" ? data.meetingPlatform : null,
-        meetingPassword: data.meetingPassword
+        meetingPassword: data.meetingPassword,
+        qaStatus: data.qaStatus,
+        allowAnonymous: data.allowAnonymous,
+        requireModerationQuestion: data.requireModerationQuestion
     };
 
     const response = await API.put(`/api/v1/event-session/${id}`, payload, {
@@ -55,12 +58,6 @@ export const cancelEventSession = async ({ eventSessionId }) => {
     return response.data;
 };
 
-export const getEventStats = async ({ eventSessionId }) => {
-    const response = await API.get(`/api/v1/event-session/${eventSessionId}/stats/overview`, {
-        requiresAuth: true
-    });
-    return response.data;
-};
 
 export const getEventChartStats = async ({ eventSessionId, timeFilter }) => {
     const response = await API.get(`/api/v1/event-session/${eventSessionId}/stats/chart`, {

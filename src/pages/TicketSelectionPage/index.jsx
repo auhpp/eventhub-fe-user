@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import TicketSelectionItem from './TicketSelectionItem';
 import OrderSummary from '../../features/event/BookingSummary';
@@ -11,6 +11,8 @@ import { createPendingBooking, deleteBookingById, getExistsPendingBooking } from
 import { routes } from '@/config/routes';
 import PendingBookingModal from './PendingBookingModal';
 import { AttendeeType } from '@/utils/constant';
+import { AuthContext } from '@/context/AuthContex';
+import { countBoughtTicket } from '@/services/attendeeService';
 
 const TicketSelectionPage = () => {
     const [quantities, setQuantities] = useState({});
@@ -21,7 +23,8 @@ const TicketSelectionPage = () => {
     const navigate = useNavigate()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedBookingTickets, setSelectedBookingTickets] = useState(null)
-
+    const [boughtQuantities, setBoughtQuantities] = useState({});
+    const { user } = useContext(AuthContext)
     useEffect(() => {
         const fetchEventById = async () => {
             try {
@@ -76,7 +79,27 @@ const TicketSelectionPage = () => {
 
     }, [eventSessionId])
 
+    useEffect(() => {
+        if (eventSession?.tickets && user) {
+            const fetchBoughtQuantities = async () => {
+                const boughtMap = {};
+                await Promise.all(
+                    eventSession.tickets.map(async (ticket) => {
+                        try {
+                            const response = await countBoughtTicket({ ticketId: ticket.id, userId: user.id });
+                            boughtMap[ticket.id] = response.result ?? response ?? 0;
+                        } catch (error) {
+                            console.error(`Lỗi lấy số lượng vé đã mua của ticket ${ticket.id}`, error);
+                            boughtMap[ticket.id] = 0;
+                        }
+                    })
+                );
+                setBoughtQuantities(boughtMap);
+            };
 
+            fetchBoughtQuantities();
+        }
+    }, [eventSession, user]);
 
 
     if (!event || !eventSession || (booking != null && !booking)) {
@@ -104,10 +127,34 @@ const TicketSelectionPage = () => {
             const currentQty = prev[ticketId] || 0;
             const newQty = Math.max(0, currentQty + delta);
 
-            // Logic check max quantity 
             const ticket = eventSession.tickets.find(t => t.id === ticketId);
-            var soldQuantity = ticket.soldQuantity == null ? 0 : ticket.soldQuantity
-            if (newQty > ticket.maximumPerPurchase || newQty > (ticket.quantity - soldQuantity)) return prev;
+            const soldQuantity = ticket.soldQuantity == null ? 0 : ticket.soldQuantity;
+
+            const alreadyBought = boughtQuantities[ticketId] || 0;
+
+            let maxAllowed = ticket.quantity - soldQuantity;
+
+            if (ticket.maximumPerPurchase) {
+                maxAllowed = Math.min(maxAllowed, ticket.maximumPerPurchase);
+            }
+
+            if (ticket.maximumPerUser !== null && ticket.maximumPerUser !== undefined) {
+                const remainingForUser = Math.max(0, ticket.maximumPerUser - alreadyBought);
+                maxAllowed = Math.min(maxAllowed, remainingForUser);
+            }
+
+            if (newQty > maxAllowed) {
+                if (delta > 0) {
+                    if (ticket.maximumPerUser !== null && maxAllowed === Math.max(0, ticket.maximumPerUser - alreadyBought)) {
+                        toast.warning(`Bạn chỉ có thể mua thêm tối đa ${maxAllowed} vé (Đã mua: ${alreadyBought}/${ticket.maximumPerUser}).`);
+                    } else if (ticket.maximumPerPurchase && maxAllowed === ticket.maximumPerPurchase) {
+                        toast.warning(`Chỉ được mua tối đa ${ticket.maximumPerPurchase} vé trên mỗi đơn.`);
+                    } else {
+                        toast.warning(`Số lượng vé còn lại không đủ.`);
+                    }
+                }
+                return prev;
+            }
 
             return { ...prev, [ticketId]: newQty };
         });
@@ -138,7 +185,16 @@ const TicketSelectionPage = () => {
                     .replace(":bookingId", response.result.id));
             }
         } catch (error) {
-            console.log(error)
+            console.error("Lỗi tạo booking:", error);
+
+            const errorCode = error.response?.data?.code;
+
+            if (errorCode === 1059 || errorCode === 'MAXIMUM_TICKET_PER_USER') {
+                toast.error("Số lượng vé bạn chọn đã vượt quá giới hạn cho phép mỗi người.");
+            }
+            else {
+                toast.error(error.response?.data?.message || "Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại sau.");
+            }
         }
     }
 
@@ -202,7 +258,7 @@ const TicketSelectionPage = () => {
 
                     {/* RIGHT COLUMN: Order Summary */}
                     <div className="w-full lg:w-[380px] shrink-0">
-                        <div className="sticky top-4">
+                        <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pb-4">
                             <OrderSummary
                                 eventSession={eventSession}
                                 event={event}

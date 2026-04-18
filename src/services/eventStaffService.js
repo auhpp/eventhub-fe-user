@@ -51,3 +51,33 @@ export const getEventStaffById = async ({ id }) => {
     return response.data;
 };
 
+export const checkIsEventStaff = async () => {
+    const response = await API.get(`/api/v1/event-staff/check`, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const disableEventStaff = async ({ id }) => {
+    const response = await API.post(`/api/v1/event-staff/disable/${id}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+export const getEventStaffByEventId = async ({ eventId }) => {
+    const response = await API.get(`/api/v1/event-staff/role/${eventId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+
+export const changeRoleEventStaff = async ({ eventStaffId, roleName }) => {
+    const response = await API.post(`/api/v1/event-staff/change-role/${eventStaffId}`, { roleName }, {
+        requiresAuth: true
+    });
+    return response.data;
+};
+
+

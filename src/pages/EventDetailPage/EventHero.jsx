@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, MapPin, Video } from 'lucide-react';
+import { Calendar, Heart, MapPin, Video } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatTime, formatCurrency, displaySessionDate } from '@/utils/format';
+import { useFavorite } from '@/context/FavoriteContext';
 
 const EventHero = ({ event, isResale = false }) => {
     const firstSession = event.eventSessions?.[0];
     const [displayPrice, setDisplayPrice] = useState();
     const isOnline = event.type === 'ONLINE';
+
+    const { favoriteIds, toggleFavorite } = useFavorite();
+    const isFavorited = favoriteIds?.includes(event.id);
+
+
     // Find the lowest price to display "Giá từ..."
     useEffect(() => {
         if (!event || !event.eventSessions) return;
@@ -94,6 +100,11 @@ const EventHero = ({ event, isResale = false }) => {
     }
 
     const eventStatus = getEventStatus();
+
+    const handleToggleFavorite = (e) => {
+        e.stopPropagation();
+        toggleFavorite(event.id);
+    };
 
     return (
         <div className="w-full mb-8 drop-shadow-md">
@@ -234,6 +245,17 @@ const EventHero = ({ event, isResale = false }) => {
                                 Bán lại vé
                             </Badge>
                         )}
+                        <button
+                            onClick={handleToggleFavorite}
+                            className="p-2 bg-background/90 hover:bg-background rounded-full transition-colors shadow-sm"
+                        >
+                            <Heart
+                                className={`size-5 transition-colors ${isFavorited
+                                    ? 'fill-red-500 text-red-500'
+                                    : 'text-muted-foreground hover:text-red-500'
+                                    }`}
+                            />
+                        </button>
                     </div>
                 </div>
             </div>

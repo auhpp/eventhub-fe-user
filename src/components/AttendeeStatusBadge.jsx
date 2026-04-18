@@ -7,6 +7,10 @@ const AttendeeStatusBadge = ({ status }) => {
             color: "bg-yellow-100 text-yellow-700",
             label: "Chờ thanh toán"
         },
+        [AttendeeStatus.PENDING_GIFT.key]: {
+            color: "bg-yellow-100 text-yellow-700",
+            label: "Đang được tặng"
+        },
         [AttendeeStatus.VALID.key]: {
             color: "bg-gray-100 text-gray-700",
             label: "Chưa check-in"
@@ -30,6 +34,10 @@ const AttendeeStatusBadge = ({ status }) => {
         [AttendeeStatus.RESOLD.key]: {
             color: "bg-green-100 text-green-700",
             label: "Đã bán lại"
+        },
+        [AttendeeStatus.OUTSIDE.key]: {
+            color: "bg-orange-100 text-orange-700",
+            label: "Đã ra ngoài"
         },
     };
 

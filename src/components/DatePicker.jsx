@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { Calendar as CalendarIcon } from "lucide-react"; 
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -18,8 +18,8 @@ const DatePicker = ({ value, onChange, error, label, require }) => {
         newDate.setHours(0, 0, 0, 0);
 
         // format ISO 
-        const isoString = format(newDate, "yyyy-MM-dd'T'00:00:00");
-        onChange(isoString);
+        const dateString = format(newDate, "yyyy-MM-dd");
+        onChange(dateString);
     };
 
     return (
@@ -47,7 +47,7 @@ const DatePicker = ({ value, onChange, error, label, require }) => {
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                    <div className="p-3"> 
+                    <div className="p-3">
                         <Calendar
                             mode="single"
                             selected={dateValue}

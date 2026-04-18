@@ -80,7 +80,8 @@ export const AttendeeStatus = {
     PAST: { label: "Đã qua", key: 'PAST' },
     ON_RESALE: { label: "Đang bán", key: 'ON_RESALE' },
     RESOLD: { label: "Đã bán lại", key: 'RESOLD' },
-
+    OUTSIDE: { label: "Đã ra ngoài", key: 'OUTSIDE' },
+    PENDING_GIFT: { label: "Đang được tặng", key: 'PENDING_GIFT' },
 };
 
 export const EventType = {
@@ -98,7 +99,9 @@ export const TicketStatus = {
 
 export const AttendeeType = {
     BUY: 'BUY',
-    INVITE: 'INVITE'
+    INVITE: 'INVITE',
+    RESALE: 'RESALE',
+    GIFT: 'GIFT'
 }
 
 export const InvitationStatus = {
@@ -107,7 +110,7 @@ export const InvitationStatus = {
 
 
 export const EventStaffStatus = {
-    PENDING: 'PENDING', ACTIVE: 'ACTIVE', REJECTED: 'REJECTED', REVOKED: 'REVOKED'
+    PENDING: 'PENDING', ACTIVE: 'ACTIVE', REJECTED: 'REJECTED', REVOKED: 'REVOKED', INACTIVE: 'INACTIVE'
 }
 
 export const SourceType = {
@@ -139,11 +142,25 @@ export const EventSessionStatus = {
     CANCELLED: 'CANCELLED'
 }
 
+export const QAStatus = {
+    DISABLED: 'DISABLED',
+    PRE_EVENT: 'PRE_EVENT',
+    LIVE: 'LIVE'
+}
+
 export const NotificationType = {
     CREATE_EVENT_SESSION: 'CREATE_EVENT_SESSION',
     CATEGORY_EVENT: 'CATEGORY_EVENT',
     INVITE_EVENT: 'INVITE_EVENT',
     GIFT_TICKET: 'GIFT_TICKET'
+}
+
+export const WithdrawalStatus = {
+    PENDING: 'PENDING',
+    PROCESSING: 'PROCESSING',
+    COMPLETED: 'COMPLETED',
+    REJECTED: 'REJECTED',
+    CANCELLED: 'CANCELLED'
 }
 
 export const ResalePostStatus = {
@@ -157,4 +174,39 @@ export const ResalePostStatus = {
 
 export const BookingType = {
     BUY: "BUY", INVITE: "INVITE", RESALE: "RESALE"
+}
+
+export const MessageStatus = {
+    SENT: 'SENT', RECEIVED: 'RECEIVED', FAILED: 'FAILED', SEEN: 'SEEN'
+}
+
+export const MessageType = {
+    IMAGE: 'IMAGE', VIDEO: 'VIDEO', TEXT: 'TEXT'
+}
+
+export const CouponStatus = {
+    ACTIVE: 'ACTIVE',
+    INACTIVE: 'INACTIVE'
+}
+
+export const EventSeriesStatus = {
+    ACTIVE: 'ACTIVE', INACTIVE: 'INACTIVE'
+}
+
+export const OrganizerType = {
+    ORGANIZATION: 'ORGANIZATION', PERSONAL: 'PERSONAL'
+}
+
+
+export const ActionType = {
+    IN: 'IN', OUT: 'OUT'
+}
+
+export const QuestionStatus = {
+    PENDING: 'PENDING',
+    APPROVED: 'APPROVED',
+    PINNED: 'PINNED',
+    REPLYING: 'REPLYING',
+    RESOLVED: 'RESOLVED',
+    REJECTED: 'REJECTED'
 }

@@ -23,3 +23,38 @@ export const getUserByEmail = async ({ email }) => {
     });
     return response.data;
 };
+
+export const createSocialLink = async (socialLinksArray) => {
+    const response = await API.post(`/api/v1/user/social-link`, socialLinksArray, {
+        requiresAuth: true,
+    });
+    return response.data;
+};
+
+export const updateSocialLink = async (socialLinksArray) => {
+    const response = await API.put(`/api/v1/user/social-link`, socialLinksArray, {
+        requiresAuth: true,
+    });
+    return response.data;
+};
+
+export const getUserById = async ({ id }) => {
+    const response = await API.get(`/api/v1/user/${id}`, {
+        requiresAuth: true,
+    });
+    return response.data;
+};
+
+export const sendEmailResetPassword = async ({ email }) => {
+    const response = await API.post(`/api/v1/user/send-email/reset-password`, { email }, {
+        requiresAuth: false,
+    });
+    return response.data;
+};
+
+export const resetPassword = async ({ email, newPassword, otpCode }) => {
+    const response = await API.post(`/api/v1/user/reset-password`, { email, newPassword, otpCode }, {
+        requiresAuth: false,
+    });
+    return response.data;
+};

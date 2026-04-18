@@ -40,7 +40,7 @@ const CategeryEvents = ({ categoryId }) => {
     return (
         <section className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <div className="mb-2 flex items-center justify-between">
-                <h2 className="text-lg font-bold tracking-tight">{events[0].category.name}</h2>
+                <h2 className="text-lg font-bold tracking-tight">{events[0]?.category.name}</h2>
                 <button
                     onClick={() => navigate(`/search?categoryId=${categoryId}`)}
                     className="flex items-center gap-1 text-sm font-medium text-blue-500 hover:text-blue-900 transition-colors"
