@@ -22,16 +22,24 @@ const EventSeriesForm = ({
     const avatarInputRef = useRef(null);
 
     // Form States
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [status, setStatus] = useState('ACTIVE');
-    const [hasPublic, setHasPublic] = useState('true');
+    const [name, setName] = useState(initialData?.name || '');
+    const [description, setDescription] = useState(initialData?.description || '');
+
+    const [status, setStatus] = useState(() => {
+        return initialData?.status ? String(initialData.status).toUpperCase() : 'ACTIVE';
+    });
+
+    const [hasPublic, setHasPublic] = useState(() => {
+        if (!initialData || initialData.hasPublic === undefined) return 'true';
+        const pubValue = String(initialData.hasPublic).toLowerCase();
+        return (pubValue === 'false' || pubValue === '0') ? 'false' : 'true';
+    });
 
     // States for File and Preview
     const [avatarFile, setAvatarFile] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(initialData?.avatar || null);
     const [coverFile, setCoverFile] = useState(null);
-    const [coverPreview, setCoverPreview] = useState(null);
+    const [coverPreview, setCoverPreview] = useState(initialData?.coverImage || null);
 
     const [errors, setErrors] = useState({});
 
@@ -40,8 +48,16 @@ const EventSeriesForm = ({
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setName(initialData.name || '');
             setDescription(initialData.description || '');
-            setStatus(initialData.status || 'ACTIVE');
-            setHasPublic(initialData.hasPublic?.toString() || 'true');
+
+            if (initialData.status) {
+                setStatus(String(initialData.status).toUpperCase());
+            }
+
+            if (initialData.hasPublic !== undefined) {
+                const pubValue = String(initialData.hasPublic).toLowerCase();
+                setHasPublic((pubValue === 'false' || pubValue === '0') ? 'false' : 'true');
+            }
+
             setAvatarPreview(initialData.avatar || null);
             setCoverPreview(initialData.coverImage || null);
         }
@@ -223,8 +239,8 @@ const EventSeriesForm = ({
                                         <SelectValue placeholder="Chọn quyền riêng tư" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="true">Công khai (Public)</SelectItem>
-                                        <SelectItem value="false">Riêng tư (Private)</SelectItem>
+                                        <SelectItem value='true'>Công khai (Public)</SelectItem>
+                                        <SelectItem value='false'>Riêng tư (Private)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

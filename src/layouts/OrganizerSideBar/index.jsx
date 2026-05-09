@@ -38,17 +38,20 @@ const OrganizerSidebar = () => {
                         Organizer Center
                     </h1>
                 </div>
-                <div className="py-2 mb-2">
-                    <Button
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg shadow-brand/30"
-                        onClick={() => navigate(routes.createEvent)}
-                    >
+                {
+                    isOgranizer &&
+                    <div className="py-2 mb-2">
+                        <Button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg shadow-brand/30"
+                            onClick={() => navigate(routes.createEvent)}
+                        >
 
 
-                        <Plus className="size-5" />
-                        Tạo sự kiện mới
-                    </Button>
-                </div>
+                            <Plus className="size-5" />
+                            Tạo sự kiện mới
+                        </Button>
+                    </div>
+                }
                 {/* Navigation */}
                 <nav className="flex flex-col gap-1.5 flex-1">
                     {navItems.map((item, index) => {

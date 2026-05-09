@@ -42,7 +42,23 @@ export const useChatWebSocket = () => {
                     if (message.body) {
                         const newMsg = JSON.parse(message.body);
                         setRealtimeMessage(newMsg);
-                        markMessageReceived(newMsg.id).catch(console.error);
+
+                        const senderId = newMsg.sender?.id || newMsg.senderId;
+                        if (senderId && senderId !== currentUser.id) {
+                            setUserStatusUpdate({
+                                id: senderId,
+                                isOnline: true,
+                                lastSeen: null
+                            });
+                        }
+                        const isFromOtherUser = newMsg.senderId && newMsg.senderId !== currentUser.id;
+                        const isNotReceivedYet = newMsg.status !== 'RECEIVED' && newMsg.status !== 'SEEN';
+
+                        if (isFromOtherUser && isNotReceivedYet) {
+                            markMessageReceived(newMsg.id).catch(console.error);
+                        }
+
+
                     }
                 });
 
@@ -63,7 +79,7 @@ export const useChatWebSocket = () => {
                         if (statusData.id == currentUser.id && statusData.isOnline) {
                             receiveAllMessageInConversation()
                         }
-                        console.log(statusData)
+                        console.log("User status update:", statusData)
                     }
                 });
                 // 4. connection keep-alive by sending ping every 3 minutes

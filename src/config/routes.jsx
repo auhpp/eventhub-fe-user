@@ -72,6 +72,7 @@ export const routes = {
     eventSeriesSearch: "/event-series/search",
     eventTagSearch: "/event/tag/:slug",
     forgetPassword: "/forget-password",
+    organizerReview: "/organizer/:organizerId/review",
 
 
 }

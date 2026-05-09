@@ -97,8 +97,14 @@ const ChatPage = () => {
     useEffect(() => {
         if (conversations.length > 0 && activeIdFromUrl) {
             const foundConv = conversations.find(c => String(c.id) === String(activeIdFromUrl));
-            if (foundConv && (!activeConversation || activeConversation.id !== foundConv.id)) {
-                setActiveConversation(foundConv);
+
+            if (foundConv) {
+                setActiveConversation(prevActive => {
+                    if (!prevActive || prevActive.id !== foundConv.id || JSON.stringify(prevActive) !== JSON.stringify(foundConv)) {
+                        return foundConv;
+                    }
+                    return prevActive;
+                });
             }
         }
     }, [conversations, activeIdFromUrl]);
@@ -153,15 +159,14 @@ const ChatPage = () => {
         setSearchParams({ id: conv.id });
     };
 
-    // Handle conversation deletion
-    const handleConversationDeleted = () => {
-        setActiveConversation(null);
-        searchParams.delete('id');
-        setSearchParams(searchParams);
+    const handleRefreshConversations = useCallback(() => {
+        fetchConversations(1);
+    }, [fetchConversations]);
+
+    const handleConversationDisabled = useCallback(() => {
         setPage(1);
         fetchConversations(1);
-    };
-
+    }, [fetchConversations]);
     return (
         <div className="flex h-[calc(100vh-64px)] w-full bg-white dark:bg-gray-900 border-t mx-auto
          max-w-7xl overflow-hidden">
@@ -189,11 +194,11 @@ const ChatPage = () => {
                     <ChatWindow
                         conversation={activeConversation}
                         currentUser={currentUser}
-                        refreshConversations={() => fetchConversations(1)}
+                        refreshConversations={handleRefreshConversations}  
                         realtimeMessage={realtimeMessage}
                         realtimeStatus={realtimeStatus}
                         userStatusUpdate={userStatusUpdate}
-                        onDeleted={handleConversationDeleted}
+                        onDisabled={handleConversationDisabled}
                     />
                 ) : (
                     <div className="flex-1 flex items-center justify-center flex-col text-gray-400">

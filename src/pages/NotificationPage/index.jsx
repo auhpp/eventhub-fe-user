@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Bell, Check, Trash2, Calendar, Folder, UserPlus, Gift } from 'lucide-react';
+import { Bell, Check, Trash2, Calendar, Folder, UserPlus, Gift, Layers, Megaphone } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import DefaultPagination from '@/components/DefaultPagination';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +21,18 @@ const renderNotificationContent = (notif) => {
             return (
                 <span>
                     Sự kiện <strong>{target}</strong> vừa được thêm vào danh mục <strong>{subject}</strong>.
+                </span>
+            );
+        case NotificationType.EVENT_SERIES_EVENT:
+            return (
+                <span>
+                    Chuỗi sự kiện <strong>{subject}</strong> vừa có thêm sự kiện mới: <strong>{target}</strong>.
+                </span>
+            );
+        case NotificationType.ORGANIZER_NEW_EVENT:
+            return (
+                <span>
+                    Nhà tổ chức <strong>{subject}</strong> vừa ra mắt sự kiện mới: <strong>{target}</strong>.
                 </span>
             );
         case NotificationType.INVITE_EVENT:
@@ -44,6 +56,9 @@ const getIconByType = (type) => {
     switch (type) {
         case NotificationType.CREATE_EVENT_SESSION: return <Calendar className="h-4 w-4 text-blue-500" />;
         case NotificationType.CATEGORY_EVENT: return <Folder className="h-4 w-4 text-yellow-500" />;
+        case NotificationType.EVENT_SERIES_EVENT: return <Layers className="h-4 w-4 text-orange-500" />;
+        case NotificationType.ORGANIZER_NEW_EVENT: return <Megaphone className="h-4 w-4 text-pink-500" />;
+
         case NotificationType.INVITE_EVENT: return <UserPlus className="h-4 w-4 text-green-500" />;
         case NotificationType.GIFT_TICKET: return <Gift className="h-4 w-4 text-purple-500" />;
         default: return <Bell className="h-4 w-4 text-gray-500" />;
@@ -56,7 +71,10 @@ const getNotificationUrl = (type, targetId) => {
     switch (type) {
         case NotificationType.CREATE_EVENT_SESSION:
         case NotificationType.INVITE_EVENT:
+        case NotificationType.EVENT_SERIES_EVENT:
+        case NotificationType.ORGANIZER_NEW_EVENT:
             return routes.eventDetail.replace(':id', targetId);
+
         case NotificationType.CATEGORY_EVENT:
             return routes.categoryDetail.replace(':categoryId', targetId);
         case NotificationType.GIFT_TICKET:
@@ -85,7 +103,6 @@ const NotificationPage = () => {
         fetchNotifications(currentPage, pageSize);
     }, [currentPage, pageSize, fetchNotifications]);
 
-
     const handleNotificationClick = async (notif) => {
         if (!notif.seen) {
             await handleMarkAsRead(notif.id);
@@ -103,7 +120,6 @@ const NotificationPage = () => {
             <div className="mb-8 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                        <Bell className="h-6 w-6 text-brand" />
                         Thông báo của bạn
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -155,7 +171,7 @@ const NotificationPage = () => {
                                         <span className="h-2 w-2 rounded-full bg-brand sm:hidden"></span>
                                     )}
                                     <h4 className={`text-base font-medium ${notif.seen ? 'text-gray-700' :
-                                         'text-foreground font-semibold'}`}>
+                                        'text-foreground font-semibold'}`}>
                                         {notif.subject || 'Hệ thống'}
                                     </h4>
                                 </div>
@@ -172,7 +188,7 @@ const NotificationPage = () => {
                                 {!notif.seen && (
                                     <button
                                         onClick={(e) => {
-                                            e.stopPropagation(); 
+                                            e.stopPropagation();
                                             handleMarkAsRead(notif.id);
                                         }}
                                         className="p-2 text-gray-400 hover:text-brand hover:bg-white rounded-md 
@@ -184,7 +200,7 @@ const NotificationPage = () => {
                                 )}
                                 <button
                                     onClick={(e) => {
-                                        e.stopPropagation(); 
+                                        e.stopPropagation();
                                         handleDelete(notif.id);
                                     }}
                                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-white rounded-md 

@@ -70,6 +70,7 @@ export default function CreateResaleTicketPage() {
         return bookingData.attendees.filter(a =>
             a.status === AttendeeStatus.VALID.key &&
             a.type !== AttendeeType.INVITE &&
+            a.type !== AttendeeType.GIFT &&
             a.sourceType !== SourceType.GIFT &&
             a.sourceType !== SourceType.INVITATION
         );

@@ -8,9 +8,10 @@ import { AuthContext } from "@/context/AuthContex";
 import ResaleTicketCard from "@/features/resale/ResaleCard";
 import { filterResalePosts } from "@/services/resalePostService";
 import { ResalePostStatus } from "@/utils/constant";
+import RefreshButton from "@/components/RefreshButton";
 
 const ResaleTicketPage = () => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [resalePosts, setResalePosts] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
@@ -27,45 +28,43 @@ const ResaleTicketPage = () => {
         { value: "CANCELLED", label: "Đã hủy" },
     ];
 
+    const fetchResalePosts = async () => {
+        if (!user?.id) return;
+
+        try {
+
+            let statusParams = [];
+            if (activeTab === "SELLING") {
+                statusParams = [ResalePostStatus.PENDING, ResalePostStatus.APPROVED];
+            } else if (activeTab === "SOLD") {
+                statusParams = [ResalePostStatus.SOLD];
+            } else if (activeTab === "CANCELLED") {
+                statusParams = [ResalePostStatus.CANCELLED_BY_USER, ResalePostStatus.REJECTED,
+                ResalePostStatus.CANCELLED_BY_ADMIN
+                ];
+            }
+
+            const response = await filterResalePosts({
+                userId: user.id,
+                statuses: statusParams,
+                page: currentPage,
+                size: pageSize
+            });
+
+            if (response.code === HttpStatusCode.Ok) {
+                const resData = response.result;
+                setResalePosts(resData.data || []);
+                setTotalPages(resData.totalPage || 1);
+                setTotalElements(resData.totalElements || 0);
+            }
+        } catch (error) {
+            console.log("Error fetching resale posts:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     // Fetch data 
     useEffect(() => {
-        const fetchResalePosts = async () => {
-            if (!user?.id) return;
-
-            try {
-                setIsLoading(true);
-
-
-                let statusParams = [];
-                if (activeTab === "SELLING") {
-                    statusParams = [ResalePostStatus.PENDING, ResalePostStatus.APPROVED];
-                } else if (activeTab === "SOLD") {
-                    statusParams = [ResalePostStatus.SOLD];
-                } else if (activeTab === "CANCELLED") {
-                    statusParams = [ResalePostStatus.CANCELLED_BY_USER, ResalePostStatus.REJECTED,
-                    ResalePostStatus.CANCELLED_BY_ADMIN
-                    ];
-                }
-
-                const response = await filterResalePosts({
-                    userId: user.id,
-                    statuses: statusParams,
-                    page: currentPage,
-                    size: pageSize
-                });
-
-                if (response.code === HttpStatusCode.Ok) {
-                    const resData = response.result;
-                    setResalePosts(resData.data || []);
-                    setTotalPages(resData.totalPage || 1);
-                    setTotalElements(resData.totalElements || 0);
-                }
-            } catch (error) {
-                console.log("Error fetching resale posts:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchResalePosts();
     }, [activeTab, currentPage, user]);
 
@@ -89,6 +88,7 @@ const ResaleTicketPage = () => {
                         Quản lý các bài đăng bán lại vé, theo dõi trạng thái và doanh thu.
                     </p>
                 </div>
+                <RefreshButton onClick={() => fetchResalePosts()} isLoading={isLoading} />
             </div>
 
             {/* Filters & List */}

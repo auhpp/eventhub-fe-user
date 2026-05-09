@@ -79,7 +79,7 @@ const InvitationResponsePage = () => {
     const handleAccept = async () => {
         try {
             await acceptEventInvitation({ token });
-            toast.success("Đã xác nhận tham gia! Vé đã được gửi tới email.");
+            toast.success("Đã xác nhận tham gia! Vé đã được tạo cho bạn.");
             setIsProcessed(true);
             setIsAcceptOpen(false);
             // Reload data invitation 

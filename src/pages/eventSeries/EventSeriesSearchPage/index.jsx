@@ -25,14 +25,16 @@ const EventSeriesSearchPage = () => {
             try {
 
                 const requestPayload = {
-                    status: 'ACTIVE',
-                    name: keyword == "" ? null : keyword
+                    name: keyword == "" ? null : keyword,
+                    statuses: ['ACTIVE'],
+                    hasPublic: true
                 };
 
                 const response = await getEventSeries({
                     searchData: requestPayload,
                     page: currentPage,
-                    size: pageSize
+                    size: pageSize,
+
                 });
 
                 if (response.code === HttpStatusCode.Ok) {
@@ -57,7 +59,7 @@ const EventSeriesSearchPage = () => {
             } else {
                 prev.delete(key);
             }
-            prev.set("page", "1"); 
+            prev.set("page", "1");
             return prev;
         });
     };

@@ -104,7 +104,7 @@ const InviteGuestDialog = ({ isOpen, onClose, sessions, currentSessionId, onSucc
         if (!selectedTicketId) return toast.error("Vui lòng chọn loại vé");
         if (!emails.trim()) return toast.error("Vui lòng nhập email khách mời");
         if (quantity > remainingQuota) return toast.error(`Số lượng mời vượt quá hạn ngạch (${remainingQuota})`);
-
+        if(quantity == 0) return toast.error("Số lượng phải lớn hơn 0");
         if (!calculatedExpiredAt) return toast.error("Vui lòng chọn thời hạn xác nhận hợp lệ");
 
         if (currentSession?.startDateTime) {

@@ -17,7 +17,8 @@ const WithdrawalHistory = ({
     pageSize,
     totalPages,
     totalElements,
-    setSearchParams
+    setSearchParams,
+    isOrganizer = false
 }) => {
     const navigate = useNavigate()
     return (
@@ -87,8 +88,16 @@ const WithdrawalHistory = ({
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem
-                                                    onClick={() => navigate(routes.withdrawalRequestDetail.replace(
-                                                        ":id", item.id))}>
+                                                    onClick={() => {
+                                                        if (isOrganizer) {
+                                                            navigate(routes.organizerWithdrawalRequestDetail.replace(
+                                                                ":id", item.id))
+                                                        }
+                                                        else {
+                                                            navigate(routes.withdrawalRequestDetail.replace(
+                                                                ":id", item.id))
+                                                        }
+                                                    }}>
                                                     Xem chi tiết
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
@@ -102,15 +111,13 @@ const WithdrawalHistory = ({
             </div>
 
             {withdrawals.length > 0 && (
-                <div className="mt-4 flex justify-end">
-                    <DefaultPagination
-                        currentPage={currentPage}
-                        setSearchParams={setSearchParams}
-                        totalPages={totalPages}
-                        totalElements={totalElements}
-                        pageSize={pageSize}
-                    />
-                </div>
+                <DefaultPagination
+                    currentPage={currentPage}
+                    setSearchParams={setSearchParams}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    pageSize={pageSize}
+                />
             )}
         </div>
     );

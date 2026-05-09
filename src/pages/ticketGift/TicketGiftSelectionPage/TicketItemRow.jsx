@@ -10,7 +10,7 @@ import { isExpiredEventSession } from '@/utils/eventUtils';
 const TicketItemRow = ({ attendee, isSelected, onToggle }) => {
     const isGifted = attendee.sourceType === SourceType.GIFT;
     const isUnusable = isAttendeeUnusable({ attendee: attendee })
-    const isTransferable = attendee.sourceType === SourceType.PURCHASE && !isGifted && !isUnusable;
+    const isTransferable = (attendee.sourceType === SourceType.PURCHASE || attendee.sourceType == SourceType.RESALE) && !isGifted && !isUnusable;
     const { user } = useContext(AuthContext)
 
     const isEventExpired = isExpiredEventSession({ eventSession: attendee.eventSession });

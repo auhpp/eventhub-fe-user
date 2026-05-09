@@ -10,7 +10,7 @@ export const createTag = async (data) => {
 
 export const getAllTags = async (data = {}) => {
     const response = await API.post(`/api/v1/tag/all`, data, {
-        requiresAuth: true
+        requiresAuth: false
     });
     return response.data;
 };

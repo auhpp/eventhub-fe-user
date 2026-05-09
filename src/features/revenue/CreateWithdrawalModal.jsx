@@ -160,9 +160,7 @@ const CreateWithdrawalModal = ({ isOpen, wallet, paymentMethods, onClose, onSucc
                                         {paymentMethods.map(pm => (
                                             <SelectItem key={pm.id}
                                                 value={pm.id.toString()}>
-                                                {pm.bankCode} -
-                                                *{pm.bankAccountNo.slice(-4)}
-                                                ({pm.bankAccountName})
+                                                {pm.bankCode} - {pm.bankAccountNo} ({pm.bankAccountName})
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

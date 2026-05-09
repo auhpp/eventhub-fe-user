@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Loader2, Gift, Send, Search, Filter } from "lucide-react";
+import { Loader2, Gift, Send, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
     Select,
@@ -16,6 +16,7 @@ import TicketGiftItem from "./TicketGiftItem";
 import { TicketGiftStatus } from "@/utils/constant";
 import { AuthContext } from "@/context/AuthContex";
 import { HttpStatusCode } from "axios";
+import RefreshButton from "@/components/RefreshButton";
 
 const TicketGiftsPage = () => {
     const { user } = useContext(AuthContext);
@@ -28,7 +29,7 @@ const TicketGiftsPage = () => {
     const currentPage = parseInt(searchParams.get("page") || "1");
     const pageSize = 5;
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [gifts, setGifts] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
@@ -42,40 +43,39 @@ const TicketGiftsPage = () => {
         { value: "SENT", label: "Quà đã gửi", icon: Send },
     ];
 
+    const fetchGifts = async () => {
+        if (!user?.email) return;
+
+        try {
+
+            const isReceivedTab = activeTab === "RECEIVED";
+
+            const params = {
+                page: currentPage,
+                size: pageSize,
+                status: statusFilter === "ALL" ? null : statusFilter,
+                receiverEmail: isReceivedTab ? user.email : (searchKeyword || null),
+                senderEmail: isReceivedTab ? (searchKeyword || null) : user.email,
+            };
+
+            const response = await getTicketGifts(params);
+
+            if (response.code == HttpStatusCode.Ok) {
+                setGifts(response.result.data);
+                setTotalPages(response.result.totalPage);
+                setTotalElements(response.result.totalElements);
+            } else {
+                setGifts([]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch gifts:", error);
+            setGifts([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     // --- FETCH DATA ---
     useEffect(() => {
-        const fetchGifts = async () => {
-            if (!user?.email) return;
-
-            try {
-                setIsLoading(true);
-
-                const isReceivedTab = activeTab === "RECEIVED";
-
-                const params = {
-                    page: currentPage,
-                    size: pageSize,
-                    status: statusFilter === "ALL" ? null : statusFilter,
-                    receiverEmail: isReceivedTab ? user.email : (searchKeyword || null),
-                    senderEmail: isReceivedTab ? (searchKeyword || null) : user.email,
-                };
-
-                const response = await getTicketGifts(params);
-
-                if (response.code == HttpStatusCode.Ok) {
-                    setGifts(response.result.data);
-                    setTotalPages(response.result.totalPage);
-                    setTotalElements(response.result.totalElements);
-                } else {
-                    setGifts([]);
-                }
-            } catch (error) {
-                console.error("Failed to fetch gifts:", error);
-                setGifts([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
 
         fetchGifts();
     }, [activeTab, currentPage, user?.email, searchKeyword, statusFilter]);
@@ -169,13 +169,16 @@ const TicketGiftsPage = () => {
     return (
         <div className="dark:bg-slate-950 font-sans rounded-md">
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    Quà tặng vé
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                    Quản lý vé bạn đã gửi tặng hoặc nhận được từ bạn bè.
-                </p>
+            <div className="flex justify-between">
+                <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        Quà tặng vé
+                    </h1>
+                    <p className="text-muted-foreground mt-1">
+                        Quản lý vé bạn đã gửi tặng hoặc nhận được từ bạn bè.
+                    </p>
+                </div>
+                <RefreshButton onClick={() => fetchGifts()} isLoading={isLoading} />
             </div>
 
             {/* Tabs & Content */}

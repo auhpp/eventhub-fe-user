@@ -189,6 +189,7 @@ const UserProfilePage = () => {
                 isLoadingFollow={isLoadingFollow}
                 followersCount={followersCount}
                 eventsCount={eventsCount}
+                currentUser={currentUser}
             />
 
             <div className="mt-6">

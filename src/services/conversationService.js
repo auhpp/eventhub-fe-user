@@ -51,3 +51,10 @@ export const findByOtherMember = async ({ otherMemberId }) => {
     );
     return response.data;
 };
+
+export const disableConversation = async ({ memberId }) => {
+    const response = await API.post(`/api/v1/conversation/disable/${memberId}`, {}, {
+        requiresAuth: true
+    });
+    return response.data;
+};

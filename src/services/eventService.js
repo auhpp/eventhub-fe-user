@@ -153,3 +153,10 @@ export const eventHasResalable = async ({ id }) => {
     });
     return response.data;
 };
+
+export const changeAccessImage = async ({ eventId, accessImage }) => {
+    const response = await API.post(`/api/v1/event/access-image/${eventId}`, { accessImage }, {
+        requiresAuth: true
+    });
+    return response.data;
+};

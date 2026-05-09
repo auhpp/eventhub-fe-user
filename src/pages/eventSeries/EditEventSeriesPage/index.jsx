@@ -1,6 +1,7 @@
 import { EventSeriesContext } from "@/context/EventSeriesContext";
 import EventSeriesForm from "@/features/eventSeries/EventSeriesForm";
 import { updateEventSeries } from "@/services/eventSeriesService";
+import { Loader2 } from "lucide-react";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -21,6 +22,14 @@ const EditEventSeriesPage = () => {
             setIsLoading(false);
         }
     };
+
+    if (!eventSeries) {
+        return (
+            <div className="flex justify-center items-center h-screen w-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen ">

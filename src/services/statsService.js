@@ -50,7 +50,7 @@ export const getReviewSummary = async ({ organizerId, eventSeriesId,
             dateRangeFilter: { startDate, endDate }
         },
         {
-            requiresAuth: true
+            requiresAuth: false
         });
     return response.data;
 };

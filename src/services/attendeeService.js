@@ -94,3 +94,10 @@ export const countBoughtTicket = async ({ ticketId, userId }) => {
     });
     return response.data;
 };
+
+export const checkAttendance = async ({ eventId }) => {
+    const response = await API.get(`/api/v1/attendee/exist-attendance/${eventId}`, {
+        requiresAuth: true
+    });
+    return response.data;
+};

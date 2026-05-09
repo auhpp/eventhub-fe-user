@@ -5,7 +5,7 @@ import { AuthContext } from '@/context/AuthContex';
 import { routes } from '@/config/routes';
 import { getEventStaffByEventId } from '@/services/eventStaffService';
 import { HttpStatusCode } from 'axios';
-import Forbidden403 from '@/components/Forbidden403'; 
+import Forbidden403 from '@/components/Forbidden403';
 
 const CheckInStaffRoute = () => {
     const { user, isLoading, token } = useContext(AuthContext);
@@ -52,9 +52,8 @@ const CheckInStaffRoute = () => {
     if (!token || !user) {
         return <Navigate to={routes.signin} replace />;
     }
-
-    if (!eventStaff) {
-        return <Forbidden403 />
+    if (eventStaff?.status !== "ACTIVE") {
+        return <Forbidden403 />;
     }
 
     return <Outlet />;

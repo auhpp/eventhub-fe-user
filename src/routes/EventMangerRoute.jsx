@@ -54,8 +54,8 @@ const EventManagerRoute = () => {
         return <Navigate to={routes.signin} replace />;
     }
 
-    if (!eventStaff || eventStaff && eventStaff.role.name == RoleName.EVENT_STAFF.key) {
-        return <Forbidden403 />
+    if (!eventStaff || eventStaff.status !== "ACTIVE" || eventStaff.role.name === RoleName.EVENT_STAFF.key) {
+        return <Forbidden403 />;
     }
 
     return <Outlet />;

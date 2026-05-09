@@ -5,7 +5,7 @@ import { AttendeeStatus, EventType } from "@/utils/constant";
 import TicketQRModal from "./TicketQRModal";
 import { getMeetingUrl } from "@/services/attendeeService";
 import { toast } from "sonner";
-import { formatTime } from "@/utils/format";
+import { formatDateTime } from "@/utils/format";
 import SourceTypeBadge from "@/components/SourceTypeBadge";
 import AttendeeStatusBadge from "@/components/AttendeeStatusBadge";
 
@@ -29,11 +29,11 @@ const TicketCard = ({ attendee, event, eventSession, booking, currentUser }) => 
         }
 
         const now = new Date();
-        const startTime = new Date(eventSession?.checkingStartTime);
+        const startTime = new Date(eventSession?.checkinStartTime);
         const canJoinTime = new Date(startTime.getTime() - 15 * 60000);
-
-        if (eventSession?.checkingStartTime && (now < canJoinTime)) {
-            toast.warning(`Sự kiện chưa bắt đầu. Vui lòng quay lại vào lúc ${formatTime(canJoinTime)}`);
+        console.log(now < canJoinTime);
+        if (now < canJoinTime) {
+            toast.warning(`Sự kiện chưa bắt đầu. Vui lòng quay lại vào lúc ${formatDateTime(canJoinTime)}`);
             return;
         }
 

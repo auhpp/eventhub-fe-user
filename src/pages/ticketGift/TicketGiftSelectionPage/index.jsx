@@ -8,6 +8,7 @@ import { routes } from '@/config/routes';
 import { HttpStatusCode } from 'axios';
 import ButtonBack from '@/components/ButtonBack';
 import { AuthContext } from '@/context/AuthContex';
+import { AttendeeStatus } from '@/utils/constant';
 
 const TicketGiftSelectionPage = () => {
     const { id } = useParams();
@@ -44,7 +45,7 @@ const TicketGiftSelectionPage = () => {
     };
 
     const groupedTickets = useMemo(() =>
-        groupAttendeesByTicket(booking?.attendees.filter(a => a.owner.id == user.id)),
+        groupAttendeesByTicket(booking?.attendees.filter(a => a.owner.id == user.id && a.status === AttendeeStatus.VALID.key)),
         [booking]);
 
     const handleContinue = () => {

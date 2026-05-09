@@ -7,16 +7,21 @@ import { formatDay, formatTime } from '@/utils/format';
 const SessionSelector = ({ sessions, selectedSessionId, onSelect }) => {
     if (!sessions || sessions.length === 0) return null;
 
+    // Sắp xếp sessions tăng dần theo startDateTime
+    const sortedSessions = [...sessions].sort((a, b) => {
+        return new Date(a.startDateTime) - new Date(b.startDateTime);
+    });
+
     return (
         <div className="mb-6">
             <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
                 <CalendarDays size={16} /> Chọn khung giờ
             </h3>
             <div className="flex flex-wrap gap-2">
-                {sessions.map((session) => {
+                {sortedSessions.map((session) => {
                     const isActive = String(session.id) === String(selectedSessionId);
-                    const dateStr = formatDay(session.startDateTime)
-                    const timeStr = formatTime(session.startDateTime)
+                    const dateStr = formatDay(session.startDateTime);
+                    const timeStr = formatTime(session.startDateTime);
                     return (
                         <Button
                             key={session.id}

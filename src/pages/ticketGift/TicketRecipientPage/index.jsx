@@ -66,7 +66,7 @@ const TicketRecipientPage = () => {
             }
         } catch (error) {
             console.error("Search error", error);
-            toast.error("Lỗi kết nối");
+            toast.error("Không tìm thấy người dùng với email này");
         } finally {
             setLoading(false);
         }

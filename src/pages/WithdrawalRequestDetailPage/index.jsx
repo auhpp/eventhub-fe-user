@@ -4,7 +4,6 @@ import { getWithdrawalRequestById, updateWithdrawalRequest } from '@/services/wi
 import { formatDateTime, formatCurrency } from '@/utils/format';
 import { ArrowLeft, AlertCircle, CheckCircle2, XCircle, Info, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfirmCancelModal } from '@/components/ConfirmCancelModal';
 import { WithdrawalStatus } from '@/utils/constant';
 import WithdrawalStatusBadge from '@/components/WithdrawalStatusBadge';
+import { toast } from 'sonner';
 
 const COMMON_BANKS = [
     { code: 'VCB', name: 'Vietcombank' },
@@ -91,7 +91,7 @@ const WithdrawalRequestDetailPage = () => {
                     bankAccountName
                 }
             });
-            alert("Cập nhật lệnh rút tiền thành công!");
+            toast.success("Cập nhật lệnh rút tiền thành công!");
             fetchDetail();
         } catch (err) {
             setError(err.response?.data?.message || 'Lỗi khi cập nhật dữ liệu.');
@@ -110,11 +110,11 @@ const WithdrawalRequestDetailPage = () => {
                     amount: requestData.amount
                 }
             });
-            alert("Đã hủy lệnh rút tiền.");
+            toast.success("Đã hủy lệnh rút tiền.");
             setIsCancelModalOpen(false);
             fetchDetail();
         } catch (err) {
-            alert(err.response?.data?.message || 'Lỗi khi hủy lệnh.');
+            toast.error(err.response?.data?.message || 'Lỗi khi hủy lệnh.');
         } finally {
             setIsCancelling(false);
         }

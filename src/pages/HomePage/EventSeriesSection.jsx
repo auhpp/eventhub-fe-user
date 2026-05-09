@@ -17,7 +17,8 @@ const EventSeriesSection = () => {
                     const response = await getEventSeries({
                         searchData: {
                             userId: null,
-                            statuses: [EventSeriesStatus.ACTIVE]
+                            statuses: [EventSeriesStatus.ACTIVE],
+                            hasPulic: true
                         }, page: 1, size: 8
                     })
                     if (response.code == HttpStatusCode.Ok) {

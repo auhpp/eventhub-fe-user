@@ -6,6 +6,7 @@ import { routes } from '@/config/routes';
 import { RoleName } from '@/utils/constant';
 import { getEventStaffByEventId } from '@/services/eventStaffService';
 import { HttpStatusCode } from 'axios';
+import Forbidden403 from '@/components/Forbidden403'; 
 
 const OrganizerRoute = () => {
     const { user, isLoading, token, isEventStaff } = useContext(AuthContext);
@@ -23,7 +24,6 @@ const OrganizerRoute = () => {
 
             try {
                 const eventStaffRes = await getEventStaffByEventId({ eventId });
-
                 if (eventStaffRes.code === HttpStatusCode.Ok) {
                     setEventStaff(eventStaffRes.result);
                 } else {
@@ -40,8 +40,7 @@ const OrganizerRoute = () => {
         fetchEventStaff();
     }, [eventId]);
 
-
-    if (isLoading || eventStaffLoading || eventId && !eventStaff) {
+    if (isLoading || eventStaffLoading) {
         return (
             <div className="flex justify-center items-center h-screen w-full bg-background">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -50,21 +49,26 @@ const OrganizerRoute = () => {
     }
 
     if (!token || !user) {
-        return <Navigate to={routes.signin} />;
+        return <Navigate to={routes.signin} replace />;
     }
-    if (user && user.role.name === RoleName.ORGANIZER.key ||
-        !eventId && isEventStaff || eventStaff && eventStaff.role.name == RoleName.EVENT_ADMIN.key) {
+
+    if (
+        (user && user.role.name === RoleName.ORGANIZER.key) ||
+        (!eventId && isEventStaff) ||
+        (eventStaff && eventStaff.role.name === RoleName.EVENT_ADMIN.key && eventStaff.status === "ACTIVE")
+    ) {
         return <Outlet />;
     }
-    else if (eventStaff && (eventStaff.role.name == RoleName.EVENT_MANAGER.key ||
-        eventStaff.role.name == RoleName.EVENT_STAFF.key)
+    else if (
+        eventStaff &&
+        eventStaff.status === "ACTIVE" &&
+        (eventStaff.role.name === RoleName.EVENT_MANAGER.key || eventStaff.role.name === RoleName.EVENT_STAFF.key)
     ) {
-        return <Navigate to={routes.eventAttendee.replace(":id", eventId)} />;
+        return <Navigate to={routes.eventAttendee.replace(":id", eventId)} replace />;
     }
     else {
-        return <Navigate to={routes.home} />;
+        return <Forbidden403 />; 
     }
 };
-
 
 export default OrganizerRoute;

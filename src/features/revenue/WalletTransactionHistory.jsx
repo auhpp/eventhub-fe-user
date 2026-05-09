@@ -138,9 +138,11 @@ const WalletTransactionHistory = ({ walletId }) => {
                                                 </Badge>
                                             )}
                                         </TableCell>
-                                        <TableCell className="max-w-[200px] truncate text-slate-600" title={tx.description}>
-                                            {tx.description || tx.referenceType}
-                                            {tx.referenceId && ` (#${tx.referenceId})`}
+                                        <TableCell className="text-slate-600" title={tx.description}>
+                                            <div className="line-clamp-2 whitespace-normal break-words max-w-[250px]">
+                                                {tx.description || tx.referenceType}
+                                                {tx.referenceId && ` (#${tx.referenceId})`}
+                                            </div>
                                         </TableCell>
                                         <TableCell className={`text-right font-semibold ${isDeposit ? 'text-green-600' : 'text-red-600'}`}>
                                             {formatCurrency(tx.amount)}

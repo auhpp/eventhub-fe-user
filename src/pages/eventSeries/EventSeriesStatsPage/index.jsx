@@ -8,11 +8,11 @@ import {
     Loader2
 } from 'lucide-react';
 import { AuthContext } from '@/context/AuthContex';
-import { DashboardFilters } from '../../organizer/OrganizerStatsPage/DashboardFilters';
-import { KpiCard } from '../../organizer/OrganizerStatsPage/KpiCard';
-import OrganizerRevenueChart from '../../organizer/OrganizerStatsPage/OrganizerRevenueChart';
-import OrganizerReviewWidget from '../../organizer/OrganizerStatsPage/OrganizerReviewWidget';
-import OrganizerTopEventsTable from '../../organizer/OrganizerStatsPage/OrganizerTopEventsTable';
+import { DashboardFilters } from '../../OrganizerStatsPage/DashboardFilters';
+import { KpiCard } from '../../OrganizerStatsPage/KpiCard';
+import OrganizerRevenueChart from '../../OrganizerStatsPage/OrganizerRevenueChart';
+import OrganizerReviewWidget from '../../OrganizerStatsPage/OrganizerReviewWidget';
+import OrganizerTopEventsTable from '../../OrganizerStatsPage/OrganizerTopEventsTable';
 import { formatCurrency } from '@/utils/format';
 
 export default function EventSeriesStatsPage() {

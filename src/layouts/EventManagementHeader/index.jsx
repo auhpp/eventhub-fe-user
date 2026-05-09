@@ -8,6 +8,8 @@ import { HttpStatusCode } from "axios";
 import { toast } from "sonner";
 import { ConfirmCancelModal } from "@/components/ConfirmCancelModal";
 import { EventStatus, RoleName } from "@/utils/constant";
+import DefaultAvatar from "@/components/DefaultAvatar";
+import { Avatar } from "@/components/ui/avatar";
 
 const EventMangementHeader = () => {
     const { user, isLoading } = useContext(AuthContext);
@@ -16,11 +18,6 @@ const EventMangementHeader = () => {
     // State of Modal for cancel event
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isCanceling, setIsCanceling] = useState(false);
-
-    const getInitials = (name) => {
-        if (!name) return "U";
-        return name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
-    };
 
     // handler
     const handleCancelEvent = async () => {
@@ -107,21 +104,11 @@ const EventMangementHeader = () => {
                                         {user?.email}
                                     </p>
                                 </div>
-                                <div className="h-9 w-9 rounded-full border border-gray-200 
+                                <Avatar className="h-9 w-9 rounded-full border border-gray-200 
                                 bg-gray-100 overflow-hidden flex items-center justify-center hover:ring-2 
                                 hover:ring-brand hover:ring-offset-1 transition-all">
-                                    {user?.avatar ? (
-                                        <img
-                                            src={user.avatar}
-                                            alt={user.fullName}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-sm font-bold text-gray-600">
-                                            {getInitials(user?.fullName)}
-                                        </span>
-                                    )}
-                                </div>
+                                    <DefaultAvatar user={user} />
+                                </Avatar>
                             </>
                         )}
                     </div>
